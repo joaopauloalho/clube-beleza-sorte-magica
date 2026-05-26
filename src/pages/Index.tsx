@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
@@ -9,26 +12,47 @@ import { CheckCircle2, Gift, Trophy, Sparkles, Star, Clock, Users, Shield } from
 import { toast } from "@/hooks/use-toast";
 import { AnimatedSection, StaggeredChildren } from "@/hooks/use-scroll-animation";
 import heroImage from "@/assets/hero-woman.jpg";
+import { supabase } from "@/lib/supabase";
+import { cadastroSchema, maskWhatsApp, type CadastroFormData } from "@/lib/validations";
 
 const Index = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    whatsapp: ""
-  });
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<CadastroFormData>({ resolver: zodResolver(cadastroSchema) })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const onSubmit = async (data: CadastroFormData) => {
+    setSubmitError(null)
+    const { error } = await supabase.from('leads').insert({
+      nome: data.nome,
+      email: data.email,
+      whatsapp: data.whatsapp,
+      plano_interesse: data.plano_interesse,
+    })
+    if (error) {
+      setSubmitError(
+        error.code === '23505'
+          ? 'Este email já está cadastrado. Entre em contato para verificar sua vaga.'
+          : 'Erro ao realizar cadastro. Tente novamente.'
+      )
+      return
+    }
     toast({
       title: "Cadastro realizado com sucesso!",
       description: "Em breve entraremos em contato para confirmar sua vaga no Clube de Estética.",
-    });
-    setFormData({ name: "", email: "", whatsapp: "" });
-  };
+    })
+    reset()
+  }
 
   const scrollToForm = () => {
-    document.getElementById("cadastro")?.scrollIntoView({ behavior: "smooth" });
-  };
+    document.getElementById("cadastro")?.scrollIntoView({ behavior: "smooth" })
+  }
 
   const plans = [
     {
@@ -425,49 +449,70 @@ const Index = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-4">
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     <div className="group">
-                      <Label htmlFor="name">Nome Completo</Label>
+                      <Label htmlFor="nome">Nome Completo</Label>
                       <Input
-                        id="name"
-                        type="text"
-                        required
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        placeholder="Seu nome"
-                        className="mt-1 transition-all duration-300 focus:scale-[1.02] focus:shadow-medium"
+                        id="nome"
+                        placeholder="Seu nome completo"
+                        {...register("nome")}
+                        className={`mt-1 transition-all duration-300 focus:scale-[1.02] focus:shadow-medium ${errors.nome ? "border-red-500" : ""}`}
                       />
+                      {errors.nome && <p className="text-red-500 text-xs mt-1">{errors.nome.message}</p>}
                     </div>
+
                     <div className="group">
                       <Label htmlFor="email">E-mail</Label>
                       <Input
                         id="email"
                         type="email"
-                        required
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="seu@email.com"
-                        className="mt-1 transition-all duration-300 focus:scale-[1.02] focus:shadow-medium"
+                        {...register("email")}
+                        className={`mt-1 transition-all duration-300 focus:scale-[1.02] focus:shadow-medium ${errors.email ? "border-red-500" : ""}`}
                       />
+                      {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
                     </div>
+
                     <div className="group">
                       <Label htmlFor="whatsapp">WhatsApp</Label>
                       <Input
                         id="whatsapp"
-                        type="tel"
-                        required
-                        value={formData.whatsapp}
-                        onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                        placeholder="(00) 00000-0000"
-                        className="mt-1 transition-all duration-300 focus:scale-[1.02] focus:shadow-medium"
+                        placeholder="(99) 99999-9999"
+                        value={watch("whatsapp") ?? ""}
+                        onChange={(e) => setValue("whatsapp", maskWhatsApp(e.target.value), { shouldValidate: true })}
+                        className={`mt-1 transition-all duration-300 focus:scale-[1.02] focus:shadow-medium ${errors.whatsapp ? "border-red-500" : ""}`}
                       />
+                      {errors.whatsapp && <p className="text-red-500 text-xs mt-1">{errors.whatsapp.message}</p>}
                     </div>
-                    <Button 
-                      type="submit" 
-                      size="lg" 
+
+                    <div className="group">
+                      <Label htmlFor="plano">Plano de interesse</Label>
+                      <Select onValueChange={(v) => setValue("plano_interesse", v, { shouldValidate: true })}>
+                        <SelectTrigger className={`mt-1 ${errors.plano_interesse ? "border-red-500" : ""}`}>
+                          <SelectValue placeholder="Selecione um plano" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Beleza Essencial">Beleza Essencial — R$ 49,90/mês</SelectItem>
+                          <SelectItem value="Beleza Radiante">Beleza Radiante — R$ 69,90/mês</SelectItem>
+                          <SelectItem value="Beleza Suprema">Beleza Suprema — R$ 99,90/mês</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {errors.plano_interesse && <p className="text-red-500 text-xs mt-1">{errors.plano_interesse.message}</p>}
+                    </div>
+
+                    {submitError && (
+                      <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                        <p className="text-red-600 text-sm">{submitError}</p>
+                      </div>
+                    )}
+
+                    <Button
+                      type="submit"
+                      size="lg"
+                      disabled={isSubmitting}
                       className="w-full bg-gradient-gold hover:opacity-90 text-white shadow-gold transition-all duration-300 hover:scale-105 hover:shadow-lg"
                     >
-                      Quero Garantir Minha Vaga Agora
+                      {isSubmitting ? "Enviando..." : "Quero Garantir Minha Vaga Agora"}
                     </Button>
                     <p className="text-xs text-center text-muted-foreground mt-4">
                       Ao cadastrar, você concorda com nossos termos e condições.
