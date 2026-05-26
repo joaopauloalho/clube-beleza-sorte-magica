@@ -9,7 +9,9 @@ export interface Database {
           nome: string
           email: string
           whatsapp: string
+          cpf: string | null
           plano_interesse: string | null
+          checkout_id: string | null
           status: string
           created_at: string
         }
@@ -18,7 +20,9 @@ export interface Database {
           nome: string
           email: string
           whatsapp: string
+          cpf?: string | null
           plano_interesse?: string | null
+          checkout_id?: string | null
           status?: string
           created_at?: string
         }
@@ -27,7 +31,9 @@ export interface Database {
           nome?: string
           email?: string
           whatsapp?: string
+          cpf?: string | null
           plano_interesse?: string | null
+          checkout_id?: string | null
           status?: string
           created_at?: string
         }
