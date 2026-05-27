@@ -10,10 +10,10 @@ const schema = z.object({
   plano: z.enum(['Beleza Essencial', 'Beleza Radiante', 'Beleza Suprema']),
 })
 
-const PLAN_PRODUCTS: Record<string, string> = {
-  'Beleza Essencial': 'prod_HkEdRX1zgXN3R6rHGw5MJqs3',
-  'Beleza Radiante':  'prod_NCnDjfcbKwyFs5edEtmfUcYC',
-  'Beleza Suprema':   'prod_Nj1RaWGePckwBBeJJFH5UMyz',
+const PLAN_DETAILS: Record<string, { name: string; description: string; price: number }> = {
+  'Beleza Essencial': { name: 'Beleza Essencial', description: 'Plano Beleza Essencial - Limpeza de Pele', price: 4990 },
+  'Beleza Radiante':  { name: 'Beleza Radiante',  description: 'Plano Beleza Radiante - Peeling',          price: 7490 },
+  'Beleza Suprema':   { name: 'Beleza Suprema',   description: 'Plano Beleza Suprema - Microagulhamento',  price: 9990 },
 }
 
 const ABACATE_BASE = 'https://api.abacatepay.com'
@@ -85,27 +85,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const custJson = await custRes.json() as { data?: { id: string } }
     const customerId = custJson?.data?.id
 
-    // Create AbacatePay checkout
-    const checkoutRes = await abacatePost('/v2/checkouts/create', {
-      items: [{ id: PLAN_PRODUCTS[plano], quantity: 1 }],
+    // Create AbacatePay billing
+    const plan = PLAN_DETAILS[plano]
+    const billingRes = await abacatePost('/v1/billing/create', {
+      products: [{
+        externalId: lead.id,
+        name: plan.name,
+        description: plan.description,
+        quantity: 1,
+        price: plan.price,
+      }],
       ...(customerId ? { customerId } : {}),
-      externalId: lead.id,
+      frequency: 'ONE_TIME',
+      methods: ['PIX'],
       returnUrl: `${process.env.APP_URL}/cadastro`,
       completionUrl: `${process.env.APP_URL}/cadastro?status=aguardando`,
     })
 
-    if (!checkoutRes.ok) {
-      console.error('[checkout] error: AbacatePay checkout create failed with status', checkoutRes.status)
+    if (!billingRes.ok) {
+      const errBody = await billingRes.text()
+      console.error('[checkout] AbacatePay billing failed:', billingRes.status, errBody)
       await supabase.from('leads').delete().eq('id', lead.id)
       return res.status(502).json({ error: 'Erro ao criar link de pagamento. Tente novamente.' })
     }
 
-    const checkoutJson = await checkoutRes.json() as { data?: { id: string; url: string } }
-    const checkoutId = checkoutJson.data?.id
-    const checkoutUrl = checkoutJson.data?.url
+    const billingJson = await billingRes.json() as { data?: { id: string; url: string } }
+    const checkoutId = billingJson.data?.id
+    const checkoutUrl = billingJson.data?.url
 
     if (!checkoutId || !checkoutUrl) {
-      console.error('[checkout] error: AbacatePay checkout response missing data', checkoutJson)
+      console.error('[checkout] error: AbacatePay billing response missing data', billingJson)
       await supabase.from('leads').delete().eq('id', lead.id)
       return res.status(502).json({ error: 'Erro ao criar link de pagamento. Tente novamente.' })
     }
