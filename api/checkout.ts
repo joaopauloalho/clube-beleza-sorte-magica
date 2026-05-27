@@ -10,10 +10,10 @@ const schema = z.object({
   plano: z.enum(['Beleza Essencial', 'Beleza Radiante', 'Beleza Suprema']),
 })
 
-const PLAN_PRICES: Record<string, { price: number; label: string }> = {
-  'Beleza Essencial': { price: 4990, label: 'R$ 49,90' },
-  'Beleza Radiante':  { price: 7490, label: 'R$ 74,90' },
-  'Beleza Suprema':   { price: 9990, label: 'R$ 99,90' },
+const PLAN_DEFS: Record<string, { externalId: string; name: string; description: string; price: number }> = {
+  'Beleza Essencial': { externalId: 'clube-beleza-essencial', name: 'Clube de Beleza - Essencial', description: 'Assinatura mensal Plano Essencial', price: 4990 },
+  'Beleza Radiante':  { externalId: 'clube-beleza-radiante',  name: 'Clube de Beleza - Radiante',  description: 'Assinatura mensal Plano Radiante',  price: 7490 },
+  'Beleza Suprema':   { externalId: 'clube-beleza-suprema',   name: 'Clube de Beleza - Suprema',   description: 'Assinatura mensal Plano Suprema',   price: 9990 },
 }
 
 const ABACATE_BASE = 'https://api.abacatepay.com'
@@ -27,6 +27,38 @@ async function abacatePost(path: string, body: unknown) {
     },
     body: JSON.stringify(body),
   })
+}
+
+async function abacateGet(path: string) {
+  return fetch(`${ABACATE_BASE}${path}`, {
+    headers: { Authorization: `Bearer ${process.env.ABACATEPAY_API_KEY}` },
+  })
+}
+
+async function getOrCreateProductId(plano: string): Promise<{ id: string | null; error: string | null }> {
+  const def = PLAN_DEFS[plano]
+
+  const createRes = await abacatePost('/v2/products/create', {
+    externalId: def.externalId,
+    name: def.name,
+    description: def.description,
+    price: def.price,
+    currency: 'BRL',
+  })
+  const createBody = await createRes.text()
+  const createJson = JSON.parse(createBody) as { data?: { id: string }; error?: string }
+
+  if (createJson.data?.id) return { id: createJson.data.id, error: null }
+
+  // Try listing to find existing product
+  const listRes = await abacateGet('/v2/products/list')
+  const listBody = await listRes.text()
+  const listJson = JSON.parse(listBody) as { data?: Array<{ id: string; externalId: string }> }
+  const found = listJson.data?.find(p => p.externalId === def.externalId)
+
+  if (found?.id) return { id: found.id, error: null }
+
+  return { id: null, error: `product create: ${createBody.slice(0, 200)}` }
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -47,82 +79,68 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!,
     )
 
-    // Check for duplicate email
     const { data: existing } = await supabase
-      .from('leads')
-      .select('id')
-      .eq('email', email)
-      .maybeSingle()
+      .from('leads').select('id').eq('email', email).maybeSingle()
 
     if (existing) {
       return res.status(409).json({ error: 'Email já cadastrado. Entre em contato para verificar sua vaga.' })
     }
 
-    // Insert lead with status pendente
     const { data: lead, error: leadErr } = await supabase
       .from('leads')
       .insert({ nome, email, whatsapp, cpf, plano_interesse: plano, status: 'pendente' })
-      .select('id')
-      .single()
+      .select('id').single()
 
     if (leadErr) {
-      console.error('[checkout] lead insert error:', leadErr)
-      if (leadErr.code === '23505') {
-        return res.status(409).json({ error: 'Email já cadastrado. Entre em contato para verificar sua vaga.' })
-      }
-      return res.status(500).json({ error: 'Erro ao salvar cadastro. Tente novamente.' })
+      if (leadErr.code === '23505') return res.status(409).json({ error: 'Email já cadastrado.' })
+      return res.status(500).json({ error: 'Erro ao salvar cadastro.' })
     }
+    if (!lead) return res.status(500).json({ error: 'Erro ao salvar cadastro.' })
 
-    if (!lead) {
-      return res.status(500).json({ error: 'Erro ao salvar cadastro. Tente novamente.' })
-    }
-
-    // Create AbacatePay customer to attach to the payment
+    // Create customer
     const custRes = await abacatePost('/v2/customers/create', {
       email, name: nome, taxId: cpf, cellphone: whatsapp,
     })
     const custJson = await custRes.json() as { data?: { id: string } }
     const customerId = custJson?.data?.id
 
-    const { price } = PLAN_PRICES[plano]
+    // Get or create product
+    const { id: productId, error: productError } = await getOrCreateProductId(plano)
 
-    // Create transparent PIX checkout — method: "PIX" is required
-    const pixRes = await abacatePost('/v2/transparents/create', {
-      amount: price,
-      method: 'PIX',
-      externalId: `lead-${lead.id}`,
+    if (!productId) {
+      await supabase.from('leads').delete().eq('id', lead.id)
+      return res.status(502).json({ error: `Produto: ${productError}` })
+    }
+
+    // Hosted checkout — PIX + CARD, returns url to redirect
+    const coRes = await abacatePost('/v2/checkouts/create', {
+      items: [{ id: productId, quantity: 1 }],
+      methods: ['PIX', 'CARD'],
       ...(customerId ? { customerId } : {}),
-      completionUrl: `${process.env.APP_URL}/cadastro?status=aguardando`,
+      externalId: `lead-${lead.id}`,
       returnUrl: `${process.env.APP_URL}/cadastro`,
+      completionUrl: `${process.env.APP_URL}/cadastro?status=aguardando`,
     })
 
-    const pixBody = await pixRes.text()
+    const coBody = await coRes.text()
 
-    if (!pixRes.ok) {
-      console.error('[checkout] transparent error:', pixRes.status, pixBody)
+    if (!coRes.ok) {
       await supabase.from('leads').delete().eq('id', lead.id)
-      return res.status(502).json({ error: `AbacatePay ${pixRes.status}: ${pixBody.slice(0, 300)}` })
+      return res.status(502).json({ error: `Checkout: ${coBody.slice(0, 300)}` })
     }
 
-    const pixJson = JSON.parse(pixBody) as { error: string | null; data?: { id: string; brCode: string; brCodeBase64: string; url?: string } }
+    const coJson = JSON.parse(coBody) as { data?: { id: string; url: string } }
+    const checkoutId = coJson.data?.id
+    const checkoutUrl = coJson.data?.url
 
-    if (pixJson.error || !pixJson.data?.id) {
-      console.error('[checkout] transparent bad response:', pixBody)
+    if (!checkoutId || !checkoutUrl) {
       await supabase.from('leads').delete().eq('id', lead.id)
-      return res.status(502).json({ error: `AbacatePay error: ${pixJson.error ?? 'missing data'}` })
+      return res.status(502).json({ error: `Checkout sem URL: ${coBody.slice(0, 200)}` })
     }
 
-    await supabase.from('leads').update({ checkout_id: pixJson.data.id }).eq('id', lead.id)
+    await supabase.from('leads').update({ checkout_id: checkoutId }).eq('id', lead.id)
 
-    // If AbacatePay returns a hosted URL, redirect; otherwise show QR code
-    if (pixJson.data.url) {
-      return res.status(200).json({ checkoutUrl: pixJson.data.url })
-    }
-
-    return res.status(200).json({
-      brCode: pixJson.data.brCode,
-      brCodeBase64: pixJson.data.brCodeBase64,
-    })
+    return res.status(200).json({ checkoutUrl })
   } catch (error) {
     console.error('[checkout] error:', error)
     return res.status(500).json({ error: 'Erro interno. Tente novamente.' })

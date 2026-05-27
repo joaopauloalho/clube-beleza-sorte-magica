@@ -55,12 +55,14 @@ export default function Cadastro() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       })
-      const json = await res.json() as { brCode?: string; brCodeBase64?: string; error?: string }
+      const json = await res.json() as { checkoutUrl?: string; brCode?: string; brCodeBase64?: string; error?: string }
       if (!res.ok) {
         setSubmitError(json.error ?? 'Erro ao processar cadastro. Tente novamente.')
         return
       }
-      if (json.brCode) {
+      if (json.checkoutUrl) {
+        window.location.href = json.checkoutUrl
+      } else if (json.brCode) {
         setPixData({ brCode: json.brCode, brCodeBase64: json.brCodeBase64 ?? '' })
       }
     } catch {
