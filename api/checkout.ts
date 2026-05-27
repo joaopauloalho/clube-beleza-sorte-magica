@@ -10,23 +10,50 @@ const schema = z.object({
   plano: z.enum(['Beleza Essencial', 'Beleza Radiante', 'Beleza Suprema']),
 })
 
-const PLAN_BILLING: Record<string, { externalId: string; name: string; description: string; price: number }> = {
-  'Beleza Essencial': { externalId: 'beleza-essencial', name: 'Clube de Beleza - Plano Essencial', description: 'Acesso mensal ao Clube de Beleza Sorte Mágica - Plano Essencial', price: 4990 },
-  'Beleza Radiante':  { externalId: 'beleza-radiante',  name: 'Clube de Beleza - Plano Radiante',  description: 'Acesso mensal ao Clube de Beleza Sorte Mágica - Plano Radiante',  price: 7490 },
-  'Beleza Suprema':   { externalId: 'beleza-suprema',   name: 'Clube de Beleza - Plano Suprema',   description: 'Acesso mensal ao Clube de Beleza Sorte Mágica - Plano Suprema',   price: 9990 },
+const PLAN_DEFS: Record<string, { externalId: string; name: string; description: string; price: number }> = {
+  'Beleza Essencial': { externalId: 'beleza-essencial', name: 'Clube de Beleza - Plano Essencial', description: 'Acesso mensal ao Clube de Beleza Sorte Mágica', price: 4990 },
+  'Beleza Radiante':  { externalId: 'beleza-radiante',  name: 'Clube de Beleza - Plano Radiante',  description: 'Acesso mensal ao Clube de Beleza Sorte Mágica', price: 7490 },
+  'Beleza Suprema':   { externalId: 'beleza-suprema',   name: 'Clube de Beleza - Plano Suprema',   description: 'Acesso mensal ao Clube de Beleza Sorte Mágica', price: 9990 },
 }
 
 const ABACATE_BASE = 'https://api.abacatepay.com'
 
+function abacateHeaders() {
+  return {
+    Authorization: `Bearer ${process.env.ABACATEPAY_API_KEY}`,
+    'Content-Type': 'application/json',
+  }
+}
+
 async function abacatePost(path: string, body: unknown) {
   return fetch(`${ABACATE_BASE}${path}`, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${process.env.ABACATEPAY_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
+    headers: abacateHeaders(),
     body: JSON.stringify(body),
   })
+}
+
+async function getOrCreateProductId(plano: string): Promise<string | null> {
+  const def = PLAN_DEFS[plano]
+
+  // Try creating the product — idempotent via externalId
+  const createRes = await abacatePost('/v2/products/create', {
+    externalId: def.externalId,
+    name: def.name,
+    description: def.description,
+    price: def.price,
+    currency: 'BRL',
+  })
+  const createJson = await createRes.json() as { data?: { id: string }; error?: string }
+  if (createJson.data?.id) return createJson.data.id
+
+  console.warn('[checkout] product create failed, trying list. error:', createJson.error)
+
+  // Fall back to listing products to find the existing one
+  const listRes = await fetch(`${ABACATE_BASE}/v2/products/list`, { headers: abacateHeaders() })
+  const listJson = await listRes.json() as { data?: Array<{ id: string; externalId: string }> }
+  const found = listJson.data?.find(p => p.externalId === def.externalId)
+  return found?.id ?? null
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -66,50 +93,55 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .single()
 
     if (leadErr) {
-      console.error('[checkout] error inserting lead:', leadErr)
-      if (leadErr.code === '23505') { // unique_violation
+      console.error('[checkout] lead insert error:', leadErr)
+      if (leadErr.code === '23505') {
         return res.status(409).json({ error: 'Email já cadastrado. Entre em contato para verificar sua vaga.' })
       }
       return res.status(500).json({ error: 'Erro ao salvar cadastro. Tente novamente.' })
     }
 
     if (!lead) {
-      console.error('[checkout] error: lead insert returned no data')
       return res.status(500).json({ error: 'Erro ao salvar cadastro. Tente novamente.' })
     }
 
-    // Create AbacatePay customer (optional — links CPF to billing)
-    const custRes = await abacatePost('/v1/customers/create', {
-      name: nome, email, taxId: cpf, cellphone: whatsapp,
+    // Create AbacatePay customer (email only required; extra fields optional)
+    const custRes = await abacatePost('/v2/customers/create', {
+      email, name: nome, taxId: cpf, cellphone: whatsapp,
     })
     const custJson = await custRes.json() as { data?: { id: string } }
     const customerId = custJson?.data?.id
 
-    // Create AbacatePay billing (PIX)
-    const product = PLAN_BILLING[plano]
-    const billingRes = await abacatePost('/v1/billing/create', {
-      products: [{ ...product, quantity: 1 }],
-      ...(customerId ? { customerId } : {}),
-      returnUrl: `${process.env.APP_URL}/cadastro`,
-      completionUrl: `${process.env.APP_URL}/cadastro?status=aguardando`,
-      frequency: 'ONE_TIME',
-      methods: ['PIX'],
-    })
-
-    if (!billingRes.ok) {
-      const errBody = await billingRes.text()
-      console.error('[checkout] billing status:', billingRes.status)
-      console.error('[checkout] billing body:', errBody)
+    // Get or create product in AbacatePay
+    const productId = await getOrCreateProductId(plano)
+    if (!productId) {
+      console.error('[checkout] could not get/create product for plan:', plano)
       await supabase.from('leads').delete().eq('id', lead.id)
       return res.status(502).json({ error: 'Erro ao criar link de pagamento. Tente novamente.' })
     }
 
-    const billingJson = await billingRes.json() as { data?: { id: string; url: string } }
-    const checkoutId = billingJson.data?.id
-    const checkoutUrl = billingJson.data?.url
+    // Create hosted checkout (redirects user to AbacatePay page)
+    const checkoutRes = await abacatePost('/v2/checkouts/create', {
+      items: [{ id: productId, quantity: 1 }],
+      ...(customerId ? { customerId } : {}),
+      returnUrl: `${process.env.APP_URL}/cadastro`,
+      completionUrl: `${process.env.APP_URL}/cadastro?status=aguardando`,
+      methods: ['PIX'],
+    })
+
+    if (!checkoutRes.ok) {
+      const errBody = await checkoutRes.text()
+      console.error('[checkout] checkout status:', checkoutRes.status)
+      console.error('[checkout] checkout body:', errBody)
+      await supabase.from('leads').delete().eq('id', lead.id)
+      return res.status(502).json({ error: 'Erro ao criar link de pagamento. Tente novamente.' })
+    }
+
+    const checkoutJson = await checkoutRes.json() as { data?: { id: string; url: string } }
+    const checkoutId = checkoutJson.data?.id
+    const checkoutUrl = checkoutJson.data?.url
 
     if (!checkoutId || !checkoutUrl) {
-      console.error('[checkout] error: AbacatePay billing response missing data', billingJson)
+      console.error('[checkout] checkout response missing data:', checkoutJson)
       await supabase.from('leads').delete().eq('id', lead.id)
       return res.status(502).json({ error: 'Erro ao criar link de pagamento. Tente novamente.' })
     }
