@@ -16,8 +16,7 @@ const PLAN_PRICES: Record<string, { price: number; label: string }> = {
   'Beleza Suprema':   { price: 9990, label: 'R$ 99,90' },
 }
 
-// SDK uses v1 base URL; endpoint is /pixQrCode/create
-const ABACATE_BASE = 'https://api.abacatepay.com/v1'
+const ABACATE_BASE = 'https://api.abacatepay.com'
 
 async function abacatePost(path: string, body: unknown) {
   return fetch(`${ABACATE_BASE}${path}`, {
@@ -78,40 +77,52 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: 'Erro ao salvar cadastro. Tente novamente.' })
     }
 
-    const { price, label } = PLAN_PRICES[plano]
+    // Create AbacatePay customer to attach to the payment
+    const custRes = await abacatePost('/v2/customers/create', {
+      email, name: nome, taxId: cpf, cellphone: whatsapp,
+    })
+    const custJson = await custRes.json() as { data?: { id: string } }
+    const customerId = custJson?.data?.id
 
-    // Create PIX QR code — v1 SDK endpoint, no products required
-    const pixRes = await abacatePost('/pixQrCode/create', {
+    const { price } = PLAN_PRICES[plano]
+
+    // Create transparent PIX checkout — method: "PIX" is required
+    const pixRes = await abacatePost('/v2/transparents/create', {
       amount: price,
-      expiresIn: 3600,
-      description: `Clube de Beleza - ${plano} (${label}/mes)`,
-      customer: {
-        name: nome,
-        email,
-        taxId: cpf,
-        cellphone: whatsapp,
-      },
+      method: 'PIX',
+      externalId: `lead-${lead.id}`,
+      ...(customerId ? { customerId } : {}),
+      completionUrl: `${process.env.APP_URL}/cadastro?status=aguardando`,
+      returnUrl: `${process.env.APP_URL}/cadastro`,
     })
 
     const pixBody = await pixRes.text()
 
     if (!pixRes.ok) {
-      console.error('[checkout] pixQrCode error:', pixRes.status, pixBody)
+      console.error('[checkout] transparent error:', pixRes.status, pixBody)
       await supabase.from('leads').delete().eq('id', lead.id)
       return res.status(502).json({ error: `AbacatePay ${pixRes.status}: ${pixBody.slice(0, 300)}` })
     }
 
-    const pixJson = JSON.parse(pixBody) as { error: string | null; data?: { id: string; brCode: string; brCodeBase64: string } }
+    const pixJson = JSON.parse(pixBody) as { error: string | null; data?: { id: string; brCode: string; brCodeBase64: string; url?: string } }
 
-    if (pixJson.error || !pixJson.data?.id || !pixJson.data?.brCode) {
-      console.error('[checkout] pixQrCode bad response:', pixBody)
+    if (pixJson.error || !pixJson.data?.id) {
+      console.error('[checkout] transparent bad response:', pixBody)
       await supabase.from('leads').delete().eq('id', lead.id)
       return res.status(502).json({ error: `AbacatePay error: ${pixJson.error ?? 'missing data'}` })
     }
 
     await supabase.from('leads').update({ checkout_id: pixJson.data.id }).eq('id', lead.id)
 
-    return res.status(200).json({ brCode: pixJson.data.brCode, brCodeBase64: pixJson.data.brCodeBase64 })
+    // If AbacatePay returns a hosted URL, redirect; otherwise show QR code
+    if (pixJson.data.url) {
+      return res.status(200).json({ checkoutUrl: pixJson.data.url })
+    }
+
+    return res.status(200).json({
+      brCode: pixJson.data.brCode,
+      brCodeBase64: pixJson.data.brCodeBase64,
+    })
   } catch (error) {
     console.error('[checkout] error:', error)
     return res.status(500).json({ error: 'Erro interno. Tente novamente.' })
