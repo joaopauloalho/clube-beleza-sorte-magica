@@ -104,7 +104,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (!billingRes.ok) {
       const errBody = await billingRes.text()
-      console.error('[checkout] AbacatePay billing failed:', billingRes.status, errBody)
+      console.error('[checkout] billing status:', billingRes.status)
+      console.error('[checkout] billing body:', errBody)
       await supabase.from('leads').delete().eq('id', lead.id)
       return res.status(502).json({ error: 'Erro ao criar link de pagamento. Tente novamente.' })
     }
