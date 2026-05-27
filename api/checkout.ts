@@ -16,7 +16,8 @@ const PLAN_PRICES: Record<string, { price: number; label: string }> = {
   'Beleza Suprema':   { price: 9990, label: 'R$ 99,90' },
 }
 
-const ABACATE_BASE = 'https://api.abacatepay.com'
+// SDK uses v1 base URL; endpoint is /pixQrCode/create
+const ABACATE_BASE = 'https://api.abacatepay.com/v1'
 
 async function abacatePost(path: string, body: unknown) {
   return fetch(`${ABACATE_BASE}${path}`, {
@@ -77,36 +78,40 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: 'Erro ao salvar cadastro. Tente novamente.' })
     }
 
-    const { price } = PLAN_PRICES[plano]
+    const { price, label } = PLAN_PRICES[plano]
 
-    // Create PIX transparent payment — minimal payload to isolate error
-    const pixRes = await abacatePost('/v2/transparents/create', {
+    // Create PIX QR code — v1 SDK endpoint, no products required
+    const pixRes = await abacatePost('/pixQrCode/create', {
       amount: price,
+      expiresIn: 3600,
+      description: `Clube de Beleza - ${plano} (${label}/mes)`,
+      customer: {
+        name: nome,
+        email,
+        taxId: cpf,
+        cellphone: whatsapp,
+      },
     })
 
     const pixBody = await pixRes.text()
-    console.log('[checkout] pix status:', pixRes.status)
-    console.log('[checkout] pix body:', pixBody)
 
     if (!pixRes.ok) {
+      console.error('[checkout] pixQrCode error:', pixRes.status, pixBody)
       await supabase.from('leads').delete().eq('id', lead.id)
       return res.status(502).json({ error: `AbacatePay ${pixRes.status}: ${pixBody.slice(0, 300)}` })
     }
 
-    const pixJson = JSON.parse(pixBody) as { data?: { id: string; brCode: string; brCodeBase64: string } }
-    const pixId = pixJson.data?.id
-    const brCode = pixJson.data?.brCode
-    const brCodeBase64 = pixJson.data?.brCodeBase64
+    const pixJson = JSON.parse(pixBody) as { error: string | null; data?: { id: string; brCode: string; brCodeBase64: string } }
 
-    if (!pixId || !brCode) {
-      console.error('[checkout] pix response missing data:', pixBody)
+    if (pixJson.error || !pixJson.data?.id || !pixJson.data?.brCode) {
+      console.error('[checkout] pixQrCode bad response:', pixBody)
       await supabase.from('leads').delete().eq('id', lead.id)
-      return res.status(502).json({ error: 'Erro ao criar link de pagamento. Tente novamente.' })
+      return res.status(502).json({ error: `AbacatePay error: ${pixJson.error ?? 'missing data'}` })
     }
 
-    await supabase.from('leads').update({ checkout_id: pixId }).eq('id', lead.id)
+    await supabase.from('leads').update({ checkout_id: pixJson.data.id }).eq('id', lead.id)
 
-    return res.status(200).json({ brCode, brCodeBase64, pixId })
+    return res.status(200).json({ brCode: pixJson.data.brCode, brCodeBase64: pixJson.data.brCodeBase64 })
   } catch (error) {
     console.error('[checkout] error:', error)
     return res.status(500).json({ error: 'Erro interno. Tente novamente.' })
