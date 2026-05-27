@@ -81,16 +81,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Create PIX transparent payment — no products needed
     const pixRes = await abacatePost('/v2/transparents/create', {
-      data: {
-        amount: price,
-        description: `Clube de Beleza Sorte Mágica - ${plano} (${label}/mês)`,
-        expiresIn: 3600,
-        customer: {
-          name: nome,
-          email,
-          taxId: cpf,
-          cellphone: whatsapp,
-        },
+      amount: price,
+      description: `Clube de Beleza Sorte Mágica - ${plano} (${label}/mês)`.slice(0, 140),
+      expiresIn: 3600,
+      customer: {
+        name: nome,
+        email,
+        taxId: cpf,
+        cellphone: whatsapp,
       },
     })
 
