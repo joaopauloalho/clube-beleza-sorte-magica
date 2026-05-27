@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Entrar from "./pages/Entrar";
+import Cadastro from "./pages/Cadastro";
 import Dashboard from "./pages/Dashboard";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
@@ -23,6 +24,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/entrar" element={<Entrar />} />
+            <Route path="/cadastro" element={<Cadastro />} />
             <Route
               path="/dashboard"
               element={
