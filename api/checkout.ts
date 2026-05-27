@@ -108,8 +108,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const { id: productId, error: productError } = await getOrCreateProductId(plano)
 
     if (!productId) {
+      console.error('[checkout] product error:', productError)
       await supabase.from('leads').delete().eq('id', lead.id)
-      return res.status(502).json({ error: `Produto: ${productError}` })
+      return res.status(502).json({ error: 'Erro ao criar link de pagamento. Tente novamente.' })
     }
 
     // Hosted checkout — PIX + CARD, returns url to redirect
@@ -125,8 +126,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const coBody = await coRes.text()
 
     if (!coRes.ok) {
+      console.error('[checkout] checkout error:', coRes.status, coBody)
       await supabase.from('leads').delete().eq('id', lead.id)
-      return res.status(502).json({ error: `Checkout: ${coBody.slice(0, 300)}` })
+      return res.status(502).json({ error: 'Erro ao criar link de pagamento. Tente novamente.' })
     }
 
     const coJson = JSON.parse(coBody) as { data?: { id: string; url: string } }
@@ -134,8 +136,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const checkoutUrl = coJson.data?.url
 
     if (!checkoutId || !checkoutUrl) {
+      console.error('[checkout] checkout missing data:', coBody)
       await supabase.from('leads').delete().eq('id', lead.id)
-      return res.status(502).json({ error: `Checkout sem URL: ${coBody.slice(0, 200)}` })
+      return res.status(502).json({ error: 'Erro ao criar link de pagamento. Tente novamente.' })
     }
 
     await supabase.from('leads').update({ checkout_id: checkoutId }).eq('id', lead.id)
