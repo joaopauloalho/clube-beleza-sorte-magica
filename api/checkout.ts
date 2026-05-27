@@ -10,10 +10,10 @@ const schema = z.object({
   plano: z.enum(['Beleza Essencial', 'Beleza Radiante', 'Beleza Suprema']),
 })
 
-const PLAN_DETAILS: Record<string, { name: string; description: string; price: number }> = {
-  'Beleza Essencial': { name: 'Beleza Essencial', description: 'Plano Beleza Essencial - Limpeza de Pele', price: 4990 },
-  'Beleza Radiante':  { name: 'Beleza Radiante',  description: 'Plano Beleza Radiante - Peeling',          price: 7490 },
-  'Beleza Suprema':   { name: 'Beleza Suprema',   description: 'Plano Beleza Suprema - Microagulhamento',  price: 9990 },
+const PLAN_PRODUCTS: Record<string, string> = {
+  'Beleza Essencial': 'prod_HkEdRX1zgXN3R6rHGw5MJqs3',
+  'Beleza Radiante':  'prod_NCnDjfcbKwyFs5edEtmfUcYC',
+  'Beleza Suprema':   'prod_Nj1RaWGePckwBBeJJFH5UMyz',
 }
 
 const ABACATE_BASE = 'https://api.abacatepay.com'
@@ -85,19 +85,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const custJson = await custRes.json() as { data?: { id: string } }
     const customerId = custJson?.data?.id
 
-    // Create AbacatePay billing
-    const plan = PLAN_DETAILS[plano]
-    const billingRes = await abacatePost('/v2/billing/create', {
-      products: [{
-        externalId: lead.id,
-        name: plan.name,
-        description: plan.description,
-        quantity: 1,
-        price: plan.price,
-      }],
+    // Create AbacatePay checkout
+    const billingRes = await abacatePost('/v2/checkouts/create', {
+      products: [{ id: PLAN_PRODUCTS[plano], quantity: 1 }],
       ...(customerId ? { customerId } : {}),
-      frequency: 'ONE_TIME',
-      methods: ['PIX'],
       returnUrl: `${process.env.APP_URL}/cadastro`,
       completionUrl: `${process.env.APP_URL}/cadastro?status=aguardando`,
     })
