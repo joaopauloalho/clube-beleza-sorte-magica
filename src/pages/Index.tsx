@@ -1,91 +1,14 @@
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, Gift, Trophy, Sparkles, Star, Clock, Users, Shield } from "lucide-react";
-import { toast } from "@/hooks/use-toast";
+import { CheckCircle2, Gift, Trophy, Sparkles, Star, Users, Shield } from "lucide-react";
 import { AnimatedSection, StaggeredChildren } from "@/hooks/use-scroll-animation";
 import heroImage from "@/assets/hero-woman.jpg";
-import { supabase } from "@/lib/supabase";
-import { cadastroSchema, maskWhatsApp, type CadastroFormData } from "@/lib/validations";
+import { PLAN_LIST } from "@/lib/plans";
 
 const Index = () => {
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    watch,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<CadastroFormData>({ resolver: zodResolver(cadastroSchema) })
-
-  const [submitError, setSubmitError] = useState<string | null>(null)
-
-  const onSubmit = async (data: CadastroFormData) => {
-    setSubmitError(null)
-    const { error } = await supabase.from('leads').insert({
-      nome: data.nome,
-      email: data.email,
-      whatsapp: data.whatsapp,
-      plano_interesse: data.plano_interesse,
-    })
-    if (error) {
-      setSubmitError(
-        error.code === '23505'
-          ? 'Este email já está cadastrado. Entre em contato para verificar sua vaga.'
-          : 'Erro ao realizar cadastro. Tente novamente.'
-      )
-      return
-    }
-    toast({
-      title: "Cadastro realizado com sucesso!",
-      description: "Em breve entraremos em contato para confirmar sua vaga no Clube de Estética.",
-    })
-    reset()
-  }
-
-  const scrollToForm = () => {
-    document.getElementById("cadastro")?.scrollIntoView({ behavior: "smooth" })
-  }
-
-  const plans = [
-    {
-      name: "Beleza Essencial",
-      price: "49,90",
-      gift: "Limpeza de Pele",
-      giftValue: "197",
-      raffle: "700",
-      discount: "10%",
-      features: ["Brinde imediato", "Sorteio mensal", "Desconto em todos os procedimentos"],
-      recommended: false
-    },
-    {
-      name: "Beleza Radiante",
-      price: "69,90",
-      gift: "Peeling",
-      giftValue: "217",
-      raffle: "1.000",
-      discount: "15%",
-      features: ["Brinde imediato", "Sorteio mensal", "Desconto em todos os procedimentos"],
-      recommended: false
-    },
-    {
-      name: "Beleza Suprema",
-      price: "99,90",
-      gift: "Microagulhamento",
-      giftValue: "327",
-      raffle: "1.500",
-      discount: "20%",
-      features: ["Brinde imediato", "Sorteio mensal", "Desconto em todos os procedimentos", "Pode dividir com outra pessoa"],
-      recommended: true
-    }
-  ];
+  const navigate = useNavigate()
 
   const steps = [
     { icon: Sparkles, title: "1. Assine o plano", desc: "Escolha o plano ideal para você" },
@@ -136,10 +59,10 @@ const Index = () => {
               O primeiro consórcio da beleza com sorteios garantidos, brindes imediatos e descontos exclusivos o ano todo.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 animate-fade-in [animation-delay:400ms] opacity-0">
-              <Button 
-                size="lg" 
+              <Button
+                size="lg"
                 className="bg-gradient-primary hover:opacity-90 text-white shadow-medium transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                onClick={scrollToForm}
+                onClick={() => navigate('/cadastro')}
               >
                 Quero Participar do Clube
               </Button>
@@ -205,13 +128,13 @@ const Index = () => {
           </AnimatedSection>
           
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {plans.map((plan, index) => (
-              <AnimatedSection 
-                key={index} 
+            {PLAN_LIST.map((plan, index) => (
+              <AnimatedSection
+                key={index}
                 animation={index === 0 ? "fade-left" : index === 2 ? "fade-right" : "fade-up"}
                 delay={index * 150}
               >
-                <Card 
+                <Card
                   className={`relative overflow-hidden transition-all duration-500 hover:shadow-gold hover:-translate-y-2 ${
                     plan.recommended ? 'ring-2 ring-gold shadow-gold animate-pulse-glow' : ''
                   }`}
@@ -224,7 +147,7 @@ const Index = () => {
                   <CardHeader>
                     <CardTitle className="font-playfair text-2xl">{plan.name}</CardTitle>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-bold text-primary">R$ {plan.price}</span>
+                      <span className="text-3xl font-bold text-primary">R$ {plan.priceLabel}</span>
                       <span className="text-muted-foreground">/mês</span>
                     </div>
                     <CardDescription>Por 12 meses</CardDescription>
@@ -253,23 +176,35 @@ const Index = () => {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="pt-4 border-t">
-                      {plan.features.map((feature, idx) => (
-                        <div key={idx} className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle2 className="w-4 h-4 text-primary" />
+                        <span className="text-sm">Brinde imediato</span>
+                      </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle2 className="w-4 h-4 text-primary" />
+                        <span className="text-sm">Sorteio mensal</span>
+                      </div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle2 className="w-4 h-4 text-primary" />
+                        <span className="text-sm">Desconto em todos os procedimentos</span>
+                      </div>
+                      {plan.recommended && (
+                        <div className="flex items-center gap-2 mb-2">
                           <CheckCircle2 className="w-4 h-4 text-primary" />
-                          <span className="text-sm">{feature}</span>
+                          <span className="text-sm">Pode dividir com outra pessoa</span>
                         </div>
-                      ))}
+                      )}
                     </div>
-                    
-                    <Button 
+
+                    <Button
                       className={`w-full transition-all duration-300 hover:scale-105 ${
-                        plan.recommended 
-                          ? 'bg-gradient-gold hover:opacity-90 text-white shadow-gold' 
+                        plan.recommended
+                          ? 'bg-gradient-gold hover:opacity-90 text-white shadow-gold'
                           : 'bg-gradient-primary hover:opacity-90 text-white'
                       }`}
-                      onClick={scrollToForm}
+                      onClick={() => navigate(`/cadastro?plano=${plan.slug}`)}
                     >
                       Escolher Este Plano
                     </Button>
@@ -430,102 +365,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Formulário de Cadastro */}
-      <section id="cadastro" className="py-20 bg-gradient-primary">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto">
-            <AnimatedSection animation="scale">
-              <Card className="shadow-gold">
-                <CardHeader className="text-center">
-                  <Badge className="mx-auto mb-4 bg-gold text-white animate-pulse-glow">
-                    <Clock className="w-3 h-3 mr-1" />
-                    Vagas Limitadas - Apenas 24 por grupo
-                  </Badge>
-                  <CardTitle className="font-playfair text-3xl md:text-4xl">
-                    Garanta Sua Vaga Agora
-                  </CardTitle>
-                  <CardDescription className="text-lg">
-                    Novo grupo abre em breve! Seja uma das primeiras.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    <div className="group">
-                      <Label htmlFor="nome">Nome Completo</Label>
-                      <Input
-                        id="nome"
-                        placeholder="Seu nome completo"
-                        {...register("nome")}
-                        className={`mt-1 transition-all duration-300 focus:scale-[1.02] focus:shadow-medium ${errors.nome ? "border-red-500" : ""}`}
-                      />
-                      {errors.nome && <p className="text-red-500 text-xs mt-1">{errors.nome.message}</p>}
-                    </div>
-
-                    <div className="group">
-                      <Label htmlFor="email">E-mail</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="seu@email.com"
-                        {...register("email")}
-                        className={`mt-1 transition-all duration-300 focus:scale-[1.02] focus:shadow-medium ${errors.email ? "border-red-500" : ""}`}
-                      />
-                      {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
-                    </div>
-
-                    <div className="group">
-                      <Label htmlFor="whatsapp">WhatsApp</Label>
-                      <Input
-                        id="whatsapp"
-                        placeholder="(99) 99999-9999"
-                        value={watch("whatsapp") ?? ""}
-                        onChange={(e) => setValue("whatsapp", maskWhatsApp(e.target.value), { shouldValidate: true })}
-                        className={`mt-1 transition-all duration-300 focus:scale-[1.02] focus:shadow-medium ${errors.whatsapp ? "border-red-500" : ""}`}
-                      />
-                      {errors.whatsapp && <p className="text-red-500 text-xs mt-1">{errors.whatsapp.message}</p>}
-                    </div>
-
-                    <div className="group">
-                      <Label htmlFor="plano">Plano de interesse</Label>
-                      <Select onValueChange={(v) => setValue("plano_interesse", v, { shouldValidate: true })}>
-                        <SelectTrigger className={`mt-1 ${errors.plano_interesse ? "border-red-500" : ""}`}>
-                          <SelectValue placeholder="Selecione um plano" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Beleza Essencial">Beleza Essencial — R$ 49,90/mês</SelectItem>
-                          <SelectItem value="Beleza Radiante">Beleza Radiante — R$ 69,90/mês</SelectItem>
-                          <SelectItem value="Beleza Suprema">Beleza Suprema — R$ 99,90/mês</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {errors.plano_interesse && <p className="text-red-500 text-xs mt-1">{errors.plano_interesse.message}</p>}
-                    </div>
-
-                    {submitError && (
-                      <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                        <p className="text-red-600 text-sm">{submitError}</p>
-                      </div>
-                    )}
-
-                    <Button
-                      type="submit"
-                      size="lg"
-                      disabled={isSubmitting}
-                      className="w-full bg-gradient-gold hover:opacity-90 text-white shadow-gold transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                    >
-                      {isSubmitting ? "Enviando..." : "Quero Garantir Minha Vaga Agora"}
-                    </Button>
-                    <p className="text-xs text-center text-muted-foreground mt-4">
-                      Ao cadastrar, você concorda com nossos termos e condições.
-                      Seus dados estão seguros e não serão compartilhados.
-                    </p>
-                  </form>
-                </CardContent>
-              </Card>
-            </AnimatedSection>
-          </div>
-        </div>
-      </section>
-
       {/* CTA Final */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4 text-center">
@@ -537,10 +376,10 @@ const Index = () => {
               Não perca a oportunidade de fazer parte do primeiro consórcio da beleza do Brasil.
               Vagas limitadas para o próximo grupo!
             </p>
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="bg-gradient-primary hover:opacity-90 text-white shadow-medium transition-all duration-300 hover:scale-110 hover:shadow-lg"
-              onClick={scrollToForm}
+              onClick={() => navigate('/cadastro')}
             >
               Quero Participar do Clube de Estética
             </Button>
