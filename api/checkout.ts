@@ -87,7 +87,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Create AbacatePay checkout
     const billingRes = await abacatePost('/v2/checkouts/create', {
-      products: [{ id: PLAN_PRODUCTS[plano], quantity: 1 }],
+      products: [{ productId: PLAN_PRODUCTS[plano], quantity: 1 }],
       ...(customerId ? { customerId } : {}),
       returnUrl: `${process.env.APP_URL}/cadastro`,
       completionUrl: `${process.env.APP_URL}/cadastro?status=aguardando`,
