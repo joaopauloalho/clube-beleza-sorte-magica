@@ -14,7 +14,9 @@ interface Lead {
   nome: string
   email: string
   whatsapp: string
+  cpf: string | null
   plano_interesse: string | null
+  checkout_id: string | null
   status: string
   created_at: string
 }
@@ -170,7 +172,7 @@ export default function Admin() {
             <CardContent className="pt-6">
               <p className="text-sm text-gray-500">Membros Ativos</p>
               <p className="text-3xl font-bold text-pink-600">
-                {leads.filter((l) => l.status === 'membro').length}
+                {leads.filter((l) => l.status === 'membro' || l.status === 'ativo').length}
               </p>
             </CardContent>
           </Card>
@@ -205,6 +207,7 @@ export default function Admin() {
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
                   <SelectItem value="pendente">Pendente</SelectItem>
+                  <SelectItem value="ativo">Ativo</SelectItem>
                   <SelectItem value="membro">Membro</SelectItem>
                 </SelectContent>
               </Select>
@@ -247,7 +250,15 @@ export default function Admin() {
                       <TableCell className="text-sm">{lead.whatsapp}</TableCell>
                       <TableCell className="text-sm">{lead.plano_interesse ?? '—'}</TableCell>
                       <TableCell>
-                        <Badge className={lead.status === 'membro' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}>
+                        <Badge
+                          className={
+                            lead.status === 'membro'
+                              ? 'bg-green-100 text-green-700'
+                              : lead.status === 'ativo'
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'bg-yellow-100 text-yellow-700'
+                          }
+                        >
                           {lead.status}
                         </Badge>
                       </TableCell>
@@ -255,7 +266,7 @@ export default function Admin() {
                         {new Date(lead.created_at).toLocaleDateString('pt-BR')}
                       </TableCell>
                       <TableCell>
-                        {lead.status === 'pendente' && (
+                        {(lead.status === 'pendente' || lead.status === 'ativo') && (
                           <Button size="sm" onClick={() => convertToMember(lead)}>
                             Tornar Membro
                           </Button>
