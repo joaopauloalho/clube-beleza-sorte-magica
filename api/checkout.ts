@@ -77,19 +77,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(500).json({ error: 'Erro ao salvar cadastro. Tente novamente.' })
     }
 
-    const { price, label } = PLAN_PRICES[plano]
+    const { price } = PLAN_PRICES[plano]
 
-    // Create PIX transparent payment — no products needed
+    // Create PIX transparent payment — minimal payload to isolate error
     const pixRes = await abacatePost('/v2/transparents/create', {
       amount: price,
-      description: `Clube de Beleza Sorte Mágica - ${plano} (${label}/mês)`.slice(0, 140),
-      expiresIn: 3600,
-      customer: {
-        name: nome,
-        email,
-        taxId: cpf,
-        cellphone: whatsapp,
-      },
     })
 
     const pixBody = await pixRes.text()
