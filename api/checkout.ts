@@ -87,7 +87,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Create AbacatePay billing
     const plan = PLAN_DETAILS[plano]
-    const billingRes = await abacatePost('/v1/billing/create', {
+    const billingRes = await abacatePost('/v2/billing/create', {
       products: [{
         externalId: lead.id,
         name: plan.name,
