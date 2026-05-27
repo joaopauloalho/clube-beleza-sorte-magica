@@ -10,10 +10,10 @@ const schema = z.object({
   plano: z.enum(['Beleza Essencial', 'Beleza Radiante', 'Beleza Suprema']),
 })
 
-const PLAN_PRODUCTS: Record<string, string> = {
-  'Beleza Essencial': 'prod_HkEdRX1zgXN3R6rHGw5MJqs3',
-  'Beleza Radiante':  'prod_NCnDjfcbKwyFs5edEtmfUcYC',
-  'Beleza Suprema':   'prod_Nj1RaWGePckwBBeJJFH5UMyz',
+const PLAN_BILLING: Record<string, { externalId: string; name: string; description: string; price: number }> = {
+  'Beleza Essencial': { externalId: 'beleza-essencial', name: 'Clube de Beleza - Plano Essencial', description: 'Acesso mensal ao Clube de Beleza Sorte Mágica - Plano Essencial', price: 4990 },
+  'Beleza Radiante':  { externalId: 'beleza-radiante',  name: 'Clube de Beleza - Plano Radiante',  description: 'Acesso mensal ao Clube de Beleza Sorte Mágica - Plano Radiante',  price: 7490 },
+  'Beleza Suprema':   { externalId: 'beleza-suprema',   name: 'Clube de Beleza - Plano Suprema',   description: 'Acesso mensal ao Clube de Beleza Sorte Mágica - Plano Suprema',   price: 9990 },
 }
 
 const ABACATE_BASE = 'https://api.abacatepay.com'
@@ -79,18 +79,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Create AbacatePay customer (optional — links CPF to billing)
-    const custRes = await abacatePost('/v2/customers/create', {
-      data: { name: nome, email, taxId: cpf.replace(/\D/g, ''), cellphone: whatsapp },
+    const custRes = await abacatePost('/v1/customers/create', {
+      name: nome, email, taxId: cpf, cellphone: whatsapp,
     })
     const custJson = await custRes.json() as { data?: { id: string } }
     const customerId = custJson?.data?.id
 
-    // Create AbacatePay checkout
-    const billingRes = await abacatePost('/v2/checkouts/create', {
-      products: [{ productId: PLAN_PRODUCTS[plano], quantity: 1 }],
+    // Create AbacatePay billing (PIX)
+    const product = PLAN_BILLING[plano]
+    const billingRes = await abacatePost('/v1/billing/create', {
+      products: [{ ...product, quantity: 1 }],
       ...(customerId ? { customerId } : {}),
       returnUrl: `${process.env.APP_URL}/cadastro`,
       completionUrl: `${process.env.APP_URL}/cadastro?status=aguardando`,
+      frequency: 'ONE_TIME',
+      methods: ['PIX'],
     })
 
     if (!billingRes.ok) {
