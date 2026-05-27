@@ -99,9 +99,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     console.log('[checkout] pix body:', pixBody)
 
     if (!pixRes.ok) {
-      console.error('[checkout] pix error status:', pixRes.status, 'body:', pixBody)
       await supabase.from('leads').delete().eq('id', lead.id)
-      return res.status(502).json({ error: 'Erro ao criar link de pagamento. Tente novamente.' })
+      return res.status(502).json({ error: `AbacatePay ${pixRes.status}: ${pixBody.slice(0, 300)}` })
     }
 
     const pixJson = JSON.parse(pixBody) as { data?: { id: string; brCode: string; brCodeBase64: string } }
