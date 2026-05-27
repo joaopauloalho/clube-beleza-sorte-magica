@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { CheckCircle2, Clock, Sparkles } from 'lucide-react'
+import { CheckCircle2, Clock, Sparkles, Copy, Check } from 'lucide-react'
 import {
   cadastroComCheckoutSchema,
   maskWhatsApp,
@@ -26,6 +26,8 @@ export default function Cadastro() {
 
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(preselectedPlan ?? null)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [pixData, setPixData] = useState<{ brCode: string; brCodeBase64: string } | null>(null)
+  const [copied, setCopied] = useState(false)
 
   const {
     register,
@@ -38,6 +40,13 @@ export default function Cadastro() {
     defaultValues: { plano: preselectedPlan?.name },
   })
 
+  const copyPix = async () => {
+    if (!pixData) return
+    await navigator.clipboard.writeText(pixData.brCode)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 3000)
+  }
+
   const onSubmit = async (data: CadastroComCheckoutData) => {
     setSubmitError(null)
     try {
@@ -46,15 +55,59 @@ export default function Cadastro() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       })
-      const json = await res.json() as { checkoutUrl?: string; error?: string }
+      const json = await res.json() as { brCode?: string; brCodeBase64?: string; error?: string }
       if (!res.ok) {
         setSubmitError(json.error ?? 'Erro ao processar cadastro. Tente novamente.')
         return
       }
-      if (json.checkoutUrl) window.location.href = json.checkoutUrl
+      if (json.brCode) {
+        setPixData({ brCode: json.brCode, brCodeBase64: json.brCodeBase64 ?? '' })
+      }
     } catch {
       setSubmitError('Erro de conexão. Verifique sua internet e tente novamente.')
     }
+  }
+
+  if (pixData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center p-4">
+        <Card className="max-w-sm w-full text-center shadow-lg">
+          <CardHeader>
+            <Sparkles className="h-10 w-10 text-pink-500 mx-auto mb-2" />
+            <CardTitle className="text-xl">Pague via PIX</CardTitle>
+            <CardDescription className="text-sm mt-1">
+              Escaneie o QR code ou copie o código abaixo
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {pixData.brCodeBase64 && (
+              <img
+                src={pixData.brCodeBase64.startsWith('data:') ? pixData.brCodeBase64 : `data:image/png;base64,${pixData.brCodeBase64}`}
+                alt="QR Code PIX"
+                className="mx-auto w-48 h-48 rounded-lg border"
+              />
+            )}
+            <Button
+              onClick={copyPix}
+              variant="outline"
+              className="w-full border-pink-300 text-pink-700 hover:bg-pink-50"
+            >
+              {copied ? (
+                <><Check className="h-4 w-4 mr-2 text-green-600" />Copiado!</>
+              ) : (
+                <><Copy className="h-4 w-4 mr-2" />Copiar código PIX</>
+              )}
+            </Button>
+            <p className="text-xs text-gray-500">
+              Após o pagamento, você receberá um e-mail com acesso ao seu painel. O código expira em 1 hora.
+            </p>
+            <Button onClick={() => navigate('/')} variant="ghost" size="sm" className="text-gray-400">
+              Voltar para o início
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   if (statusParam === 'aguardando') {
@@ -151,7 +204,7 @@ export default function Cadastro() {
             </Badge>
             <CardTitle>Seus dados</CardTitle>
             <CardDescription>
-              Preencha para garantir sua vaga. Você será redirecionada para o pagamento.
+              Preencha para garantir sua vaga. Você receberá um QR code PIX para pagamento.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -231,7 +284,7 @@ export default function Cadastro() {
               </Button>
 
               <p className="text-xs text-center text-gray-400">
-                Seus dados estão protegidos. Você será redirecionada para o ambiente seguro de pagamento.
+                Seus dados estão protegidos. O pagamento é feito via PIX.
               </p>
             </form>
           </CardContent>

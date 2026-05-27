@@ -21,9 +21,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const body = req.body as WebhookPayload
 
-  // Process billing.paid (billing API) or checkout.completed (checkout API)
   const isPaid =
-    (body.event === 'billing.paid' || body.event === 'checkout.completed') &&
+    (body.event === 'checkout.completed' || body.event === 'transparent.completed') &&
     body.data?.status === 'PAID'
   if (!isPaid) {
     return res.status(200).json({ ok: true, skipped: true })
