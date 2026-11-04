@@ -37,6 +37,7 @@ export interface Database {
           status?: string
           created_at?: string
         }
+        Relationships: []
       }
       planos: {
         Row: {
@@ -72,6 +73,7 @@ export interface Database {
           destaque?: boolean
           ativo?: boolean
         }
+        Relationships: []
       }
       grupos: {
         Row: {
@@ -101,6 +103,7 @@ export interface Database {
           status?: string
           created_at?: string
         }
+        Relationships: []
       }
       membros: {
         Row: {
@@ -133,6 +136,7 @@ export interface Database {
           data_contemplacao?: string | null
           created_at?: string
         }
+        Relationships: []
       }
     }
     Views: Record<string, never>
