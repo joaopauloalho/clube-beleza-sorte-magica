@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "abacate-pay": {
+      "command": "bun",
+      "args": ["${workspaceFolder}/tools/abacatepay-mcp/src/index.ts"],
+      "env": {
+        "ABACATE_PAY_API_KEY": "${env:ABACATE_PAY_API_KEY}"
+      }
+    },
+    "abacatepay": {
+      "url": "https://mcp.abacatepay.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:ABACATE_PAY_API_KEY}"
+      }
+    }
+  }
+}

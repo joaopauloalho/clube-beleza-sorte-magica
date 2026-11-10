@@ -2,10 +2,13 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase, supabaseConfigured } from '@/lib/supabase'
 
+export type Papel = 'admin' | 'operador' | null
+
 interface AuthContextType {
   session: Session | null
   user: User | null
-  isAdmin: boolean
+  papel: Papel
+  isOperator: boolean
   loading: boolean
   signOut: () => Promise<void>
 }
@@ -14,6 +17,7 @@ const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
+  const [papel, setPapel] = useState<Papel>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -22,34 +26,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      setLoading(false)
-    }).catch(() => setLoading(false))
+    let ativo = true
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
+    const carregarPapel = async (userId?: string) => {
+      if (!userId) {
+        if (ativo) setPapel(null)
+        return
+      }
+      const { data } = await supabase.from('user_roles').select('role').eq('user_id', userId).maybeSingle()
+      const role = data?.role
+      if (!ativo) return
+      setPapel(role === 'admin' || role === 'operador' ? role : null)
+    }
+
+    supabase.auth.getSession().then(async ({ data: { session: sessao } }) => {
+      if (!ativo) return
+      setSession(sessao)
+      await carregarPapel(sessao?.user?.id)
+      if (ativo) setLoading(false)
+    }).catch(() => {
+      if (ativo) setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, sessao) => {
+      setSession(sessao)
+      void carregarPapel(sessao?.user?.id)
+    })
+
+    return () => {
+      ativo = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signOut = async () => {
     await supabase.auth.signOut()
+    setPapel(null)
   }
 
-  const user = session?.user ?? null
-  const isAdmin = user?.user_metadata?.role === 'admin'
-
   return (
-    <AuthContext.Provider value={{ session, user, isAdmin, loading, signOut }}>
+    <AuthContext.Provider value={{
+      session,
+      user: session?.user ?? null,
+      papel,
+      isOperator: papel === 'admin' || papel === 'operador',
+      loading,
+      signOut,
+    }}>
       {children}
     </AuthContext.Provider>
   )
 }
 
 export function useAuth() {
-  const ctx = useContext(AuthContext)
-  if (!ctx) throw new Error('useAuth must be used inside AuthProvider')
-  return ctx
+  const contexto = useContext(AuthContext)
+  if (!contexto) throw new Error('useAuth deve ficar dentro de AuthProvider')
+  return contexto
 }

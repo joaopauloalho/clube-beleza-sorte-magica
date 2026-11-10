@@ -1,41 +1,23 @@
-import { describe, it, expect } from 'bun:test'
-import { PLANS, getPlanBySlug, getPlanByName } from './plans'
+import assert from 'node:assert/strict'
+import { test } from 'node:test'
+import { PLANS, getPlanBySlug, precoEmCentavos } from './plans'
 
-describe('PLANS', () => {
-  it('has three plans', () => {
-    expect(Object.keys(PLANS)).toHaveLength(3)
-  })
-
-  it('Beleza Essencial has correct productId and price', () => {
-    expect(PLANS['Beleza Essencial'].productId).toBe('prod_HkEdRX1zgXN3R6rHGw5MJqs3')
-    expect(PLANS['Beleza Essencial'].price).toBe(49.90)
-    expect(PLANS['Beleza Essencial'].slug).toBe('essencial')
-  })
-
-  it('Beleza Radiante has correct productId and price', () => {
-    expect(PLANS['Beleza Radiante'].productId).toBe('prod_NCnDjfcbKwyFs5edEtmfUcYC')
-    expect(PLANS['Beleza Radiante'].price).toBe(74.90)
-  })
-
-  it('Beleza Suprema has correct productId and price', () => {
-    expect(PLANS['Beleza Suprema'].productId).toBe('prod_Nj1RaWGePckwBBeJJFH5UMyz')
-    expect(PLANS['Beleza Suprema'].price).toBe(99.90)
-  })
+test('há três planos e os valores canônicos', () => {
+  assert.equal(PLANS.length, 3)
+  assert.deepEqual(PLANS.map((plano) => [plano.slug, plano.mensalidade, plano.total12, plano.credito, plano.bonusClinica, plano.precoMembro]), [
+    ['essencial', 50, 600, 700, 0.17, 0.1],
+    ['radiante', 75, 900, 1125, 0.25, 0.15],
+    ['suprema', 100, 1200, 1600, 0.33, 0.2],
+  ])
 })
 
-describe('getPlanBySlug', () => {
-  it('returns correct plan for valid slug', () => {
-    const plan = getPlanBySlug('suprema')
-    expect(plan?.name).toBe('Beleza Suprema')
-  })
-
-  it('returns undefined for unknown slug', () => {
-    expect(getPlanBySlug('desconhecido')).toBeUndefined()
-  })
+test('o total de 12 meses é a mensalidade vezes 12', () => {
+  for (const plano of PLANS) assert.equal(plano.total12, plano.mensalidade * 12)
 })
 
-describe('getPlanByName', () => {
-  it('returns plan for full name', () => {
-    expect(getPlanByName('Beleza Radiante')?.slug).toBe('radiante')
-  })
+test('busca por slug e centavos', () => {
+  assert.equal(getPlanBySlug('radiante')?.nome, 'Beleza Radiante')
+  assert.equal(getPlanBySlug('inexistente'), undefined)
+  assert.equal(precoEmCentavos(75), 7500)
+  assert.equal(precoEmCentavos(1125), 112500)
 })
