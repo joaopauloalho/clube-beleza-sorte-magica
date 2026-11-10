@@ -7,7 +7,7 @@ export interface Database {
         Row: {
           id: string
           nome: string
-          email: string
+          email: string | null
           whatsapp: string
           cpf: string | null
           plano_interesse: string | null
@@ -18,7 +18,7 @@ export interface Database {
         Insert: {
           id?: string
           nome: string
-          email: string
+          email?: string | null
           whatsapp: string
           cpf?: string | null
           plano_interesse?: string | null
@@ -29,7 +29,7 @@ export interface Database {
         Update: {
           id?: string
           nome?: string
-          email?: string
+          email?: string | null
           whatsapp?: string
           cpf?: string | null
           plano_interesse?: string | null
@@ -50,6 +50,8 @@ export interface Database {
           desconto_servicos: string
           destaque: boolean
           ativo: boolean
+          total_12_meses: number | null
+          bonus_clinica: string | null
         }
         Insert: {
           id?: string
@@ -61,6 +63,8 @@ export interface Database {
           desconto_servicos: string
           destaque?: boolean
           ativo?: boolean
+          total_12_meses?: number | null
+          bonus_clinica?: string | null
         }
         Update: {
           id?: string
@@ -72,6 +76,29 @@ export interface Database {
           desconto_servicos?: string
           destaque?: boolean
           ativo?: boolean
+          total_12_meses?: number | null
+          bonus_clinica?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          user_id: string
+          role: 'admin' | 'operador'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          role: 'admin' | 'operador'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          role?: 'admin' | 'operador'
+          created_at?: string
         }
         Relationships: []
       }

@@ -1,3 +1,5 @@
+> **Obsoleto — não aplicar.** Este plano ainda descreve `user_metadata.role`, preços antigos e políticas de RLS inseguras. O esquema vigente está em `supabase/migrations/`. Não execute o SQL abaixo.
+
 # Clube Beleza Sorte Mágica — MVP Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.

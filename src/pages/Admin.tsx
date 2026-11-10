@@ -206,6 +206,7 @@ export default function Admin() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos</SelectItem>
+                  <SelectItem value="lista_espera">Lista de espera</SelectItem>
                   <SelectItem value="pendente">Pendente</SelectItem>
                   <SelectItem value="ativo">Ativo</SelectItem>
                   <SelectItem value="membro">Membro</SelectItem>
@@ -296,6 +297,9 @@ export default function Admin() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            <p className="text-sm text-gray-500">
+              Simulador local. O sorteio real é de 2 pessoas em dia entre as elegíveis do mês. Esta tela não cobra nem grava resultado.
+            </p>
             <Button onClick={runRaffle} variant="outline">
               <Shuffle className="h-4 w-4 mr-2" />
               Simular Sorteio (24 posições)
