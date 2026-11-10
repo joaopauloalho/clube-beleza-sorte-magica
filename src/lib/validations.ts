@@ -1,31 +1,17 @@
 import { z } from 'zod'
+import { PLAN_NAMES } from './plans.ts'
 
-export const cadastroSchema = z.object({
-  nome: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
-  email: z.string().email('Email inválido'),
-  whatsapp: z
-    .string()
-    .regex(/^\(\d{2}\) \d{5}-\d{4}$/, 'Formato: (99) 99999-9999'),
-  plano_interesse: z.string().min(1, 'Selecione um plano'),
-})
-
-export type CadastroFormData = z.infer<typeof cadastroSchema>
-
-export const cadastroComCheckoutSchema = z.object({
-  nome: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
-  email: z.string().email('Email inválido'),
-  whatsapp: z
-    .string()
-    .regex(/^\(\d{2}\) \d{5}-\d{4}$/, 'Formato: (99) 99999-9999'),
-  cpf: z
-    .string()
-    .regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, 'CPF inválido. Formato: 000.000.000-00'),
-  plano: z.enum(['Beleza Essencial', 'Beleza Radiante', 'Beleza Suprema'], {
-    errorMap: () => ({ message: 'Selecione um plano' }),
+export const listaEsperaSchema = z.object({
+  nome: z.string().trim().min(3, 'Nome deve ter pelo menos 3 caracteres'),
+  whatsapp: z.string().regex(/^\(\d{2}\) \d{5}-\d{4}$/, 'Formato: (99) 99999-9999'),
+  plano: z.enum(PLAN_NAMES, { errorMap: () => ({ message: 'Selecione um plano' }) }),
+  aceita_regulamento: z.boolean().refine((value) => value === true, {
+    message: 'É preciso aceitar o texto do regulamento para entrar na lista.',
   }),
+  optin_whatsapp: z.boolean(),
 })
 
-export type CadastroComCheckoutData = z.infer<typeof cadastroComCheckoutSchema>
+export type ListaEsperaData = z.infer<typeof listaEsperaSchema>
 
 export function maskWhatsApp(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 11)

@@ -17,7 +17,6 @@ interface MemberData {
   plano: {
     nome: string
     preco: number
-    brinde: string
     desconto_servicos: string
     credito_sorteio: number
   } | null
@@ -57,7 +56,7 @@ export default function Dashboard() {
 
       if (membro) {
         const [planoRes, grupoRes] = await Promise.all([
-          supabase.from('planos').select('nome, preco, brinde, desconto_servicos, credito_sorteio').eq('id', membro.plano_id).single(),
+          supabase.from('planos').select('nome, preco, desconto_servicos, credito_sorteio').eq('id', membro.plano_id).single(),
           supabase.from('grupos').select('nome, vagas_preenchidas, total_vagas').eq('id', membro.grupo_id).single(),
         ])
         plano = planoRes.data
@@ -128,9 +127,9 @@ export default function Dashboard() {
                           R$ {data.plano.preco.toFixed(2)}/mês
                         </Badge>
                       </div>
-                      <p className="text-gray-600">Brinde: <strong>{data.plano.brinde}</strong></p>
-                      <p className="text-gray-600">Crédito sorteio: <strong>R$ {data.plano.credito_sorteio.toFixed(2)}</strong></p>
-                      <p className="text-gray-600">Desconto: <strong>{data.plano.desconto_servicos}</strong></p>
+                      <p className="text-gray-600">Crédito se sorteado: <strong>R$ {data.plano.credito_sorteio.toFixed(2)}</strong></p>
+                      <p className="text-gray-600">Preço de membro: <strong>{data.plano.desconto_servicos} de desconto</strong></p>
+                      <p className="text-gray-600">O crédito completo depende de ser sorteado.</p>
                     </CardContent>
                   </Card>
                 )}

@@ -5,35 +5,20 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { CheckCircle2, Gift, Trophy, Sparkles, Star, Users, Shield } from "lucide-react";
 import { AnimatedSection, StaggeredChildren } from "@/hooks/use-scroll-animation";
 import heroImage from "@/assets/hero-woman.jpg";
-import { PLAN_LIST } from "@/lib/plans";
+import { formatBRL, PLAN_LIST } from "@/lib/plans";
+import { DRAW_MONTHS, formatPercent } from "@/lib/sorteio";
 
 const Index = () => {
   const navigate = useNavigate()
 
   const steps = [
-    { icon: Sparkles, title: "1. Assine o plano", desc: "Escolha o plano ideal para você" },
-    { icon: Gift, title: "2. Ganhe na hora", desc: "Receba seu brinde imediatamente" },
-    { icon: Trophy, title: "3. Participe dos sorteios", desc: "Todo mês você concorre a créditos" },
-    { icon: CheckCircle2, title: "4. Todos ganham", desc: "Garantia de contemplação até o final" }
+    { icon: Sparkles, title: "1. Entre na lista", desc: "Nome e WhatsApp. Sem cobrança nesta etapa." },
+    { icon: Users, title: "2. O grupo fecha", desc: "24 pessoas no mesmo plano. Antes disso, ninguém é cobrado." },
+    { icon: Shield, title: "3. Pix Automático", desc: "A mensalidade só começa com o grupo completo. Sem cartão." },
+    { icon: Trophy, title: "4. Sorteio do mês", desc: "2 pessoas em dia recebem o crédito. Em até 12 meses, quem segue em dia recebe." }
   ];
 
-  const testimonials = [
-    {
-      name: "Maria Silva",
-      text: "Melhor investimento em beleza que já fiz! Ganhei o microagulhamento e já fui sorteada no segundo mês.",
-      rating: 5
-    },
-    {
-      name: "Ana Costa",
-      text: "Adoro os descontos mensais! Consigo fazer muito mais procedimentos pagando menos. Super recomendo!",
-      rating: 5
-    },
-    {
-      name: "Juliana Santos",
-      text: "A transparência dos sorteios me conquistou. É tudo muito claro e justo. Estou adorando participar!",
-      rating: 5
-    }
-  ];
+  const chanceHighlights = DRAW_MONTHS.filter((month) => month.month === 1 || month.month === 6 || month.month === 12)
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
@@ -53,10 +38,10 @@ const Index = () => {
         <div className="container mx-auto px-4 z-10">
           <div className="max-w-3xl">
             <h1 className="font-playfair text-5xl md:text-7xl font-bold text-foreground mb-6 animate-fade-in">
-              Assinou. Ganhou. Embelezou.
+              Clube Beleza
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground mb-8 animate-fade-in [animation-delay:200ms] opacity-0">
-              O primeiro consórcio da beleza com sorteios garantidos, brindes imediatos e descontos exclusivos o ano todo.
+              Lista de espera para grupos de 24 pessoas. A mensalidade é por Pix Automático e o crédito completo em serviços depende de ser sorteado.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 animate-fade-in [animation-delay:400ms] opacity-0">
               <Button
@@ -64,7 +49,7 @@ const Index = () => {
                 className="bg-gradient-primary hover:opacity-90 text-white shadow-medium transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 onClick={() => navigate('/cadastro')}
               >
-                Quero Participar do Clube
+                Entrar na lista de espera
               </Button>
               <Button 
                 size="lg" 
@@ -78,11 +63,11 @@ const Index = () => {
             <div className="flex items-center gap-6 mt-8 text-sm text-muted-foreground animate-fade-in [animation-delay:600ms] opacity-0">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-primary" />
-                <span>+200 mulheres já participam</span>
+                <span>Grupos de 24 pessoas</span>
               </div>
               <div className="flex items-center gap-2">
                 <Shield className="w-4 h-4 text-primary" />
-                <span>100% seguro e transparente</span>
+                <span>Cobrança só com o grupo completo</span>
               </div>
             </div>
           </div>
@@ -97,7 +82,7 @@ const Index = () => {
               Como Funciona o Clube
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Simples, transparente e vantajoso. Veja como transformar sua rotina de beleza:
+              Lista de espera, grupo fechado e sorteio mensal. Veja a ordem:
             </p>
           </AnimatedSection>
           
@@ -123,7 +108,7 @@ const Index = () => {
               Escolha Seu Plano de Beleza
             </h2>
             <p className="text-lg text-muted-foreground">
-              Todos os planos incluem brindes, sorteios e descontos exclusivos
+              Mensalidade, crédito se for sorteado e preço de membro enquanto espera
             </p>
           </AnimatedSection>
           
@@ -147,32 +132,32 @@ const Index = () => {
                   <CardHeader>
                     <CardTitle className="font-playfair text-2xl">{plan.name}</CardTitle>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-bold text-primary">R$ {plan.priceLabel}</span>
+                      <span className="text-3xl font-bold text-primary">R$ {formatBRL(plan.price)}</span>
                       <span className="text-muted-foreground">/mês</span>
                     </div>
-                    <CardDescription>Por 12 meses</CardDescription>
+                    <CardDescription>Por 12 meses · R$ {formatBRL(plan.total12)} no total</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="space-y-3">
                       <div className="flex items-center gap-2 group/item">
                         <Gift className="w-5 h-5 text-gold transition-transform duration-300 group-hover/item:scale-110" />
                         <div>
-                          <p className="font-semibold">{plan.gift}</p>
-                          <p className="text-sm text-muted-foreground">Brinde de R$ {plan.giftValue}</p>
+                          <p className="font-semibold">R$ {formatBRL(plan.credit)} se sorteado</p>
+                          <p className="text-sm text-muted-foreground">Crédito em serviços. Bônus da clínica {plan.clinicBonus}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 group/item">
                         <Trophy className="w-5 h-5 text-gold transition-transform duration-300 group-hover/item:scale-110" />
                         <div>
-                          <p className="font-semibold">R$ {plan.raffle} em créditos</p>
-                          <p className="text-sm text-muted-foreground">Para sorteio mensal</p>
+                          <p className="font-semibold">R$ {formatBRL(plan.total12)} em 12 meses</p>
+                          <p className="text-sm text-muted-foreground">O crédito completo depende do sorteio</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 group/item">
                         <Star className="w-5 h-5 text-gold transition-transform duration-300 group-hover/item:scale-110" />
                         <div>
-                          <p className="font-semibold">{plan.discount} de desconto</p>
-                          <p className="text-sm text-muted-foreground">Em todos os procedimentos</p>
+                          <p className="font-semibold">{plan.memberDiscount} de desconto</p>
+                          <p className="text-sm text-muted-foreground">Preço de membro enquanto aguarda o sorteio</p>
                         </div>
                       </div>
                     </div>
@@ -180,20 +165,20 @@ const Index = () => {
                     <div className="pt-4 border-t">
                       <div className="flex items-center gap-2 mb-2">
                         <CheckCircle2 className="w-4 h-4 text-primary" />
-                        <span className="text-sm">Brinde imediato</span>
+                        <span className="text-sm">Sem cobrança até o grupo fechar</span>
                       </div>
                       <div className="flex items-center gap-2 mb-2">
                         <CheckCircle2 className="w-4 h-4 text-primary" />
-                        <span className="text-sm">Sorteio mensal</span>
+                        <span className="text-sm">Sorteio mensal: 2 de quem está em dia</span>
                       </div>
                       <div className="flex items-center gap-2 mb-2">
                         <CheckCircle2 className="w-4 h-4 text-primary" />
-                        <span className="text-sm">Desconto em todos os procedimentos</span>
+                        <span className="text-sm">Preço de membro enquanto aguarda</span>
                       </div>
                       {plan.recommended && (
                         <div className="flex items-center gap-2 mb-2">
                           <CheckCircle2 className="w-4 h-4 text-primary" />
-                          <span className="text-sm">Pode dividir com outra pessoa</span>
+                          <span className="text-sm">Crédito completo depende do sorteio</span>
                         </div>
                       )}
                     </div>
@@ -206,7 +191,7 @@ const Index = () => {
                       }`}
                       onClick={() => navigate(`/cadastro?plano=${plan.slug}`)}
                     >
-                      Escolher Este Plano
+                      Entrar na lista deste plano
                     </Button>
                   </CardContent>
                 </Card>
@@ -216,16 +201,16 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Sorteios Transparentes */}
+      {/* Sorteios */}
       <section className="py-20 bg-background">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             <AnimatedSection className="text-center mb-12">
               <h2 className="font-playfair text-4xl md:text-5xl font-bold text-foreground mb-4">
-                Sorteios Justos e Transparentes
+                Chance do sorteio
               </h2>
               <p className="text-lg text-muted-foreground">
-                Nosso sistema garante que todas as participantes sejam contempladas
+                No mês m, 2 pessoas em dia são sorteadas entre 24 − 2×(m−1) elegíveis. A chance acumulada de já ter recebido o crédito é m/12.
               </p>
             </AnimatedSection>
             
@@ -235,23 +220,29 @@ const Index = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Shield className="w-5 h-5 text-primary" />
-                      Como funcionam os sorteios
+                      Chance de cada mês
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {[
-                      "Cada cliente recebe um número fixo de 1 a 24",
-                      "Sorteio realizado via plataforma online imparcial",
-                      "Resultado aparece na tela em tempo real",
-                      "Todos são contemplados até o final do ciclo"
-                    ].map((text, idx) => (
-                      <div key={idx} className="flex items-start gap-3 group">
-                        <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold shrink-0 transition-transform duration-300 group-hover:scale-110">
-                          {idx + 1}
-                        </div>
-                        <p className="text-sm">{text}</p>
-                      </div>
-                    ))}
+                    <p className="text-sm">Quem já foi sorteado não concorre de novo. Quem deixa de pagar sai do sorteio. O crédito completo depende de ser sorteado.</p>
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="text-left text-muted-foreground">
+                          <th className="font-medium py-1">Mês</th>
+                          <th className="font-medium py-1">Sorteio</th>
+                          <th className="font-medium py-1">Chance</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {DRAW_MONTHS.map((month) => (
+                          <tr key={month.month}>
+                            <td className="py-1">{month.month}</td>
+                            <td className="py-1">{month.winners} de {month.eligible}</td>
+                            <td className="py-1">{formatPercent(month.monthlyPercent)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </CardContent>
                 </Card>
               </AnimatedSection>
@@ -261,19 +252,23 @@ const Index = () => {
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <CheckCircle2 className="w-5 h-5 text-primary" />
-                      Garantias do Clube
+                      Chance acumulada (m/12)
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {[
-                      "100% de transparência nos sorteios",
-                      "Plataformas certificadas e imparciais",
-                      "Todos ganham até o final do ciclo",
-                      "Resultados divulgados publicamente"
-                    ].map((text, idx) => (
-                      <div key={idx} className="flex items-center gap-2 group">
-                        <CheckCircle2 className="w-4 h-4 text-primary transition-transform duration-300 group-hover:scale-110" />
-                        <span className="text-sm">{text}</span>
+                    {DRAW_MONTHS.map((month) => (
+                      <div key={month.month} className="space-y-1">
+                        <div className="flex items-center justify-between text-sm">
+                          <span>Mês {month.month}</span>
+                          <span>{month.month}/12 · {formatPercent(month.cumulativePercent, 1)}</span>
+                        </div>
+                        <div
+                          className="w-full bg-muted rounded-full h-2"
+                          role="img"
+                          aria-label={`Mês ${month.month}: chance acumulada ${formatPercent(month.cumulativePercent, 1)}`}
+                        >
+                          <div className="bg-primary h-2 rounded-full" style={{ width: `${month.cumulativePercent}%` }} />
+                        </div>
                       </div>
                     ))}
                   </CardContent>
@@ -284,29 +279,27 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Depoimentos */}
+      {/* Marcos da chance */}
       <section className="py-20 bg-rose-light">
         <div className="container mx-auto px-4">
           <AnimatedSection className="text-center mb-12">
             <h2 className="font-playfair text-4xl md:text-5xl font-bold text-foreground mb-4">
-              O Que Dizem Nossas Clientes
+              Chance ao longo dos 12 meses
             </h2>
             <p className="text-lg text-muted-foreground">
-              Mais de 200 mulheres já fazem parte do Clube!
+              Mês 1, mês 6 e mês 12. Quem se mantém em dia recebe o crédito até o fim do ciclo.
             </p>
           </AnimatedSection>
           
           <StaggeredChildren className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto" staggerDelay={200}>
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="border-0 shadow-soft transition-all duration-300 hover:shadow-medium hover:-translate-y-2">
+            {chanceHighlights.map((month) => (
+              <Card key={month.month} className="border-0 shadow-soft transition-all duration-300 hover:shadow-medium hover:-translate-y-2">
                 <CardContent className="pt-6">
-                  <div className="flex mb-3">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-gold text-gold transition-transform duration-300 hover:scale-125" />
-                    ))}
-                  </div>
-                  <p className="text-muted-foreground mb-4 italic">"{testimonial.text}"</p>
-                  <p className="font-semibold text-sm">{testimonial.name}</p>
+                  <p className="font-semibold text-sm mb-3">Mês {month.month}</p>
+                  <p className="text-muted-foreground mb-4">
+                    {month.winners} de {month.eligible} ({formatPercent(month.monthlyPercent)})
+                  </p>
+                  <p className="font-semibold text-sm">Acumulada: {month.month}/12 ({formatPercent(month.cumulativePercent, 1)})</p>
                 </CardContent>
               </Card>
             ))}
@@ -323,40 +316,58 @@ const Index = () => {
                 Dúvidas Frequentes
               </h2>
               <p className="text-lg text-muted-foreground">
-                Tudo que você precisa saber sobre o Clube de Estética
+                O que já está definido e o que ainda depende de decisão
               </p>
             </AnimatedSection>
             
             <AnimatedSection animation="scale">
               <Accordion type="single" collapsible className="w-full">
                 <AccordionItem value="item-1" className="transition-all duration-300 hover:bg-muted/50 rounded-lg px-2">
-                  <AccordionTrigger>O que acontece se atrasar o pagamento?</AccordionTrigger>
+                  <AccordionTrigger>Quando começa a cobrança?</AccordionTrigger>
                   <AccordionContent>
-                    Em caso de atraso, você continua participando normalmente após regularizar o pagamento. Mantemos sua vaga garantida por até 7 dias de atraso.
+                    Ninguém é cobrado enquanto o grupo do plano não tiver 24 pessoas. Se o grupo não completar, ninguém é cobrado. A mensalidade, quando existir, é só por Pix Automático, sem cartão. [A DEFINIR: política de cancelamento]
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-2" className="transition-all duration-300 hover:bg-muted/50 rounded-lg px-2">
-                  <AccordionTrigger>Posso dividir o plano com alguém?</AccordionTrigger>
+                  <AccordionTrigger>Qual é a chance do sorteio?</AccordionTrigger>
                   <AccordionContent>
-                    Sim! No plano Beleza Suprema você pode dividir todos os benefícios com outra pessoa, tornando ainda mais vantajoso.
+                    No mês m, 2 pessoas em dia são sorteadas entre 24 − 2×(m−1) elegíveis. No mês 1 são 2 de 24 (8%). No mês 6, 2 de 14 (14%). No mês 11, 2 de 4 (50%). No mês 12, 2 de 2 (100%). A chance acumulada de já ter recebido o crédito é m/12. O crédito completo depende de ser sorteado.
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-3" className="transition-all duration-300 hover:bg-muted/50 rounded-lg px-2">
-                  <AccordionTrigger>Posso trocar o brinde?</AccordionTrigger>
+                  <AccordionTrigger>O crédito soma com o desconto de membro?</AccordionTrigger>
                   <AccordionContent>
-                    Os brindes são fixos para cada plano, mas você pode usar o valor como crédito para outros procedimentos se preferir.
+                    [A DEFINIR: o crédito soma com o desconto de membro ou é usado a preço de tabela?]
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-4" className="transition-all duration-300 hover:bg-muted/50 rounded-lg px-2">
-                  <AccordionTrigger>Preciso continuar pagando depois de ganhar o sorteio?</AccordionTrigger>
+                  <AccordionTrigger>O crédito é liberado de uma vez?</AccordionTrigger>
                   <AccordionContent>
-                    Sim, o pagamento mensal continua durante os 12 meses do ciclo. Isso garante que todos os participantes sejam contemplados.
+                    [A DEFINIR: o crédito é liberado de uma vez ou em etapas?]
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-5" className="transition-all duration-300 hover:bg-muted/50 rounded-lg px-2">
-                  <AccordionTrigger>Como recebo o crédito do sorteio?</AccordionTrigger>
+                  <AccordionTrigger>Qual a validade do crédito e quais serviços entram?</AccordionTrigger>
                   <AccordionContent>
-                    O crédito fica disponível imediatamente após o sorteio e pode ser usado em qualquer procedimento da clínica durante 6 meses.
+                    [A DEFINIR: validade do crédito] [A DEFINIR: serviços elegíveis]
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-6" className="transition-all duration-300 hover:bg-muted/50 rounded-lg px-2">
+                  <AccordionTrigger>Posso cancelar ou parar de pagar?</AccordionTrigger>
+                  <AccordionContent>
+                    Quem deixa de pagar sai do sorteio. A autorização do Pix Automático pode ser revogada no aplicativo do banco. [A DEFINIR: política de cancelamento]
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-7" className="transition-all duration-300 hover:bg-muted/50 rounded-lg px-2">
+                  <AccordionTrigger>Onde está o regulamento?</AccordionTrigger>
+                  <AccordionContent>
+                    [A DEFINIR: regulamento]
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-8" className="transition-all duration-300 hover:bg-muted/50 rounded-lg px-2">
+                  <AccordionTrigger>Qual gateway será usado no Pix Automático?</AccordionTrigger>
+                  <AccordionContent>
+                    [A DEFINIR: gateway e exigência de tempo mínimo de CNPJ para Pix Automático] Por enquanto a integração fica só em modo de teste e a entrada é a lista de espera.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>
@@ -370,18 +381,17 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center">
           <AnimatedSection>
             <h2 className="font-playfair text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Você Mais Linda, Mais Maravilhosa
+              Lista de espera do próximo grupo
             </h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Não perca a oportunidade de fazer parte do primeiro consórcio da beleza do Brasil.
-              Vagas limitadas para o próximo grupo!
+              Deixe nome e WhatsApp. O opt-in de mensagem é separado e opcional. Ninguém é cobrado até o grupo do plano completar 24 pessoas.
             </p>
             <Button
               size="lg"
               className="bg-gradient-primary hover:opacity-90 text-white shadow-medium transition-all duration-300 hover:scale-110 hover:shadow-lg"
               onClick={() => navigate('/cadastro')}
             >
-              Quero Participar do Clube de Estética
+              Entrar na lista de espera
             </Button>
           </AnimatedSection>
         </div>

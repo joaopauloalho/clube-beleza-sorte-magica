@@ -1,46 +1,39 @@
-import { describe, it, expect } from 'bun:test'
-import { maskCPF, cadastroComCheckoutSchema } from './validations'
+import assert from 'node:assert/strict'
+import { describe, it } from 'node:test'
+import { listaEsperaSchema, maskCPF } from './validations.ts'
 
 describe('maskCPF', () => {
-  it('formats partial input correctly', () => {
-    expect(maskCPF('123')).toBe('123')
-    expect(maskCPF('1234')).toBe('123.4')
-    expect(maskCPF('123456')).toBe('123.456')
-    expect(maskCPF('1234567')).toBe('123.456.7')
-    expect(maskCPF('123456789')).toBe('123.456.789')
-    expect(maskCPF('1234567890')).toBe('123.456.789-0')
-    expect(maskCPF('12345678901')).toBe('123.456.789-01')
+  it('formata a digitação', () => {
+    assert.equal(maskCPF('123'), '123')
+    assert.equal(maskCPF('1234'), '123.4')
+    assert.equal(maskCPF('123456'), '123.456')
+    assert.equal(maskCPF('1234567'), '123.456.7')
+    assert.equal(maskCPF('123456789'), '123.456.789')
+    assert.equal(maskCPF('1234567890'), '123.456.789-0')
+    assert.equal(maskCPF('12345678901'), '123.456.789-01')
   })
 
-  it('strips non-digit input', () => {
-    expect(maskCPF('abc.123def')).toBe('123')
-  })
-
-  it('truncates at 11 digits', () => {
-    expect(maskCPF('123456789012345')).toBe('123.456.789-01')
+  it('ignora o que não é dígito e corta em 11', () => {
+    assert.equal(maskCPF('abc.123def'), '123')
+    assert.equal(maskCPF('123456789012345'), '123.456.789-01')
   })
 })
 
-describe('cadastroComCheckoutSchema', () => {
+describe('listaEsperaSchema', () => {
   const valid = {
     nome: 'Maria Silva',
-    email: 'maria@exemplo.com',
     whatsapp: '(11) 99999-0000',
-    cpf: '123.456.789-01',
     plano: 'Beleza Suprema' as const,
+    aceita_regulamento: true,
+    optin_whatsapp: false,
   }
 
-  it('accepts valid input', () => {
-    expect(cadastroComCheckoutSchema.safeParse(valid).success).toBe(true)
+  it('aceita a lista sem opt-in de WhatsApp', () => {
+    assert.equal(listaEsperaSchema.safeParse(valid).success, true)
   })
 
-  it('rejects CPF without mask', () => {
-    const result = cadastroComCheckoutSchema.safeParse({ ...valid, cpf: '12345678901' })
-    expect(result.success).toBe(false)
-  })
-
-  it('rejects unknown plano', () => {
-    const result = cadastroComCheckoutSchema.safeParse({ ...valid, plano: 'Beleza Premium' })
-    expect(result.success).toBe(false)
+  it('recusa regulamento não aceito e plano desconhecido', () => {
+    assert.equal(listaEsperaSchema.safeParse({ ...valid, aceita_regulamento: false }).success, false)
+    assert.equal(listaEsperaSchema.safeParse({ ...valid, plano: 'Beleza Premium' }).success, false)
   })
 })

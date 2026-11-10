@@ -4,59 +4,66 @@ export type PlanSlug = 'essencial' | 'radiante' | 'suprema'
 export interface Plan {
   name: PlanName
   slug: PlanSlug
-  productId: string
+  /** Mensalidade em reais. */
   price: number
-  priceLabel: string
-  gift: string
-  giftValue: string
-  raffle: string
-  discount: string
+  /** Soma das 12 mensalidades, em reais. */
+  total12: number
+  /** Crédito em serviços se a pessoa for sorteada, em reais. */
+  credit: number
+  /** Bônus da clínica sobre o total pago. */
+  clinicBonus: string
+  /** Desconto do preço de membro enquanto aguarda o sorteio. */
+  memberDiscount: string
   recommended: boolean
 }
 
+/**
+ * Fonte única dos valores exibidos no site.
+ * A migration `20261110220000_user_roles_and_rls.sql` grava os mesmos números em `planos`.
+ */
 export const PLANS: Record<PlanName, Plan> = {
   'Beleza Essencial': {
     name: 'Beleza Essencial',
     slug: 'essencial',
-    productId: 'prod_HkEdRX1zgXN3R6rHGw5MJqs3',
-    price: 49.90,
-    priceLabel: '49,90',
-    gift: 'Limpeza de Pele',
-    giftValue: '197',
-    raffle: '700',
-    discount: '10%',
+    price: 50,
+    total12: 600,
+    credit: 700,
+    clinicBonus: '17%',
+    memberDiscount: '10%',
     recommended: false,
   },
   'Beleza Radiante': {
     name: 'Beleza Radiante',
     slug: 'radiante',
-    productId: 'prod_NCnDjfcbKwyFs5edEtmfUcYC',
-    price: 74.90,
-    priceLabel: '74,90',
-    gift: 'Peeling',
-    giftValue: '217',
-    raffle: '1.000',
-    discount: '15%',
+    price: 75,
+    total12: 900,
+    credit: 1125,
+    clinicBonus: '25%',
+    memberDiscount: '15%',
     recommended: false,
   },
   'Beleza Suprema': {
     name: 'Beleza Suprema',
     slug: 'suprema',
-    productId: 'prod_Nj1RaWGePckwBBeJJFH5UMyz',
-    price: 99.90,
-    priceLabel: '99,90',
-    gift: 'Microagulhamento',
-    giftValue: '327',
-    raffle: '1.500',
-    discount: '20%',
+    price: 100,
+    total12: 1200,
+    credit: 1600,
+    clinicBonus: '33%',
+    memberDiscount: '20%',
     recommended: true,
   },
 }
 
 export const PLAN_LIST: Plan[] = Object.values(PLANS)
 
+export const PLAN_NAMES = PLAN_LIST.map((plan) => plan.name) as [PlanName, ...PlanName[]]
+
+export function formatBRL(value: number): string {
+  return value.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+}
+
 export function getPlanBySlug(slug: string): Plan | undefined {
-  return PLAN_LIST.find((p) => p.slug === slug)
+  return PLAN_LIST.find((plan) => plan.slug === slug)
 }
 
 export function getPlanByName(name: string): Plan | undefined {
