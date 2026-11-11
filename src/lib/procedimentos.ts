@@ -4,7 +4,7 @@ import { bonusEmServicos, PLANS } from './plans'
 /**
  * Tabela de referência enviada pelo João. Os preços de cada plano são os valores
  * recebidos, não uma conta em cima do desconto. A coluna Material não entra aqui.
- * O item de R$ 180 entra na tela como "Revitalização facial".
+ * A clínica não vende revitalização facial. Ela não entra na tabela.
  * Toxina botulínica e toxina masculina entram como Botox feminino e Botox masculino.
  */
 export interface Procedimento {
@@ -34,7 +34,6 @@ const injetaveis: readonly Procedimento[] = [
 ]
 
 const avulsos: readonly Procedimento[] = [
-  { id: 'peim', nome: 'Revitalização facial', tabela: 180, essencial: 162, radiante: 153, suprema: 144 },
   { id: 'limpeza', nome: 'Limpeza de pele', tabela: 220, essencial: 198, radiante: 187, suprema: 176 },
   { id: 'peeling', nome: 'Peeling', tabela: 249, essencial: 224, radiante: 212, suprema: 199 },
   { id: 'mmp', nome: 'Microagulhamento', tabela: 349, essencial: 314, radiante: 297, suprema: 279 },
@@ -51,7 +50,6 @@ export const GRUPOS_PROCEDIMENTOS: readonly GrupoProcedimentos[] = [
 
 const DESTAQUE_IDS = [
   'peeling',
-  'peim',
   'mmp',
   'limpeza',
   'toxina-botulinica',
@@ -90,8 +88,8 @@ export function fraseEconomia(tabela: number, preco: number): string | null {
 }
 
 const GANHO_AO_ASSINAR = {
-  essencial: 'peim',
-  radiante: 'limpeza',
+  essencial: 'limpeza',
+  radiante: 'peeling',
   suprema: 'mmp',
 } as const
 
