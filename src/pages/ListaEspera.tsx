@@ -59,7 +59,7 @@ export default function ListaEspera() {
   return (
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
       <SiteHeader />
-      <main className="mx-auto max-w-[560px] px-[22px] py-10">
+      <main id="conteudo" className="mx-auto max-w-[560px] px-[22px] py-10">
         <h1 className="text-[34px] font-semibold leading-tight tracking-tight">Lista.</h1>
         <p className="mt-2 text-[17px] text-[#86868b]">Sem pagamento agora.</p>
         <Card className="mt-8 rounded-[28px] border-0 shadow-none">
@@ -77,12 +77,13 @@ export default function ListaEspera() {
               <form className="space-y-5" onSubmit={enviar}>
                 <div className="space-y-2">
                   <Label htmlFor="nome">Nome</Label>
-                  <Input id="nome" className="h-12 rounded-xl text-[17px]" value={nome} onChange={(event) => setNome(event.target.value)} autoComplete="name" required />
+                  <Input id="nome" name="nome" autoComplete="name" className="h-12 rounded-xl text-[17px]" value={nome} onChange={(event) => setNome(event.target.value)} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="whatsapp">WhatsApp</Label>
                   <Input
                     id="whatsapp"
+                    name="tel"
                     inputMode="tel"
                     autoComplete="tel"
                     value={whatsapp}
@@ -104,7 +105,7 @@ export default function ListaEspera() {
                     <Label htmlFor="optin" className="leading-snug">Quero receber mensagens no WhatsApp. Opcional e separado do regulamento.</Label>
                   </div>
                 </div>
-                {erro && <p className="text-sm text-destructive" role="alert">{erro}</p>}
+                {erro && <p className="text-sm text-destructive" role="alert" aria-live="polite">{erro}</p>}
                 <Button type="submit" className="h-12 w-full" disabled={enviando}>
                   {enviando ? 'Enviando…' : 'Quero entrar na lista'}
                 </Button>

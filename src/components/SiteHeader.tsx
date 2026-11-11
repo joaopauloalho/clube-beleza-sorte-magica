@@ -7,8 +7,11 @@ export function SiteHeader() {
   const { user, isOperator, signOut } = useAuth()
 
   return (
-    <header className="sticky top-0 z-50 h-11 bg-[rgba(22,22,23,0.8)] shadow-[0_1px_0_rgba(0,0,0,0.06)] backdrop-blur-[20px] backdrop-saturate-[1.8]">
-      <nav className="mx-auto flex h-full max-w-[1024px] items-center justify-between gap-3 px-[22px]" aria-label="Principal">
+    <header className="sticky top-0 z-50 bg-[rgba(22,22,23,0.8)] pt-[env(safe-area-inset-top)] shadow-[0_1px_0_rgba(0,0,0,0.06)] backdrop-blur-[20px] backdrop-saturate-[1.8]">
+      <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-2 focus:z-50 focus:rounded-full focus:bg-white focus:px-3 focus:py-2 focus:text-[#1d1d1f]">
+        Ir para o conteúdo
+      </a>
+      <nav className="mx-auto flex h-11 max-w-[1024px] items-center justify-between gap-3 px-[22px]" aria-label="Principal">
         <Link to="/" className="text-[12px] font-medium tracking-tight text-[#f5f5f7] hover:no-underline">
           Clube Beleza
         </Link>

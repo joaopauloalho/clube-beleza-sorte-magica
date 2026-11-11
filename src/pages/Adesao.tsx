@@ -9,7 +9,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { A_DEFINIR, LINHA_CHANCE, TEXTO_OPTIN_WHATSAPP, TEXTO_REGULAMENTO } from '@/lib/copy'
-import { getPlanBySlug, type Plan } from '@/lib/plans'
+import { planosCanonicos, type PlanoPublico } from '@/lib/planos-publicos'
+import { usePlanosPublicos } from '@/lib/use-planos-publicos'
 import { supabase, supabaseConfigured } from '@/lib/supabase'
 import { adesaoSchema, maskCPF, maskWhatsApp } from '@/lib/validations'
 
@@ -44,9 +45,10 @@ const ERROS: Record<string, string> = {
 
 export default function Adesao() {
   const [params] = useSearchParams()
-  const inicial = getPlanBySlug(params.get('plano'))
+  const planos = usePlanosPublicos()
+  const inicial = planosCanonicos().find((item) => item.slug === params.get('plano'))
   const [passo, setPasso] = useState(inicial ? 2 : 1)
-  const [plano, setPlano] = useState<Plan | null>(inicial ?? null)
+  const [plano, setPlano] = useState<PlanoPublico | null>(inicial ?? null)
   const [nome, setNome] = useState('')
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
@@ -139,12 +141,13 @@ export default function Adesao() {
   return (
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
       <SiteHeader />
-      <main className="mx-auto max-w-[1100px] px-[22px] py-10">
+      <main id="conteudo" className="mx-auto max-w-[1100px] px-[22px] py-10">
         <p className="text-[14px] text-[#86868b]">Passo {passo} de 3 · {titulo}</p>
         <h1 className="mt-1 text-[clamp(32px,5vw,48px)] font-semibold tracking-tight">Entrar no clube.</h1>
 
         {passo === 1 && (
           <PlanosGrid
+            planos={planos}
             selecionado={plano?.slug}
             onEscolher={(escolhido) => {
               setPlano(escolhido)
@@ -161,16 +164,16 @@ export default function Adesao() {
             </CardHeader>
             <CardContent>
               <form className="space-y-4" onSubmit={reservar}>
-                <div className="space-y-2"><Label htmlFor="nome">Nome</Label><Input id="nome" className="h-12 rounded-xl text-[17px]" value={nome} onChange={(event) => setNome(event.target.value)} required /></div>
-                <div className="space-y-2"><Label htmlFor="email">E-mail</Label><Input id="email" className="h-12 rounded-xl text-[17px]" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></div>
-                <div className="space-y-2"><Label htmlFor="senha">Senha</Label><Input id="senha" className="h-12 rounded-xl text-[17px]" type="password" autoComplete="new-password" value={senha} onChange={(event) => setSenha(event.target.value)} required /></div>
+                <div className="space-y-2"><Label htmlFor="nome">Nome</Label><Input id="nome" name="nome" autoComplete="name" className="h-12 rounded-xl text-[17px]" value={nome} onChange={(event) => setNome(event.target.value)} required /></div>
+                <div className="space-y-2"><Label htmlFor="email">E-mail</Label><Input id="email" name="email" spellCheck={false} className="h-12 rounded-xl text-[17px]" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></div>
+                <div className="space-y-2"><Label htmlFor="senha">Senha</Label><Input id="senha" name="password" className="h-12 rounded-xl text-[17px]" type="password" autoComplete="new-password" value={senha} onChange={(event) => setSenha(event.target.value)} required /></div>
                 <div className="space-y-2">
                   <Label htmlFor="cpf">CPF</Label>
-                  <Input id="cpf" className="h-12 rounded-xl text-[17px]" inputMode="numeric" value={cpf} onChange={(event) => setCpf(maskCPF(event.target.value))} required />
+                  <Input id="cpf" name="cpf" autoComplete="off" className="h-12 rounded-xl text-[17px]" inputMode="numeric" value={cpf} onChange={(event) => setCpf(maskCPF(event.target.value))} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="whatsapp">WhatsApp</Label>
-                  <Input id="whatsapp" className="h-12 rounded-xl text-[17px]" inputMode="tel" value={whatsapp} onChange={(event) => setWhatsapp(maskWhatsApp(event.target.value))} required />
+                  <Input id="whatsapp" name="tel" autoComplete="tel" className="h-12 rounded-xl text-[17px]" inputMode="tel" value={whatsapp} onChange={(event) => setWhatsapp(maskWhatsApp(event.target.value))} required />
                 </div>
                 <div className="rounded-lg bg-muted p-4 text-sm text-muted-foreground max-h-36 overflow-auto">{TEXTO_REGULAMENTO}</div>
                 <div className="flex items-start gap-3">

@@ -106,7 +106,7 @@ export default function Operador() {
   return (
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
       <SiteHeader />
-      <main className="mx-auto max-w-[1100px] space-y-5 px-[22px] py-8">
+      <main id="conteudo" className="mx-auto max-w-[1100px] space-y-5 px-[22px] py-8">
         <h1 className="text-[34px] font-semibold tracking-tight">Operação.</h1>
         <div className="grid md:grid-cols-3 gap-4">
           <Card><CardHeader><CardTitle className="text-base">Mensalidades esperadas</CardTitle></CardHeader><CardContent><p className="text-2xl font-semibold">{formatarReais(esperado)}</p><p className="text-sm text-muted-foreground">{emCobranca.length} integrante(s) em grupo que já pode cobrar.</p></CardContent></Card>

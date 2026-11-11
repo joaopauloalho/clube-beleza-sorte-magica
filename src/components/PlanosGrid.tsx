@@ -1,46 +1,59 @@
 import { Button } from '@/components/ui/button'
+import { Parcelas } from '@/components/Parcelas'
 import { CTA_PLANO, LINHA_SORTEIO } from '@/lib/copy'
 import { formatarReais } from '@/lib/format'
-import { PLANS, type Plan } from '@/lib/plans'
+import type { PlanoPublico } from '@/lib/planos-publicos'
+import { CYCLE_MONTHS } from '@/lib/plans'
 
 export function PlanosGrid({
+  planos,
   selecionado,
   onEscolher,
 }: {
+  planos: readonly PlanoPublico[]
   selecionado?: string
-  onEscolher: (plano: Plan) => void
+  onEscolher: (plano: PlanoPublico) => void
 }) {
   return (
-    <div className="grid gap-5 md:grid-cols-3">
-      {PLANS.map((plano) => {
+    <div className="grid grid-cols-3 gap-2 sm:gap-5">
+      {planos.map((plano) => {
         const destaque = plano.destaque || selecionado === plano.slug
         return (
           <article
             key={plano.slug}
-            className={`flex min-h-[280px] flex-col justify-between rounded-[28px] p-6 md:p-8 ${
+            className={`flex min-h-[240px] min-w-0 flex-col justify-between overflow-hidden rounded-[28px] p-3 sm:p-6 ${
               destaque ? 'bg-black text-white' : 'bg-white text-[#1d1d1f]'
             }`}
           >
-            <div>
+            <div className="min-w-0">
               <p className={`text-[12px] ${destaque ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>
-                {plano.destaque ? 'Destaque' : '12 meses'}
+                {plano.destaque ? 'Destaque' : `${CYCLE_MONTHS} meses`}
               </p>
-              <h3 className="mt-2 text-[28px] font-semibold leading-[1.1] tracking-tight">{plano.nome.replace('Beleza ', '')}</h3>
-              <p className="mt-4 text-[40px] font-semibold leading-none tracking-tight">
+              <h3 className="mt-2 text-balance text-[16px] font-semibold leading-tight tracking-tight sm:text-[28px]">{plano.nomeCurto}</h3>
+              <p className="mt-3 text-[16px] font-semibold tabular-nums leading-none tracking-tight sm:text-[36px]">
                 {formatarReais(plano.mensalidade)}
-                <span className={`text-[17px] font-normal ${destaque ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>/mês</span>
+                <span className={`mt-1 block text-[11px] font-normal sm:text-[17px] ${destaque ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>/mês</span>
               </p>
-              <p className={`mt-4 text-[17px] leading-snug ${destaque ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>
-                Imagine pagar {formatarReais(plano.mensalidade)} e poder ser sorteada com {formatarReais(plano.credito)}.
+              <div className="mt-3">
+                <Parcelas invertido={destaque} />
+                <p className={`mt-1 text-[12px] tabular-nums ${destaque ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>
+                  {CYCLE_MONTHS}× · {formatarReais(plano.total12)}
+                </p>
+              </div>
+              <p className={`mt-3 text-[13px] leading-snug sm:text-[15px] ${destaque ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>
+                Crédito {formatarReais(plano.credito)}
+              </p>
+              <p className={`text-[13px] leading-snug sm:text-[15px] ${destaque ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>
+                Desconto {Math.round(plano.desconto * 100)}%
               </p>
             </div>
-            <Button className="mt-8 w-full" onClick={() => onEscolher(plano)}>
+            <Button className="mt-4 h-auto min-h-11 w-full whitespace-normal px-1 py-2 text-[12px] leading-tight sm:text-sm" onClick={() => onEscolher(plano)}>
               {CTA_PLANO}
             </Button>
           </article>
         )
       })}
-      <p className="text-center text-[14px] text-[#6e6e73] md:col-span-3">{LINHA_SORTEIO}</p>
+      <p className="col-span-3 text-center text-[14px] text-[#6e6e73]">{LINHA_SORTEIO}</p>
     </div>
   )
 }

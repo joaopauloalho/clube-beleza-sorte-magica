@@ -119,7 +119,7 @@ export default function Area() {
   return (
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
       <SiteHeader />
-      <main className="mx-auto max-w-[680px] space-y-4 px-[22px] py-8">
+      <main id="conteudo" className="mx-auto max-w-[680px] space-y-4 px-[22px] py-8">
         <h1 className="text-[34px] font-semibold tracking-tight">Sua área.</h1>
         {carregando ? (
           <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>

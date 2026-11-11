@@ -12,6 +12,7 @@ export const A_DEFINIR = {
   creditoEtapas: '[A DEFINIR: o crédito é liberado de uma vez ou em etapas?]',
   validadeCredito: '[A DEFINIR: validade do crédito]',
   servicos: '[A DEFINIR: serviços elegíveis]',
+  listaServicos: '[A DEFINIR: lista de serviços]',
   gatewayCnpj: '[A DEFINIR: gateway e exigência de tempo mínimo de CNPJ para Pix Automático]',
   pixLiberacao: '[A DEFINIR: liberação do Pix Automático na AbacatePay]',
   whatsapp: '[A DEFINIR: política de mensagens no WhatsApp]',
