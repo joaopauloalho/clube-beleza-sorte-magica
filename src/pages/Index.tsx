@@ -7,7 +7,10 @@ import { ConviteLista } from '@/components/ConviteLista'
 import { PlanosGrid } from '@/components/PlanosGrid'
 import { TabelaProcedimentos } from '@/components/TabelaProcedimentos'
 import { SiteHeader } from '@/components/SiteHeader'
+import { DIA_PAGAMENTO, DIA_SORTEIO, fraseDoCiclo } from '@/lib/ciclo'
 import { A_DEFINIR, CTA_PLANOS, imaginePrimeiraMensalidade, LINHA_SORTEIO, NOME_DO_CLUBE, PROMESSA_CURTA, REGRA_SORTEIO } from '@/lib/copy'
+import { formatarReais } from '@/lib/format'
+import { maiorCredito } from '@/lib/planos-publicos'
 import { usePlanosPublicos } from '@/lib/use-planos-publicos'
 import heroImage from '@/assets/hero-woman.jpg'
 
@@ -29,6 +32,7 @@ export default function Index() {
   const navigate = useNavigate()
   const planos = usePlanosPublicos()
   const destaque = planos.find((plano) => plano.destaque) ?? planos[planos.length - 1]
+  const teto = maiorCredito(planos)
 
   return (
     <div className="min-h-screen bg-white text-[#1d1d1f]">
@@ -63,9 +67,24 @@ export default function Index() {
               />
             </article>
 
-            <article className="flex flex-col justify-center rounded-[28px] bg-[#f5f5f7] p-6 md:col-span-5 md:p-8">
-              <p className="text-balance text-[17px] leading-snug">{REGRA_SORTEIO}</p>
-              <p className="mt-3 text-[13px] leading-snug text-[#6e6e73]">{A_DEFINIR.atraso}</p>
+            <article id="sorteio" className="scroll-mt-16 flex flex-col justify-center rounded-[28px] bg-[#f5f5f7] p-6 md:col-span-5 md:p-8">
+              <div>
+                <p className="text-[17px] leading-snug text-[#6e6e73]">{fraseDoCiclo()}</p>
+                <div className="mt-6 flex items-center gap-3">
+                  <div className="min-w-[72px] rounded-2xl bg-white px-3 py-4">
+                    <p className="font-sans text-[28px] font-medium tabular-nums leading-none">{DIA_PAGAMENTO}</p>
+                    <p className="mt-1 text-[12px] text-[#6e6e73]">pagamento</p>
+                  </div>
+                  <div className="h-px flex-1 bg-[#f3d0dc]" aria-hidden="true" />
+                  <div className="min-w-[72px] rounded-2xl bg-[#a52751] px-3 py-4 text-white">
+                    <p className="font-sans text-[28px] font-medium tabular-nums leading-none">{DIA_SORTEIO}</p>
+                    <p className="mt-1 text-[12px] text-white">sorteio</p>
+                  </div>
+                </div>
+                <p className="mt-5 font-sans text-[20px] font-medium tabular-nums">até {formatarReais(teto)} em crédito</p>
+                <p className="mt-2 text-[14px] leading-snug text-[#6e6e73]">{LINHA_SORTEIO}</p>
+                <p className="mt-3 text-[13px] leading-snug text-[#6e6e73]">{A_DEFINIR.atraso}</p>
+              </div>
             </article>
           </div>
         </section>
@@ -97,6 +116,22 @@ export default function Index() {
                 </li>
               ))}
             </ol>
+            <article className="mt-8 rounded-[28px] bg-[#f5f5f7] p-6 md:p-8">
+              <p className="text-[17px] leading-snug text-[#6e6e73]">{fraseDoCiclo()}</p>
+              <div className="mt-6 flex items-center gap-3">
+                <div className="min-w-[72px] rounded-2xl bg-white px-3 py-4">
+                  <p className="font-sans text-[28px] font-medium tabular-nums leading-none">{DIA_PAGAMENTO}</p>
+                  <p className="mt-1 text-[12px] text-[#6e6e73]">pagamento</p>
+                </div>
+                <div className="h-px flex-1 bg-[#f3d0dc]" aria-hidden="true" />
+                <div className="min-w-[72px] rounded-2xl bg-[#a52751] px-3 py-4 text-white">
+                  <p className="font-sans text-[28px] font-medium tabular-nums leading-none">{DIA_SORTEIO}</p>
+                  <p className="mt-1 text-[12px] text-white">sorteio</p>
+                </div>
+              </div>
+              <p className="mt-5 font-sans text-[20px] font-medium tabular-nums">até {formatarReais(teto)} em crédito</p>
+              <p className="mt-2 text-[14px] leading-snug text-[#6e6e73]">{LINHA_SORTEIO}</p>
+            </article>
             <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-3">
               <article className="min-w-0 rounded-[28px] bg-[#f5f5f7] p-4 sm:p-6">
                 <p className="text-[22px] font-medium leading-tight sm:text-[28px]">Todo dia 10</p>
