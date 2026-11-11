@@ -1,15 +1,15 @@
 import { useNavigate } from 'react-router-dom'
 import { Calendar, Shield, Sparkles, Users } from 'lucide-react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { CarrosselEntrada } from '@/components/CarrosselEntrada'
 import { ConviteLista } from '@/components/ConviteLista'
-import { CartaoPlano, PlanosGrid } from '@/components/PlanosGrid'
+import { PlanosGrid } from '@/components/PlanosGrid'
 import { TabelaProcedimentos } from '@/components/TabelaProcedimentos'
 import { SiteHeader } from '@/components/SiteHeader'
 import { DIA_PAGAMENTO, DIA_SORTEIO, fraseDoCiclo } from '@/lib/ciclo'
-import { A_DEFINIR, CTA_PLANOS, LINHA_CHANCE, LINHA_SORTEIO, NOME_DO_CLUBE, PASSOS, PROMESSA_CURTA } from '@/lib/copy'
+import { A_DEFINIR, CTA_PLANOS, imaginePrimeiraMensalidade, LINHA_CHANCE, LINHA_SORTEIO, NOME_DO_CLUBE, PASSOS, PROMESSA_CURTA } from '@/lib/copy'
 import { formatarReais } from '@/lib/format'
-import { maiorCredito, planoEntrada } from '@/lib/planos-publicos'
-import { fraseDoHero, ofertaDoPlano } from '@/lib/procedimentos'
+import { maiorCredito } from '@/lib/planos-publicos'
 import { usePlanosPublicos } from '@/lib/use-planos-publicos'
 import heroImage from '@/assets/hero-woman.jpg'
 
@@ -31,28 +31,31 @@ const linkPlano = 'inline-flex min-h-11 items-center rounded-sm text-[17px] text
 export default function Index() {
   const navigate = useNavigate()
   const planos = usePlanosPublicos()
-  const entrada = planoEntrada(planos)
+  const destaque = planos.find((plano) => plano.destaque) ?? planos[planos.length - 1]
   const teto = maiorCredito(planos)
 
   return (
     <div className="min-h-screen bg-white text-[#1d1d1f]">
       <SiteHeader />
       <main id="conteudo" className="pb-24 md:pb-16">
-        <section className="hero-entra px-[22px] pb-4 pt-8 md:pt-14">
-          <div className="mx-auto max-w-[720px]">
-            <h1 className="text-balance text-[clamp(44px,6vw,72px)] leading-[1.02]">{NOME_DO_CLUBE}</h1>
-            <p className="mt-4 max-w-[28rem] text-pretty text-[clamp(17px,2vw,22px)] leading-snug text-[#6e6e73]">
-              {fraseDoHero(ofertaDoPlano(entrada))}
-            </p>
-            <div className="mt-8 max-w-[420px]">
-              <CartaoPlano plano={entrada} onEscolher={(plano) => navigate(`/adesao?plano=${plano.slug}`)} />
-            </div>
-            <div className="mt-6 flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-5">
-              <ConviteLista />
-              <a href="#planos" className={linkPlano}>{CTA_PLANOS} ›</a>
-            </div>
-          </div>
-          <div className="mx-auto mt-10 grid max-w-[1120px] items-stretch gap-3 md:grid-cols-12 md:gap-4">
+        <section className="px-[22px] pb-4 pt-4 md:pt-8">
+          <div className="mx-auto grid max-w-[1120px] items-stretch gap-3 md:grid-cols-12 md:gap-4">
+            <article className="flex flex-col justify-between rounded-[28px] bg-[#f5f5f7] p-6 md:col-span-7 md:p-10">
+              <div>
+                <h1 className="text-balance text-[clamp(44px,6vw,76px)] leading-[1.02]">{NOME_DO_CLUBE}.</h1>
+                <p className="mt-5 max-w-[34rem] text-pretty text-[clamp(17px,2vw,21px)] leading-snug text-[#6e6e73]">
+                  {imaginePrimeiraMensalidade(destaque.mensalidade, destaque.credito)}
+                </p>
+                <p className="mt-3 max-w-[34rem] text-[14px] leading-snug text-[#6e6e73]">{LINHA_SORTEIO}</p>
+              </div>
+              <div className="mt-8 flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-5">
+                <ConviteLista />
+                <a href="#planos" className={linkPlano}>{CTA_PLANOS} ›</a>
+              </div>
+            </article>
+
+            <CarrosselEntrada planos={planos} />
+
             <article className="overflow-hidden rounded-[28px] md:col-span-7">
               <img
                 src={heroImage}
