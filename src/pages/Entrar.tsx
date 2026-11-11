@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { SiteHeader } from '@/components/SiteHeader'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { supabase, supabaseConfigured } from '@/lib/supabase'
@@ -32,22 +32,19 @@ export default function Entrar() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
       <SiteHeader />
-      <main className="container mx-auto px-4 py-12 max-w-md">
-        <Card className="shadow-medium">
-          <CardHeader>
-            <CardTitle className="font-playfair text-3xl">Entrar</CardTitle>
-            <CardDescription>Área da integrante e, para quem tem papel, o painel de operação.</CardDescription>
-          </CardHeader>
-          <CardContent>
+      <main className="mx-auto max-w-[420px] px-[22px] py-12">
+        <h1 className="text-[34px] font-semibold tracking-tight">Entrar.</h1>
+        <Card className="mt-8 rounded-[28px] border-0 shadow-none">
+          <CardContent className="pt-6">
             <form className="space-y-4" onSubmit={entrar}>
-              <div className="space-y-2"><Label htmlFor="email">E-mail</Label><Input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></div>
-              <div className="space-y-2"><Label htmlFor="senha">Senha</Label><Input id="senha" type="password" value={senha} onChange={(event) => setSenha(event.target.value)} required /></div>
+              <div className="space-y-2"><Label htmlFor="email">E-mail</Label><Input id="email" className="h-12 rounded-xl text-[17px]" type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></div>
+              <div className="space-y-2"><Label htmlFor="senha">Senha</Label><Input id="senha" className="h-12 rounded-xl text-[17px]" type="password" value={senha} onChange={(event) => setSenha(event.target.value)} required /></div>
               {erro && <p className="text-sm text-destructive" role="alert">{erro}</p>}
-              <Button type="submit" className="w-full bg-gradient-primary text-white" disabled={enviando}>Entrar</Button>
+              <Button type="submit" className="h-12 w-full" disabled={enviando}>Entrar</Button>
             </form>
-            <p className="text-sm text-muted-foreground mt-4">Ainda sem cota? <Link className="text-primary underline" to="/adesao">Fazer a adesão</Link></p>
+            <p className="mt-4 text-[14px] text-[#86868b]">Ainda sem cota? <Link className="text-[#841f41]" to="/adesao">Fazer a adesão ›</Link></p>
           </CardContent>
         </Card>
       </main>

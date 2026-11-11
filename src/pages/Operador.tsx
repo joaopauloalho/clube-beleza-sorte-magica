@@ -104,10 +104,10 @@ export default function Operador() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
       <SiteHeader />
-      <main className="container mx-auto px-4 py-10 space-y-6">
-        <h1 className="font-playfair text-4xl font-bold">Painel da operação</h1>
+      <main className="mx-auto max-w-[1100px] space-y-5 px-[22px] py-8">
+        <h1 className="text-[34px] font-semibold tracking-tight">Operação.</h1>
         <div className="grid md:grid-cols-3 gap-4">
           <Card><CardHeader><CardTitle className="text-base">Mensalidades esperadas</CardTitle></CardHeader><CardContent><p className="text-2xl font-semibold">{formatarReais(esperado)}</p><p className="text-sm text-muted-foreground">{emCobranca.length} integrante(s) em grupo que já pode cobrar.</p></CardContent></Card>
           <Card><CardHeader><CardTitle className="text-base">Créditos a liberar</CardTitle></CardHeader><CardContent><p className="text-2xl font-semibold">{creditos.length}</p><p className="text-sm text-muted-foreground">{A_DEFINIR.creditoEtapas}</p></CardContent></Card>
@@ -120,7 +120,7 @@ export default function Operador() {
             <div className="grid md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="grupo">Grupo</Label>
-                <select id="grupo" className="flex h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={grupoId} onChange={(event) => setGrupoId(event.target.value)}>
+                <select id="grupo" className="flex h-12 w-full rounded-xl border border-input bg-white px-3 text-[17px]" value={grupoId} onChange={(event) => setGrupoId(event.target.value)}>
                   {grupos.map((grupo) => <option key={grupo.id} value={grupo.id}>{grupo.nome}</option>)}
                 </select>
               </div>
@@ -129,7 +129,7 @@ export default function Operador() {
                 <Input id="data" type="date" value={data} onChange={(event) => setData(event.target.value)} />
               </div>
               <div className="flex items-end">
-                <Button className="bg-gradient-primary text-white" onClick={() => void sortear()} disabled={!grupoId}>Registrar sorteio</Button>
+                <Button onClick={() => void sortear()} disabled={!grupoId}>Registrar sorteio</Button>
               </div>
             </div>
             <p className="text-sm text-muted-foreground">Elegíveis agora: {elegiveis.length === 0 ? 'nenhuma' : elegiveis.map((item) => `cota ${item.cota}`).join(', ')}. O servidor grava essa lista e sorteia 2, ou todas se restarem menos de 2.</p>

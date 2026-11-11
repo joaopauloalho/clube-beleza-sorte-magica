@@ -8,39 +8,36 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Paleta de cores feminina e elegante */
-    --background: 0 0% 100%;
-    --foreground: 340 20% 15%;
+    /* Superfícies Apple. O único acento é o rosa da marca, no lugar do azul. */
+    --background: 240 11% 97%;
+    --foreground: 240 4% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 340 20% 15%;
+    --card-foreground: 240 4% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 340 20% 15%;
+    --popover-foreground: 240 4% 12%;
 
-    /* Rosa suave como cor primária */
-    --primary: 340 65% 70%;
+    --primary: 340 62% 40%;
     --primary-foreground: 0 0% 100%;
 
-    /* Rosa mais claro para secundário */
-    --secondary: 340 60% 95%;
-    --secondary-foreground: 340 20% 15%;
+    --secondary: 240 6% 93%;
+    --secondary-foreground: 240 4% 12%;
 
-    --muted: 340 20% 97%;
-    --muted-foreground: 340 10% 40%;
+    --muted: 240 11% 97%;
+    --muted-foreground: 240 2% 44%;
 
-    /* Dourado suave para acentos */
-    --accent: 40 70% 50%;
+    --accent: 340 62% 40%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 4 100% 59%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 340 20% 94%;
-    --input: 340 20% 94%;
-    --ring: 340 65% 70%;
+    --border: 240 6% 83%;
+    --input: 240 6% 83%;
+    --ring: 340 62% 32%;
 
-    --radius: 0.75rem;
+    --radius: 1.125rem;
     
     /* Cores personalizadas */
     --rose-light: 340 60% 97%;
@@ -131,6 +128,21 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    letter-spacing: -0.022em;
+  }
+
+  ::selection {
+    background: rgba(165, 39, 81, 0.2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

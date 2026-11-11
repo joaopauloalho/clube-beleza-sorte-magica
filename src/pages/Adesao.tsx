@@ -137,11 +137,11 @@ export default function Adesao() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
       <SiteHeader />
-      <main className="container mx-auto px-4 py-10 max-w-6xl">
-        <p className="text-sm text-muted-foreground mb-2">Passo {passo} de 3 · {titulo}</p>
-        <h1 className="font-playfair text-4xl font-bold mb-8">Entrar no clube</h1>
+      <main className="mx-auto max-w-[1100px] px-[22px] py-10">
+        <p className="text-[14px] text-[#86868b]">Passo {passo} de 3 · {titulo}</p>
+        <h1 className="mt-1 text-[clamp(32px,5vw,48px)] font-semibold tracking-tight">Entrar no clube.</h1>
 
         {passo === 1 && (
           <PlanosGrid
@@ -154,23 +154,23 @@ export default function Adesao() {
         )}
 
         {passo === 2 && plano && (
-          <Card className="max-w-xl mx-auto shadow-medium">
+          <Card className="mx-auto max-w-xl rounded-[28px] border-0 shadow-none">
             <CardHeader>
-              <CardTitle className="font-playfair text-2xl">{plano.nome}</CardTitle>
-              <CardDescription>O e-mail cria o acesso à área da integrante. A cota só é reservada com a sessão aberta.</CardDescription>
+              <CardTitle className="text-[28px] font-semibold tracking-tight">{plano.nome}</CardTitle>
+              <CardDescription>O e-mail abre a sua área. A cota só existe com a sessão aberta.</CardDescription>
             </CardHeader>
             <CardContent>
               <form className="space-y-4" onSubmit={reservar}>
-                <div className="space-y-2"><Label htmlFor="nome">Nome</Label><Input id="nome" value={nome} onChange={(event) => setNome(event.target.value)} required /></div>
-                <div className="space-y-2"><Label htmlFor="email">E-mail</Label><Input id="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></div>
-                <div className="space-y-2"><Label htmlFor="senha">Senha</Label><Input id="senha" type="password" autoComplete="new-password" value={senha} onChange={(event) => setSenha(event.target.value)} required /></div>
+                <div className="space-y-2"><Label htmlFor="nome">Nome</Label><Input id="nome" className="h-12 rounded-xl text-[17px]" value={nome} onChange={(event) => setNome(event.target.value)} required /></div>
+                <div className="space-y-2"><Label htmlFor="email">E-mail</Label><Input id="email" className="h-12 rounded-xl text-[17px]" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></div>
+                <div className="space-y-2"><Label htmlFor="senha">Senha</Label><Input id="senha" className="h-12 rounded-xl text-[17px]" type="password" autoComplete="new-password" value={senha} onChange={(event) => setSenha(event.target.value)} required /></div>
                 <div className="space-y-2">
                   <Label htmlFor="cpf">CPF</Label>
-                  <Input id="cpf" inputMode="numeric" value={cpf} onChange={(event) => setCpf(maskCPF(event.target.value))} required />
+                  <Input id="cpf" className="h-12 rounded-xl text-[17px]" inputMode="numeric" value={cpf} onChange={(event) => setCpf(maskCPF(event.target.value))} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="whatsapp">WhatsApp</Label>
-                  <Input id="whatsapp" inputMode="tel" value={whatsapp} onChange={(event) => setWhatsapp(maskWhatsApp(event.target.value))} required />
+                  <Input id="whatsapp" className="h-12 rounded-xl text-[17px]" inputMode="tel" value={whatsapp} onChange={(event) => setWhatsapp(maskWhatsApp(event.target.value))} required />
                 </div>
                 <div className="rounded-lg bg-muted p-4 text-sm text-muted-foreground max-h-36 overflow-auto">{TEXTO_REGULAMENTO}</div>
                 <div className="flex items-start gap-3">
@@ -187,7 +187,7 @@ export default function Adesao() {
                 {erro && <p className="text-sm text-destructive" role="alert">{erro}</p>}
                 <div className="flex gap-3">
                   <Button type="button" variant="outline" onClick={() => setPasso(1)}>Voltar</Button>
-                  <Button type="submit" className="bg-gradient-primary text-white" disabled={enviando}>
+                  <Button type="submit" className="h-12" disabled={enviando}>
                     {enviando ? 'Reservando…' : 'Reservar cota'}
                   </Button>
                 </div>
@@ -197,9 +197,9 @@ export default function Adesao() {
         )}
 
         {passo === 3 && plano && reserva && (
-          <Card className="max-w-xl mx-auto shadow-medium">
+          <Card className="mx-auto max-w-xl rounded-[28px] border-0 shadow-none">
             <CardHeader>
-              <CardTitle className="font-playfair text-2xl">Cota reservada</CardTitle>
+              <CardTitle className="text-[28px] font-semibold tracking-tight">Cota reservada</CardTitle>
               <CardDescription>{reserva.grupo_nome} · cota {reserva.cota} · {reserva.vagas} de {reserva.total}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -215,7 +215,7 @@ export default function Adesao() {
                       className="mx-auto w-48 h-48 rounded-lg border"
                     />
                   )}
-                  <Button asChild className="w-full bg-gradient-primary text-white">
+                  <Button asChild className="h-12 w-full">
                     <a href={cobranca.checkoutUrl}>Autorizar Pix Automático</a>
                   </Button>
                 </div>

@@ -1,34 +1,30 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { Sparkles } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 
-export function SiteHeader({ sobreHero = false }: { sobreHero?: boolean }) {
+const link = 'text-[12px] leading-[44px] text-[#f5f5f7]/80 hover:text-[#f5f5f7] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-sm'
+
+export function SiteHeader() {
   const { user, isOperator, signOut } = useAuth()
-  const navigate = useNavigate()
 
   return (
-    <header className={sobreHero
-      ? 'absolute top-0 inset-x-0 z-20'
-      : 'border-b border-border bg-background/90 backdrop-blur'}>
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-2 font-playfair text-xl font-semibold text-foreground">
-          <Sparkles className="h-5 w-5 text-primary" />
+    <header className="sticky top-0 z-50 h-11 bg-[rgba(22,22,23,0.8)] shadow-[0_1px_0_rgba(0,0,0,0.06)] backdrop-blur-[20px] backdrop-saturate-[1.8]">
+      <nav className="mx-auto flex h-full max-w-[1024px] items-center justify-between gap-3 px-[22px]" aria-label="Principal">
+        <Link to="/" className="text-[12px] font-medium tracking-tight text-[#f5f5f7] hover:no-underline">
           Clube Beleza
         </Link>
-        <nav className="flex items-center gap-2 text-sm">
-          <Button variant="ghost" onClick={() => navigate('/lista-espera')}>Lista de espera</Button>
+        <div className="flex items-center gap-4">
+          <Link to="/lista-espera" className={link}>Lista</Link>
           {user ? (
             <>
-              <Button variant="ghost" onClick={() => navigate('/area')}>Minha área</Button>
-              {isOperator && <Button variant="ghost" onClick={() => navigate('/operador')}>Operação</Button>}
-              <Button variant="outline" onClick={() => void signOut()}>Sair</Button>
+              <Link to="/area" className={link}>Área</Link>
+              {isOperator && <Link to="/operador" className={link}>Operação</Link>}
+              <button type="button" className={link} onClick={() => void signOut()}>Sair</button>
             </>
           ) : (
-            <Button variant="outline" onClick={() => navigate('/entrar')}>Entrar</Button>
+            <Link to="/entrar" className={link}>Entrar</Link>
           )}
-        </nav>
-      </div>
+        </div>
+      </nav>
     </header>
   )
 }

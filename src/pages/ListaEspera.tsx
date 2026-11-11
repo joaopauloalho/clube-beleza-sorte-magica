@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SiteHeader } from '@/components/SiteHeader'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -57,15 +57,13 @@ export default function ListaEspera() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
       <SiteHeader />
-      <main className="container mx-auto px-4 py-12 max-w-xl">
-        <Card className="shadow-medium">
-          <CardHeader>
-            <CardTitle className="font-playfair text-3xl">Lista de espera</CardTitle>
-            <CardDescription>Sem pagamento. O grupo só cobra quando completar 24 pessoas.</CardDescription>
-          </CardHeader>
-          <CardContent>
+      <main className="mx-auto max-w-[560px] px-[22px] py-10">
+        <h1 className="text-[34px] font-semibold leading-tight tracking-tight">Lista.</h1>
+        <p className="mt-2 text-[17px] text-[#86868b]">Sem pagamento agora.</p>
+        <Card className="mt-8 rounded-[28px] border-0 shadow-none">
+          <CardContent className="pt-6">
             {status ? (
               <div className="space-y-4">
                 <p className="text-foreground">
@@ -79,7 +77,7 @@ export default function ListaEspera() {
               <form className="space-y-5" onSubmit={enviar}>
                 <div className="space-y-2">
                   <Label htmlFor="nome">Nome</Label>
-                  <Input id="nome" value={nome} onChange={(event) => setNome(event.target.value)} autoComplete="name" required />
+                  <Input id="nome" className="h-12 rounded-xl text-[17px]" value={nome} onChange={(event) => setNome(event.target.value)} autoComplete="name" required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="whatsapp">WhatsApp</Label>
@@ -89,6 +87,7 @@ export default function ListaEspera() {
                     autoComplete="tel"
                     value={whatsapp}
                     onChange={(event) => setWhatsapp(maskWhatsApp(event.target.value))}
+                    className="h-12 rounded-xl text-[17px]"
                     placeholder="(11) 98888-7777"
                     required
                   />
@@ -106,8 +105,8 @@ export default function ListaEspera() {
                   </div>
                 </div>
                 {erro && <p className="text-sm text-destructive" role="alert">{erro}</p>}
-                <Button type="submit" className="w-full bg-gradient-primary text-white" disabled={enviando}>
-                  {enviando ? 'Enviando…' : 'Entrar na lista'}
+                <Button type="submit" className="h-12 w-full" disabled={enviando}>
+                  {enviando ? 'Enviando…' : 'Quero entrar na lista'}
                 </Button>
               </form>
             )}

@@ -117,17 +117,17 @@ export default function Area() {
   const pagos = pagamentos.filter((item) => item.status === 'pago').length
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
       <SiteHeader />
-      <main className="container mx-auto px-4 py-10 max-w-3xl space-y-6">
-        <h1 className="font-playfair text-4xl font-bold">Área da integrante</h1>
+      <main className="mx-auto max-w-[680px] space-y-4 px-[22px] py-8">
+        <h1 className="text-[34px] font-semibold tracking-tight">Sua área.</h1>
         {carregando ? (
           <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>
         ) : !membro ? (
           <Card>
             <CardHeader><CardTitle>Nenhuma cota ainda</CardTitle></CardHeader>
             <CardContent>
-              <Button asChild className="bg-gradient-primary text-white"><Link to="/adesao">Reservar uma cota</Link></Button>
+              <Button asChild><Link to="/adesao">Reservar uma cota</Link></Button>
             </CardContent>
           </Card>
         ) : (
@@ -137,9 +137,9 @@ export default function Area() {
               <Badge variant="outline">{membro.em_dia ? 'Em dia' : 'Sem mensalidade confirmada'}</Badge>
             </div>
 
-            <Card>
+            <Card className="rounded-[28px] border-0 shadow-none">
               <CardHeader>
-                <CardTitle className="font-playfair text-2xl">{plano?.nome ?? planoDb?.nome}</CardTitle>
+                <CardTitle className="text-[28px] font-semibold tracking-tight">{plano?.nome ?? planoDb?.nome}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <p>Grupo {grupo?.nome ?? '—'} · cota {membro.cota ?? '—'} · {grupo?.vagas_preenchidas ?? 0} de {grupo?.total_vagas ?? 24}</p>
@@ -160,15 +160,15 @@ export default function Area() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader><CardTitle>Pix Automático e mensalidades</CardTitle></CardHeader>
+            <Card className="rounded-[28px] border-0 shadow-none">
+              <CardHeader><CardTitle className="text-[22px] font-semibold">Pix e mensalidades</CardTitle></CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <p>{assinatura ? (PIX[assinatura.status] ?? assinatura.status) : 'Cobrança ainda não criada.'}</p>
                 {assinatura?.motivo && <p className="text-muted-foreground">Motivo registrado: {assinatura.motivo}</p>}
                 {!assinatura && <p>{A_DEFINIR.pixLiberacao}</p>}
                 <p>{pagos} mensalidade(s) confirmada(s) de 12. {A_DEFINIR.cancelamento}</p>
                 {assinatura?.checkout_url && assinatura.status === 'checkout_criado' && (
-                  <Button asChild className="bg-gradient-primary text-white"><a href={assinatura.checkout_url}>Abrir autorização do Pix</a></Button>
+                  <Button asChild><a href={assinatura.checkout_url}>Abrir autorização do Pix</a></Button>
                 )}
                 <ul className="space-y-2">
                   {pagamentos.length === 0 && <li className="text-muted-foreground">Nenhum pagamento registrado.</li>}
