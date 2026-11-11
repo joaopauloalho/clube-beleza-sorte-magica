@@ -3,6 +3,7 @@ import { test } from 'node:test'
 import { formatarReais } from './format'
 import {
   economia,
+  exemploAnoSuprema,
   fraseBonusSuprema,
   fraseEconomia,
   GRUPOS_PROCEDIMENTOS,
@@ -70,6 +71,16 @@ test('o ganho da assinatura não se mistura com o crédito do sorteio', () => {
   for (const oferta of Object.values(porSlug)) {
     assert.equal(oferta.credito, oferta.soma - oferta.ganhoTabela)
   }
+})
+
+test('o ano de exemplo da Suprema fecha a conta sem gastar o crédito restante', () => {
+  const ano = exemploAnoSuprema()
+  assert.equal(ano.usoCredito, 999 + 399)
+  assert.equal(ano.restante, 302)
+  assert.equal(ano.investiu, 1200)
+  assert.equal(ano.aParte, 176 * 2)
+  assert.equal(ano.recebeu, 349 + 1249 + 499 + 220 * 2)
+  assert.equal(ano.economizou, ano.recebeu - (ano.investiu + ano.aParte))
 })
 
 test('o texto da Suprema só diz metade quando o bônus cobre metade da toxina', () => {

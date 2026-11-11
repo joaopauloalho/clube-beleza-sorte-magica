@@ -1,5 +1,5 @@
 import { formatarReais } from './format'
-import { bonusEmServicos } from './plans'
+import { bonusEmServicos, PLANS } from './plans'
 
 /**
  * Tabela de referência enviada pelo João. Os preços de cada plano são os valores
@@ -149,6 +149,38 @@ export function ofertaDoPlano(plano: {
 
 export function fraseDoHero(oferta: OfertaPlano): string {
   return `Assine o ${oferta.nome} e ganhe uma ${oferta.ganhoNome.toLowerCase()} de ${inteiro.format(oferta.ganhoTabela)} na hora.`
+}
+
+/** Um ano ilustrativo no Suprema. As duas limpezas são pagas por ela, então os R$ 302 do crédito ficam para depois. */
+export function exemploAnoSuprema() {
+  const plano = PLANS.find((item) => item.slug === 'suprema')
+  if (!plano) throw new Error('Plano Suprema ausente')
+  const micro = procedimentoPorId('mmp')
+  const botox = procedimentoPorId('toxina-botulinica')
+  const skin = procedimentoPorId('skinbooster')
+  const limpeza = procedimentoPorId('limpeza')
+  const usoCredito = botox.suprema + skin.suprema
+  const restante = plano.credito - usoCredito
+  const limpezas = 2
+  const aParte = limpeza.suprema * limpezas
+  const investiu = plano.mensalidade * 12
+  const recebeu = micro.tabela + botox.tabela + skin.tabela + limpeza.tabela * limpezas
+  const pagou = investiu + aParte
+  return {
+    mensalidade: plano.mensalidade,
+    credito: plano.credito,
+    micro,
+    botox,
+    skin,
+    limpeza,
+    usoCredito,
+    restante,
+    aParte,
+    investiu,
+    recebeu,
+    pagou,
+    economizou: recebeu - pagou,
+  }
 }
 
 /**

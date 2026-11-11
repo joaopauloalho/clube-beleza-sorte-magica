@@ -1,19 +1,17 @@
 import { useNavigate } from 'react-router-dom'
-import { Calendar, Shield, Sparkles, Users } from 'lucide-react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { ExemploAno } from '@/components/ExemploAno'
 import { CarrosselEntrada } from '@/components/CarrosselEntrada'
 import { ConviteLista } from '@/components/ConviteLista'
 import { PlanosGrid } from '@/components/PlanosGrid'
 import { TabelaProcedimentos } from '@/components/TabelaProcedimentos'
 import { SiteHeader } from '@/components/SiteHeader'
 import { DIA_PAGAMENTO, DIA_SORTEIO, fraseDoCiclo } from '@/lib/ciclo'
-import { A_DEFINIR, CTA_PLANOS, imaginePrimeiraMensalidade, LINHA_CHANCE, LINHA_SORTEIO, NOME_DO_CLUBE, PASSOS, PROMESSA_CURTA } from '@/lib/copy'
+import { A_DEFINIR, CTA_PLANOS, imaginePrimeiraMensalidade, LINHA_CHANCE, LINHA_SORTEIO, NOME_DO_CLUBE, PROMESSA_CURTA } from '@/lib/copy'
 import { formatarReais } from '@/lib/format'
 import { maiorCredito } from '@/lib/planos-publicos'
 import { usePlanosPublicos } from '@/lib/use-planos-publicos'
 import heroImage from '@/assets/hero-woman.jpg'
-
-const icones = [Sparkles, Users, Shield, Calendar]
 
 const faq = [
   { pergunta: 'Quando a mensalidade começa?', resposta: PROMESSA_CURTA },
@@ -101,18 +99,10 @@ export default function Index() {
         </section>
 
         <section className="px-[22px] py-14 md:py-24">
-          <div className="mx-auto max-w-[1120px]">
-            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Como funciona.</h2>
-            <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-              {PASSOS.map((passo, indice) => {
-                const Icone = icones[indice] ?? Sparkles
-                return (
-                  <article key={passo.titulo} className="min-h-[148px] rounded-[28px] bg-[#f5f5f7] p-5">
-                    <Icone className="h-5 w-5 text-[#a52751]" aria-hidden="true" />
-                    <h3 className="mt-5 text-[19px] leading-tight">{passo.titulo.replace(/^\d+\.\s*/, '')}</h3>
-                  </article>
-                )
-              })}
+          <div className="mx-auto max-w-[720px]">
+            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Um ano no Suprema, por exemplo.</h2>
+            <div className="mt-8">
+              <ExemploAno />
             </div>
             <div className="mt-8">
               <ConviteLista />
