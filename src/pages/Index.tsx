@@ -4,7 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ConviteLista } from '@/components/ConviteLista'
 import { Parcelas } from '@/components/Parcelas'
 import { PlanosGrid } from '@/components/PlanosGrid'
-import { ServicosDoClube } from '@/components/ServicosDoClube'
+import { TabelaProcedimentos } from '@/components/TabelaProcedimentos'
 import { SiteHeader } from '@/components/SiteHeader'
 import { DIA_PAGAMENTO, DIA_SORTEIO, fraseDoCiclo } from '@/lib/ciclo'
 import { A_DEFINIR, CTA_PLANOS, imaginePrimeiraMensalidade, LINHA_CHANCE, LINHA_SORTEIO, PASSOS, PROMESSA_CURTA } from '@/lib/copy'
@@ -138,10 +138,11 @@ export default function Index() {
         </section>
 
         <section id="servicos" className="scroll-mt-16 bg-[#f5f5f7] px-[22px] py-14 md:py-24">
-          <div className="mx-auto max-w-[720px]">
-            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Serviços do clube.</h2>
+          <div className="mx-auto max-w-[1120px]">
+            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Procedimentos.</h2>
+            <p className="mt-3 max-w-[36rem] text-[17px] leading-snug text-[#6e6e73]">O preço da tabela e o preço de quem está no clube.</p>
             <div className="mt-8">
-              <ServicosDoClube />
+              <TabelaProcedimentos planos={planos} />
             </div>
             <div className="mt-8">
               <ConviteLista />

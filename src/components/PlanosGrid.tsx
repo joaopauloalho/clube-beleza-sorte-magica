@@ -3,6 +3,7 @@ import { Parcelas } from '@/components/Parcelas'
 import { CTA_PLANO, LINHA_SORTEIO } from '@/lib/copy'
 import { formatarReais } from '@/lib/format'
 import type { PlanoPublico } from '@/lib/planos-publicos'
+import { fraseBonusSuprema, fraseEssencial } from '@/lib/procedimentos'
 import { bonusEmServicos, CYCLE_MONTHS, frasePorDia } from '@/lib/plans'
 
 export function PlanosGrid({
@@ -30,10 +31,15 @@ export function PlanosGrid({
                 {plano.destaque ? 'Destaque' : `${CYCLE_MONTHS} meses`}
               </p>
               <h3 className="mt-2 text-balance text-[16px] font-semibold leading-tight tracking-tight sm:text-[28px]">{plano.nomeCurto}</h3>
-              {destaque && (
-                <p className="mt-3 text-[14px] font-medium leading-tight text-white sm:text-[22px]">
-                  +{formatarReais(bonusEmServicos(plano.credito, plano.total12))} em serviços
-                </p>
+              {plano.slug === 'suprema' && (
+                <>
+                  <p className={`mt-3 text-[14px] font-medium leading-tight sm:text-[22px] ${destaque ? 'text-white' : 'text-[#1d1d1f]'}`}>
+                    +{formatarReais(bonusEmServicos(plano.credito, plano.total12))} em serviços
+                  </p>
+                  <p className={`mt-2 break-words text-[12px] leading-snug sm:text-[14px] ${destaque ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>
+                    {fraseBonusSuprema(bonusEmServicos(plano.credito, plano.total12))}
+                  </p>
+                </>
               )}
               <p className="mt-3 text-[16px] font-semibold tabular-nums leading-none tracking-tight sm:text-[36px]">
                 {formatarReais(plano.mensalidade)}
@@ -51,8 +57,13 @@ export function PlanosGrid({
               <p className={`mt-3 text-[13px] leading-snug sm:text-[15px] ${destaque ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>
                 Crédito {formatarReais(plano.credito)}
               </p>
-              {!destaque && (
-                <p className="text-[12px] font-medium leading-snug text-[#a52751] sm:text-[15px]">
+              {plano.slug === 'essencial' && (
+                <p className={`mt-2 break-words text-[12px] leading-snug sm:text-[14px] ${destaque ? 'text-white' : 'text-[#1d1d1f]'}`}>
+                  {fraseEssencial(plano.mensalidade, plano.total12, plano.credito)}
+                </p>
+              )}
+              {plano.slug === 'radiante' && (
+                <p className={`text-[12px] font-medium leading-snug sm:text-[15px] ${destaque ? 'text-white' : 'text-[#a52751]'}`}>
                   +{formatarReais(bonusEmServicos(plano.credito, plano.total12))} em serviços
                 </p>
               )}
