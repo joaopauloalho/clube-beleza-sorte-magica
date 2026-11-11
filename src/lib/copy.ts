@@ -20,21 +20,24 @@ export const A_DEFINIR = {
   atraso: '[A DEFINIR: regras de atraso no pagamento]',
 } as const
 
+/** Nome visível do clube. Os planos no banco continuam Beleza Essencial, Radiante e Suprema. */
+export const NOME_DO_CLUBE = 'Clube Uniquas'
+export const WORDMARK = 'UNIQUAS'
+export const TAGLINE = 'Únicas, mas juntas.'
+export const LINHA_DE_APOIO = 'Mais que um clube. Um movimento de mulheres que escolhem cuidar de si.'
+
 export const REGRA_SORTEIO =
   '24 pessoas por grupo · 2 sorteadas todo mês · 3 nos meses 4 e 8 · todas sorteadas até o mês 12'
 
 export const TEXTO_REGULAMENTO =
-  'Aceito as regras publicadas do Clube Beleza: grupo fechado de 24 pessoas no mesmo plano; cobrança somente por Pix Automático e somente quando o grupo completar 24 pessoas; todo mês 2 integrantes em dia são sorteadas; nos meses 4 e 8 há um sorteio extra, com 3 sorteadas, só entre quem está em dia; quem já foi sorteada não concorre de novo; quem para de pagar sai do sorteio; todas as integrantes em dia são sorteadas até o mês 11. ' +
+  `Aceito as regras publicadas do ${NOME_DO_CLUBE}: grupo fechado de 24 pessoas no mesmo plano; cobrança somente por Pix Automático e somente quando o grupo completar 24 pessoas; todo mês 2 integrantes em dia são sorteadas; nos meses 4 e 8 há um sorteio extra, com 3 sorteadas, só entre quem está em dia; quem já foi sorteada não concorre de novo; quem para de pagar sai do sorteio; todas as integrantes em dia são sorteadas até o mês 11. ` +
   A_DEFINIR.atraso +
   ' ' +
   A_DEFINIR.regulamento
 
 export const TEXTO_OPTIN_WHATSAPP =
-  'Aceito receber mensagens de WhatsApp sobre a minha participação no Clube Beleza. Este aceite é opcional e separado do regulamento. ' +
+  `Aceito receber mensagens de WhatsApp sobre a minha participação no ${NOME_DO_CLUBE}. Este aceite é opcional e separado do regulamento. ` +
   A_DEFINIR.whatsapp
-
-/** O João vai trocar este nome. Está num lugar só. */
-export const NOME_DO_CLUBE = 'Clube Beleza'
 
 export const CTA_LISTA = 'Quero entrar na lista'
 export const CTA_PLANOS = 'Ver os planos'

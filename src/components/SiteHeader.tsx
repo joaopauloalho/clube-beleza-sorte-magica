@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
-import { CTA_LISTA } from '@/lib/copy'
+import { CTA_LISTA, WORDMARK } from '@/lib/copy'
 
 const link = 'inline-flex h-11 items-center text-[12px] text-[#f5f5f7]/80 hover:text-[#f5f5f7] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-sm'
 
@@ -13,8 +13,8 @@ export function SiteHeader() {
         Ir para o conteúdo
       </a>
       <nav className="mx-auto flex h-12 max-w-[1120px] items-center justify-between gap-3 px-[22px]" aria-label="Principal">
-        <Link to="/" className="text-[12px] font-medium tracking-tight text-[#f5f5f7] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-sm">
-          Clube Beleza
+        <Link to="/" className="font-sans text-[12px] font-medium tracking-[0.22em] text-[#f5f5f7] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-sm">
+          {WORDMARK}
         </Link>
         <div className="flex items-center gap-3 sm:gap-4">
           <Link

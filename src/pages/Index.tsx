@@ -8,7 +8,7 @@ import { PlanosGrid } from '@/components/PlanosGrid'
 import { TabelaProcedimentos } from '@/components/TabelaProcedimentos'
 import { SiteHeader } from '@/components/SiteHeader'
 import { DIA_PAGAMENTO, DIA_SORTEIO, fraseDoCiclo } from '@/lib/ciclo'
-import { A_DEFINIR, CTA_PLANOS, imaginePrimeiraMensalidade, LINHA_SORTEIO, NOME_DO_CLUBE, PROMESSA_CURTA, REGRA_SORTEIO } from '@/lib/copy'
+import { A_DEFINIR, CTA_PLANOS, imaginePrimeiraMensalidade, LINHA_DE_APOIO, LINHA_SORTEIO, PROMESSA_CURTA, REGRA_SORTEIO, TAGLINE, WORDMARK } from '@/lib/copy'
 import { formatarReais } from '@/lib/format'
 import { maiorCredito } from '@/lib/planos-publicos'
 import { usePlanosPublicos } from '@/lib/use-planos-publicos'
@@ -42,8 +42,10 @@ export default function Index() {
           <div className="mx-auto grid max-w-[1120px] items-stretch gap-3 md:grid-cols-12 md:gap-4">
             <article className="flex flex-col justify-between rounded-[28px] bg-[#f5f5f7] p-6 md:col-span-7 md:p-10">
               <div>
-                <h1 className="text-balance text-[clamp(44px,6vw,76px)] leading-[1.02]">{NOME_DO_CLUBE}.</h1>
-                <p className="mt-5 max-w-[34rem] text-pretty text-[clamp(17px,2vw,21px)] leading-snug text-[#6e6e73]">
+                <p className="font-sans text-[13px] font-medium tracking-[0.28em] text-[#a52751]">{WORDMARK}</p>
+                <h1 className="mt-3 text-balance text-[clamp(40px,6vw,72px)] leading-[1.05]">{TAGLINE}</h1>
+                <p className="mt-4 max-w-[34rem] text-pretty text-[clamp(17px,2vw,21px)] leading-snug text-[#6e6e73]">{LINHA_DE_APOIO}</p>
+                <p className="mt-4 max-w-[34rem] text-pretty text-[15px] leading-snug text-[#6e6e73]">
                   {imaginePrimeiraMensalidade(destaque.mensalidade, destaque.credito)}
                 </p>
                 <p className="mt-3 max-w-[34rem] text-[14px] leading-snug text-[#6e6e73]">{LINHA_SORTEIO}</p>

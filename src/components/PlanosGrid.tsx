@@ -27,11 +27,12 @@ export function CartaoPlano({
   const rotulo = escuro ? 'text-[#f3d0dc]' : 'text-[#841f41]'
   return (
     <article
-      className={`flex min-h-[240px] min-w-0 flex-col justify-between overflow-hidden rounded-[28px] p-3 sm:p-6 ${FUNDO[plano.slug]} ${selecionado === plano.slug ? 'ring-2 ring-[#a52751]' : ''}`}
+      className={`flex min-h-[240px] min-w-0 flex-col justify-between overflow-hidden rounded-[28px] p-5 md:p-6 ${FUNDO[plano.slug]} ${selecionado === plano.slug ? 'ring-2 ring-[#a52751]' : ''}`}
     >
       <div className="min-w-0">
+        {escuro && <p className="mb-2 text-[11px] tracking-wide text-[#f3d0dc] md:hidden">Mais completo</p>}
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-          <h3 className="text-balance text-[18px] leading-tight sm:text-[28px]">{plano.nomeCurto}</h3>
+          <h3 className="text-balance text-[22px] leading-tight sm:text-[28px]">{plano.nomeCurto}</h3>
           <span className="inline-flex max-w-full rounded-full bg-[#a52751] px-2 py-0.5 text-center text-[10px] font-medium leading-tight text-white sm:text-[12px]">
             +{inteiro.format(oferta.ganhoTabela + oferta.bonus)} em bônus
           </span>
@@ -80,12 +81,19 @@ export function PlanosGrid({
   selecionado?: string
   onEscolher: (plano: PlanoPublico) => void
 }) {
+  const ordem = {
+    suprema: 'order-1 md:order-none',
+    radiante: 'order-2 md:order-none',
+    essencial: 'order-3 md:order-none',
+  } as const
   return (
-    <div className="grid grid-cols-3 gap-2 sm:gap-5">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-5">
       {planos.map((plano) => (
-        <CartaoPlano key={plano.slug} plano={plano} selecionado={selecionado} onEscolher={onEscolher} />
+        <div key={plano.slug} className={ordem[plano.slug]}>
+          <CartaoPlano plano={plano} selecionado={selecionado} onEscolher={onEscolher} />
+        </div>
       ))}
-      <p className="col-span-3 text-center text-[14px] text-[#6e6e73]">{LINHA_SORTEIO}</p>
+      <p className="text-center text-[14px] text-[#6e6e73] md:col-span-3">{LINHA_SORTEIO}</p>
     </div>
   )
 }
