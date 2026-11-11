@@ -23,8 +23,8 @@ test('texto de produto não usa a palavra proibida nem linguagem de procedimento
     ...arquivos(join(raiz, 'src/lib')),
     join(raiz, 'index.html'),
   ]
-  // Peeling e limpeza de pele estão na tabela que o João enviou. Continuam fora daqui.
-  const proibidos = [/cons[oó]rcio/i, /lovable/i, /user_metadata/i, /microagulhamento/i, /antes e depois/i]
+  // Peeling, limpeza de pele e microagulhamento estão na tabela que o João enviou.
+  const proibidos = [/cons[oó]rcio/i, /lovable/i, /user_metadata/i, /antes e depois/i]
   for (const arquivo of alvos) {
     const texto = readFileSync(arquivo, 'utf8')
     for (const regra of proibidos) {

@@ -27,6 +27,9 @@ export const TEXTO_OPTIN_WHATSAPP =
   'Aceito receber mensagens de WhatsApp sobre a minha participação no Clube Beleza. Este aceite é opcional e separado do regulamento. ' +
   A_DEFINIR.whatsapp
 
+/** O João vai trocar este nome. Está num lugar só. */
+export const NOME_DO_CLUBE = 'Clube Beleza'
+
 export const CTA_LISTA = 'Quero entrar na lista'
 export const CTA_PLANOS = 'Ver os planos'
 export const CTA_PLANO = 'Quero este plano'

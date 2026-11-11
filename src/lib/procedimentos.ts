@@ -37,10 +37,10 @@ const avulsos: readonly Procedimento[] = [
   { id: 'peim', nome: 'Revitalização facial', tabela: 180, essencial: 162, radiante: 153, suprema: 144 },
   { id: 'limpeza', nome: 'Limpeza de pele', tabela: 220, essencial: 198, radiante: 187, suprema: 176 },
   { id: 'peeling', nome: 'Peeling', tabela: 249, essencial: 224, radiante: 212, suprema: 199 },
-  { id: 'mmp', nome: 'MMP', tabela: 349, essencial: 314, radiante: 297, suprema: 279 },
+  { id: 'mmp', nome: 'Microagulhamento', tabela: 349, essencial: 314, radiante: 297, suprema: 279 },
   { id: 'protocolo-noiva', nome: 'Protocolo noiva', tabela: 449, essencial: 404, radiante: 382, suprema: 359 },
-  { id: 'mmp-pdrn', nome: 'MMP com PDRN', tabela: 449, essencial: 404, radiante: 382, suprema: 359 },
-  { id: 'mmp-peeling', nome: 'MMP + Peeling', tabela: 450, essencial: 405, radiante: 383, suprema: 360 },
+  { id: 'mmp-pdrn', nome: 'Microagulhamento com PDRN', tabela: 449, essencial: 404, radiante: 382, suprema: 359 },
+  { id: 'mmp-peeling', nome: 'Microagulhamento + Peeling', tabela: 450, essencial: 405, radiante: 383, suprema: 360 },
   { id: 'skinbooster', nome: 'Skinbooster', tabela: 499, essencial: 449, radiante: 424, suprema: 399 },
 ]
 
@@ -89,65 +89,66 @@ export function fraseEconomia(tabela: number, preco: number): string | null {
   return `você economiza ${formatarReais(valor)}`
 }
 
+const GANHO_AO_ASSINAR = {
+  essencial: 'peim',
+  radiante: 'limpeza',
+  suprema: 'mmp',
+} as const
+
+const inteiro = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
+
 export interface OfertaPlano {
+  slug: 'essencial' | 'radiante' | 'suprema'
+  nome: string
   pagaMes: number
   pagaAno: number
-  /** Número grande de "Você recebe". Só entra o que os dados somam. */
-  recebe: number
-  linhas: string[]
+  ganhoNome: string
+  ganhoTabela: number
+  credito: number
+  bonus: number
+  /** Procedimento da assinatura + crédito. O bônus já está dentro do crédito. */
+  soma: number
+  /** "quase R$ 2.000" quando a soma fica perto de um milhar redondo. */
+  quase: string | null
   desconto: number
 }
 
-/**
- * O que cada plano mostra em "Você paga" e "Você recebe".
- * Essencial: o João falou em "R$ 100 em crédito, total 280". Enquanto ele não confirma,
- * o crédito mostrado é o do plano (700), não 100 e não 180+100.
- * Radiante: ele quer ler "recebe 1.300". Crédito 1.125 + limpeza 220 = 1.345. A tela usa 1.345.
- * Suprema: ele citou "quase R$ 2.000". Não há serviço incluído confirmado que chegue lá.
- * Pendente até ele indicar o serviço. Não escrever "quase 2.000".
- */
+function quaseMilhar(soma: number): string | null {
+  const milhar = Math.round(soma / 1000) * 1000
+  if (milhar > 0 && soma !== milhar && Math.abs(soma - milhar) <= 60) return `quase ${inteiro.format(milhar)}`
+  return null
+}
+
+/** Ganho na assinatura e crédito do sorteio, sem somar o bônus de novo. */
 export function ofertaDoPlano(plano: {
   slug: string
+  nomeCurto?: string
   mensalidade: number
   total12: number
   credito: number
   desconto: number
 }): OfertaPlano {
+  const slug = plano.slug as OfertaPlano['slug']
+  const ganho = procedimentoPorId(GANHO_AO_ASSINAR[slug])
   const bonus = bonusEmServicos(plano.credito, plano.total12)
-  const credito = `${formatarReais(plano.credito)} em crédito, se for sorteada`
-  if (plano.slug === 'essencial') {
-    const revitalizacao = procedimentoPorId('peim')
-    return {
-      pagaMes: plano.mensalidade,
-      pagaAno: plano.total12,
-      recebe: plano.credito,
-      linhas: [
-        `${revitalizacao.nome} (${formatarReais(revitalizacao.tabela)} de tabela)`,
-        `${credito} (inclui +${formatarReais(bonus)} de bônus)`,
-      ],
-      desconto: plano.desconto,
-    }
-  }
-  if (plano.slug === 'radiante') {
-    const limpeza = procedimentoPorId('limpeza')
-    return {
-      pagaMes: plano.mensalidade,
-      pagaAno: plano.total12,
-      recebe: plano.credito + limpeza.tabela,
-      linhas: [
-        `${limpeza.nome} (${formatarReais(limpeza.tabela)} de tabela)`,
-        credito,
-      ],
-      desconto: plano.desconto,
-    }
-  }
+  const soma = plano.credito + ganho.tabela
   return {
+    slug,
+    nome: plano.nomeCurto ?? slug,
     pagaMes: plano.mensalidade,
     pagaAno: plano.total12,
-    recebe: plano.credito,
-    linhas: [`${credito} (inclui +${formatarReais(bonus)} de bônus)`],
+    ganhoNome: ganho.nome,
+    ganhoTabela: ganho.tabela,
+    credito: plano.credito,
+    bonus,
+    soma,
+    quase: quaseMilhar(soma),
     desconto: plano.desconto,
   }
+}
+
+export function fraseDoHero(oferta: OfertaPlano): string {
+  return `Assine o ${oferta.nome} e ganhe uma ${oferta.ganhoNome.toLowerCase()} de ${inteiro.format(oferta.ganhoTabela)} na hora.`
 }
 
 /**

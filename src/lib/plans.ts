@@ -22,8 +22,8 @@ export const CYCLE_MONTHS = 12
 
 /**
  * Fonte única dos três planos.
- * Essencial 50/600/700/17%/10%, Radiante 75/900/1125/25%/15%, Suprema 100/1200/1700/33%/20%.
- * O crédito 1700 entra na migration `20261111040200_credito_suprema_1700.sql`, que ainda não foi aplicada.
+ * Essencial 50/600/700/17%/10%, Radiante 75/900/1350/25%/15%, Suprema 100/1200/1700/33%/20%.
+ * O crédito 1350 da Radiante está em `20261111050000_credito_radiante_1350.sql`.
  * A fração `bonusClinica` continua a coluna já gravada. O bônus em reais é `credito - total12`.
  */
 export const PLANS: readonly Plan[] = [
@@ -42,7 +42,7 @@ export const PLANS: readonly Plan[] = [
     nome: 'Beleza Radiante',
     mensalidade: 75,
     total12: 900,
-    credito: 1125,
+    credito: 1350,
     bonusClinica: 0.25,
     precoMembro: 0.15,
     destaque: false,

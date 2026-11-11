@@ -10,7 +10,7 @@ test('há três planos e os valores canônicos', () => {
   assert.equal(PLANS.length, 3)
   assert.deepEqual(PLANS.map((plano) => [plano.slug, plano.mensalidade, plano.total12, plano.credito, plano.bonusClinica, plano.precoMembro]), [
     ['essencial', 50, 600, 700, 0.17, 0.1],
-    ['radiante', 75, 900, 1125, 0.25, 0.15],
+    ['radiante', 75, 900, 1350, 0.25, 0.15],
     ['suprema', 100, 1200, 1700, 0.33, 0.2],
   ])
 })
@@ -22,7 +22,7 @@ test('o total de 12 meses é a mensalidade vezes 12', () => {
 test('o bônus em serviços é o crédito menos as 12 mensalidades', () => {
   assert.deepEqual(
     PLANS.map((plano) => bonusEmServicos(plano.credito, plano.total12)),
-    [100, 225, 500],
+    [100, 450, 500],
   )
   for (const plano of PLANS) {
     assert.equal(bonusEmServicos(plano.credito, plano.total12), plano.credito - plano.total12)
@@ -41,6 +41,16 @@ test('a migration da Suprema só troca o crédito de 1600 para 1700', () => {
   assert.match(sql, /where nome = 'Beleza Suprema'/)
   assert.match(sql, /and credito_sorteio = 1600/)
   assert.match(sql, /set credito_sorteio = 1700/)
+  assert.equal(/update\s+public\.leads/i.test(sql), false)
+  assert.equal(/delete\s+from/i.test(sql), false)
+})
+
+test('a migration da Radiante só troca o crédito de 1125 para 1350', () => {
+  const raiz = join(fileURLToPath(new URL('.', import.meta.url)), '../..')
+  const sql = readFileSync(join(raiz, 'supabase/migrations/20261111050000_credito_radiante_1350.sql'), 'utf8')
+  assert.match(sql, /where nome = 'Beleza Radiante'/)
+  assert.match(sql, /and credito_sorteio = 1125/)
+  assert.match(sql, /set credito_sorteio = 1350/)
   assert.equal(/update\s+public\.leads/i.test(sql), false)
   assert.equal(/delete\s+from/i.test(sql), false)
 })

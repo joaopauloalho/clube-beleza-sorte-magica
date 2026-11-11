@@ -16,7 +16,7 @@ test('a tabela curta tem os 8 procedimentos na ordem pedida', () => {
   assert.deepEqual(procedimentosEmDestaque().map((item) => item.nome), [
     'Peeling',
     'Revitalização facial',
-    'MMP',
+    'Microagulhamento',
     'Limpeza de pele',
     'Botox feminino',
     'Botox masculino',
@@ -32,8 +32,8 @@ test('o restante só existe nos grupos completos', () => {
     'Toxina 1 área',
     'Toxina full face',
     'Protocolo noiva',
-    'MMP com PDRN',
-    'MMP + Peeling',
+    'Microagulhamento com PDRN',
+    'Microagulhamento + Peeling',
     'Skinbooster',
   ])
 })
@@ -48,18 +48,25 @@ test('os preços são os recebidos e a economia é tabela menos o plano', () => 
   assert.equal(JSON.stringify(GRUPOS_PROCEDIMENTOS).includes('material'), false)
 })
 
-test('o que cada plano recebe sai dos dados e não de um total inventado', () => {
-  const porSlug = Object.fromEntries(PLANS.map((plano) => [plano.slug, ofertaDoPlano({ ...plano, desconto: plano.precoMembro })]))
-  assert.equal(porSlug.essencial.pagaMes, 50)
-  assert.equal(porSlug.essencial.pagaAno, 600)
-  assert.equal(porSlug.essencial.recebe, 700)
-  assert.match(porSlug.essencial.linhas.join(' '), /Revitalização facial/)
-  assert.match(porSlug.essencial.linhas.join(' '), /180/)
-  assert.equal(porSlug.radiante.recebe, 1125 + 220)
-  assert.equal(porSlug.suprema.recebe, 1700)
-  assert.equal(porSlug.suprema.recebe, porSlug.suprema.pagaAno + bonusEmServicos(1700, 1200))
-  assert.equal(JSON.stringify(porSlug).includes('2.000'), false)
-  assert.equal(JSON.stringify(porSlug).includes('280'), false)
+test('o ganho da assinatura não se mistura com o crédito do sorteio', () => {
+  const porSlug = Object.fromEntries(PLANS.map((plano) => [plano.slug, ofertaDoPlano({ ...plano, nomeCurto: plano.nome.replace(/^Beleza\s+/, ''), desconto: plano.precoMembro })]))
+  assert.equal(porSlug.essencial.ganhoNome, 'Revitalização facial')
+  assert.equal(porSlug.essencial.ganhoTabela, 180)
+  assert.equal(porSlug.essencial.credito, 700)
+  assert.equal(porSlug.essencial.bonus, 100)
+  assert.equal(porSlug.essencial.soma, 880)
+  assert.equal(porSlug.radiante.credito, 1350)
+  assert.equal(porSlug.radiante.bonus, 450)
+  assert.equal(porSlug.radiante.soma, 1570)
+  assert.equal(porSlug.suprema.ganhoNome, 'Microagulhamento')
+  assert.equal(porSlug.suprema.soma, 2049)
+  assert.match(porSlug.suprema.quase ?? '', /quase/)
+  assert.match(porSlug.suprema.quase ?? '', /2\.000/)
+  assert.equal(porSlug.essencial.quase, null)
+  assert.equal(porSlug.radiante.quase, null)
+  for (const oferta of Object.values(porSlug)) {
+    assert.equal(oferta.credito, oferta.soma - oferta.ganhoTabela)
+  }
 })
 
 test('o texto da Suprema só diz metade quando o bônus cobre metade da toxina', () => {

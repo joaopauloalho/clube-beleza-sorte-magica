@@ -13,7 +13,7 @@ test('a frase usa o valor de cada plano e não promete prazo nem garantia', () =
   assert.match(porSlug.essencial, /50/)
   assert.match(porSlug.essencial, /700/)
   assert.match(porSlug.radiante, /75/)
-  assert.match(porSlug.radiante, /1\.125/)
+  assert.match(porSlug.radiante, /1\.350/)
   assert.match(porSlug.suprema, /100/)
   assert.match(porSlug.suprema, /1\.700/)
   for (const frase of Object.values(porSlug)) {
