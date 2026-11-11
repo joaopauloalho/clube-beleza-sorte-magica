@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom'
 import { Calendar, Shield, Sparkles, Users } from 'lucide-react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { ConviteLista } from '@/components/ConviteLista'
-import { Parcelas } from '@/components/Parcelas'
 import { PlanosGrid } from '@/components/PlanosGrid'
 import { TabelaProcedimentos } from '@/components/TabelaProcedimentos'
 import { SiteHeader } from '@/components/SiteHeader'
@@ -10,7 +9,7 @@ import { DIA_PAGAMENTO, DIA_SORTEIO, fraseDoCiclo } from '@/lib/ciclo'
 import { A_DEFINIR, CTA_PLANOS, imaginePrimeiraMensalidade, LINHA_CHANCE, LINHA_SORTEIO, PASSOS, PROMESSA_CURTA } from '@/lib/copy'
 import { formatarReais } from '@/lib/format'
 import { maiorCredito, planoEntrada } from '@/lib/planos-publicos'
-import { CYCLE_MONTHS, frasePorDia } from '@/lib/plans'
+import { frasePorDia } from '@/lib/plans'
 import { usePlanosPublicos } from '@/lib/use-planos-publicos'
 import heroImage from '@/assets/hero-woman.jpg'
 
@@ -64,12 +63,7 @@ export default function Index() {
                   <span className="mt-1 block text-[15px] font-normal text-[#6e6e73]">/mês</span>
                 </p>
                 <p className="mt-2 text-[15px] text-[#6e6e73]">{frasePorDia(entrada.mensalidade)}</p>
-                <div className="mt-6">
-                  <Parcelas quantidade={CYCLE_MONTHS} />
-                  <p className="mt-2 text-[13px] tabular-nums text-[#6e6e73]">
-                    {CYCLE_MONTHS} parcelas · {formatarReais(entrada.total12)}
-                  </p>
-                </div>
+                <p className="mt-4 text-[13px] tabular-nums text-[#6e6e73]">{formatarReais(entrada.total12)} no ano</p>
               </div>
             </article>
 
@@ -105,7 +99,7 @@ export default function Index() {
           </div>
         </section>
 
-        <section id="planos" className="scroll-mt-16 bg-[#f5f5f7] px-[22px] py-14 md:py-24">
+        <section id="planos" className="scroll-mt-16 bg-[#f5f5f7] px-3 py-14 sm:px-[22px] md:py-24">
           <div className="mx-auto max-w-[1120px]">
             <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Três planos.</h2>
             <div className="mt-8">
