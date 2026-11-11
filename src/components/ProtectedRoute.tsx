@@ -3,22 +3,22 @@ import { useAuth } from '@/hooks/use-auth'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
-  requireAdmin?: boolean
+  requireOperator?: boolean
 }
 
-export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRouteProps) {
-  const { session, isAdmin, loading } = useAuth()
+export function ProtectedRoute({ children, requireOperator = false }: ProtectedRouteProps) {
+  const { session, isOperator, loading } = useAuth()
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-pink-600" />
+      <div className="flex min-h-screen items-center justify-center bg-[#f5f5f7]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     )
   }
 
   if (!session) return <Navigate to="/entrar" replace />
-  if (requireAdmin && !isAdmin) return <Navigate to="/dashboard" replace />
+  if (requireOperator && !isOperator) return <Navigate to="/area" replace />
 
   return <>{children}</>
 }

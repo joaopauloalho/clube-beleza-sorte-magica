@@ -1,46 +1,42 @@
-import { describe, it, expect } from 'bun:test'
-import { maskCPF, cadastroComCheckoutSchema } from './validations'
+import assert from 'node:assert/strict'
+import { test } from 'node:test'
+import { TEXTO_OPTIN_WHATSAPP, TEXTO_REGULAMENTO } from './copy'
+import { adesaoSchema, cpfValido, listaEsperaSchema, maskCPF, maskWhatsApp, normalizarWhatsapp, textosDeConsentimento } from './validations'
 
-describe('maskCPF', () => {
-  it('formats partial input correctly', () => {
-    expect(maskCPF('123')).toBe('123')
-    expect(maskCPF('1234')).toBe('123.4')
-    expect(maskCPF('123456')).toBe('123.456')
-    expect(maskCPF('1234567')).toBe('123.456.7')
-    expect(maskCPF('123456789')).toBe('123.456.789')
-    expect(maskCPF('1234567890')).toBe('123.456.789-0')
-    expect(maskCPF('12345678901')).toBe('123.456.789-01')
-  })
-
-  it('strips non-digit input', () => {
-    expect(maskCPF('abc.123def')).toBe('123')
-  })
-
-  it('truncates at 11 digits', () => {
-    expect(maskCPF('123456789012345')).toBe('123.456.789-01')
-  })
+test('CPF e WhatsApp', () => {
+  assert.equal(cpfValido('529.982.247-25'), true)
+  assert.equal(cpfValido('123.456.789-01'), false)
+  assert.equal(cpfValido('111.111.111-11'), false)
+  assert.equal(maskCPF('52998224725'), '529.982.247-25')
+  assert.equal(normalizarWhatsapp('+55 (11) 98888-7777'), '11988887777')
+  assert.equal(maskWhatsApp('11988887777'), '(11) 98888-7777')
 })
 
-describe('cadastroComCheckoutSchema', () => {
-  const valid = {
-    nome: 'Maria Silva',
-    email: 'maria@exemplo.com',
-    whatsapp: '(11) 99999-0000',
-    cpf: '123.456.789-01',
-    plano: 'Beleza Suprema' as const,
+test('regulamento é obrigatório e o opt-in de WhatsApp é separado', () => {
+  const base = {
+    nome: 'Ana Lima',
+    whatsapp: '(11) 98888-7777',
+    aceitouRegulamento: true,
+    optInWhatsapp: false,
   }
+  assert.equal(listaEsperaSchema.safeParse(base).success, true)
+  assert.equal(listaEsperaSchema.safeParse({ ...base, aceitouRegulamento: false }).success, false)
+  assert.equal(listaEsperaSchema.safeParse({ ...base, optInWhatsapp: true }).success, true)
+  const textos = textosDeConsentimento(true)
+  assert.deepEqual(textos.map((item) => item.texto), [TEXTO_REGULAMENTO, TEXTO_OPTIN_WHATSAPP])
+  assert.equal(textosDeConsentimento(false).some((item) => item.tipo === 'whatsapp_opt_in'), false)
+})
 
-  it('accepts valid input', () => {
-    expect(cadastroComCheckoutSchema.safeParse(valid).success).toBe(true)
+test('adesão exige CPF válido', () => {
+  const resultado = adesaoSchema.safeParse({
+    plano: 'essencial',
+    nome: 'Ana Lima',
+    email: 'ana@example.com',
+    senha: 'senha-forte',
+    cpf: '529.982.247-25',
+    whatsapp: '(11) 98888-7777',
+    aceitouRegulamento: true,
+    optInWhatsapp: false,
   })
-
-  it('rejects CPF without mask', () => {
-    const result = cadastroComCheckoutSchema.safeParse({ ...valid, cpf: '12345678901' })
-    expect(result.success).toBe(false)
-  })
-
-  it('rejects unknown plano', () => {
-    const result = cadastroComCheckoutSchema.safeParse({ ...valid, plano: 'Beleza Premium' })
-    expect(result.success).toBe(false)
-  })
+  assert.equal(resultado.success, true)
 })

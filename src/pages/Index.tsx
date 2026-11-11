@@ -1,393 +1,216 @@
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { CheckCircle2, Gift, Trophy, Sparkles, Star, Users, Shield } from "lucide-react";
-import { AnimatedSection, StaggeredChildren } from "@/hooks/use-scroll-animation";
-import heroImage from "@/assets/hero-woman.jpg";
-import { PLAN_LIST } from "@/lib/plans";
+import { useNavigate } from 'react-router-dom'
+import { Calendar, ClipboardList, Wallet } from 'lucide-react'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { ExemploAno } from '@/components/ExemploAno'
+import { CarrosselEntrada } from '@/components/CarrosselEntrada'
+import { ConviteLista } from '@/components/ConviteLista'
+import { PlanosGrid } from '@/components/PlanosGrid'
+import { TabelaProcedimentos } from '@/components/TabelaProcedimentos'
+import { SiteHeader } from '@/components/SiteHeader'
+import { DIA_PAGAMENTO, DIA_SORTEIO, fraseDoCiclo } from '@/lib/ciclo'
+import { A_DEFINIR, CTA_PLANOS, imaginePrimeiraMensalidade, LINHA_DE_APOIO, LINHA_SORTEIO, PROMESSA_CURTA, REGRA_SORTEIO, TAGLINE, WORDMARK } from '@/lib/copy'
+import { formatarReais } from '@/lib/format'
+import { maiorCredito } from '@/lib/planos-publicos'
+import { usePlanosPublicos } from '@/lib/use-planos-publicos'
+import heroImage from '@/assets/hero-woman.jpg'
 
-const Index = () => {
+const faq = [
+  { pergunta: 'Quando a mensalidade começa?', resposta: PROMESSA_CURTA },
+  { pergunta: 'Como funciona o sorteio?', resposta: `${REGRA_SORTEIO} ${A_DEFINIR.atraso} ${LINHA_SORTEIO}` },
+  { pergunta: 'O crédito soma com o desconto de membro?', resposta: A_DEFINIR.creditoSomaDesconto },
+  { pergunta: 'O crédito sai de uma vez?', resposta: `${A_DEFINIR.creditoEtapas} ${A_DEFINIR.validadeCredito}` },
+  { pergunta: 'Dá para dividir o crédito?', resposta: 'No Essencial e no Radiante, o crédito é de uso individual. No Suprema, dá para dividir com outra pessoa.' },
+  { pergunta: 'Quais serviços entram?', resposta: A_DEFINIR.listaServicos },
+  { pergunta: 'Posso cancelar?', resposta: A_DEFINIR.cancelamento },
+  { pergunta: 'Onde está o regulamento?', resposta: A_DEFINIR.regulamento },
+  { pergunta: 'Pix Automático e o CNPJ', resposta: A_DEFINIR.gatewayCnpj },
+]
+
+const linkPlano = 'inline-flex min-h-11 items-center rounded-sm text-[17px] text-[#841f41] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#841f41]'
+
+export default function Index() {
   const navigate = useNavigate()
-
-  const steps = [
-    { icon: Sparkles, title: "1. Assine o plano", desc: "Escolha o plano ideal para você" },
-    { icon: Gift, title: "2. Ganhe na hora", desc: "Receba seu brinde imediatamente" },
-    { icon: Trophy, title: "3. Participe dos sorteios", desc: "Todo mês você concorre a créditos" },
-    { icon: CheckCircle2, title: "4. Todos ganham", desc: "Garantia de contemplação até o final" }
-  ];
-
-  const testimonials = [
-    {
-      name: "Maria Silva",
-      text: "Melhor investimento em beleza que já fiz! Ganhei o microagulhamento e já fui sorteada no segundo mês.",
-      rating: 5
-    },
-    {
-      name: "Ana Costa",
-      text: "Adoro os descontos mensais! Consigo fazer muito mais procedimentos pagando menos. Super recomendo!",
-      rating: 5
-    },
-    {
-      name: "Juliana Santos",
-      text: "A transparência dos sorteios me conquistou. É tudo muito claro e justo. Estou adorando participar!",
-      rating: 5
-    }
-  ];
+  const planos = usePlanosPublicos()
+  const destaque = planos.find((plano) => plano.destaque) ?? planos[planos.length - 1]
+  const teto = maiorCredito(planos)
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div 
-          className="absolute inset-0 z-0"
-          style={{
-            backgroundImage: `url(${heroImage})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-transparent"></div>
-        </div>
-        
-        <div className="container mx-auto px-4 z-10">
-          <div className="max-w-3xl">
-            <h1 className="font-playfair text-5xl md:text-7xl font-bold text-foreground mb-6 animate-fade-in">
-              Assinou. Ganhou. Embelezou.
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 animate-fade-in [animation-delay:200ms] opacity-0">
-              O primeiro consórcio da beleza com sorteios garantidos, brindes imediatos e descontos exclusivos o ano todo.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 animate-fade-in [animation-delay:400ms] opacity-0">
-              <Button
-                size="lg"
-                className="bg-gradient-primary hover:opacity-90 text-white shadow-medium transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                onClick={() => navigate('/cadastro')}
-              >
-                Quero Participar do Clube
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-105"
-                onClick={() => document.getElementById("como-funciona")?.scrollIntoView({ behavior: "smooth" })}
-              >
-                Saiba Como Funciona
-              </Button>
-            </div>
-            <div className="flex items-center gap-6 mt-8 text-sm text-muted-foreground animate-fade-in [animation-delay:600ms] opacity-0">
-              <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-primary" />
-                <span>+200 mulheres já participam</span>
+    <div className="min-h-screen bg-white text-[#1d1d1f]">
+      <SiteHeader />
+      <main id="conteudo" className="pb-24 md:pb-16">
+        <section className="px-[22px] pb-4 pt-4 md:pt-8">
+          <div className="mx-auto grid max-w-[1120px] items-stretch gap-3 md:grid-cols-12 md:gap-4">
+            <article className="flex flex-col justify-between rounded-[28px] bg-[#f5f5f7] p-6 md:col-span-7 md:p-10">
+              <div>
+                <p className="font-sans leading-none" aria-label="Clube Uniquas">
+                  <span className="block text-[12px] font-light tracking-[0.32em] text-[#6e6e73]">Clube</span>
+                  <span className="mt-1.5 block text-[clamp(28px,4vw,40px)] font-medium tracking-[0.14em] text-[#a52751]">{WORDMARK}</span>
+                </p>
+                <h1 className="mt-3 text-balance text-[clamp(40px,6vw,72px)] leading-[1.05]">{TAGLINE}</h1>
+                <p className="mt-4 max-w-[34rem] text-pretty text-[clamp(17px,2vw,21px)] leading-snug text-[#6e6e73]">{LINHA_DE_APOIO}</p>
+                <p className="mt-4 max-w-[34rem] text-pretty text-[15px] leading-snug text-[#6e6e73]">
+                  {imaginePrimeiraMensalidade(destaque.mensalidade, destaque.credito)}
+                </p>
+                <p className="mt-3 max-w-[34rem] text-[14px] leading-snug text-[#6e6e73]">{LINHA_SORTEIO}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-primary" />
-                <span>100% seguro e transparente</span>
+              <div className="mt-8 flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-5">
+                <ConviteLista />
+                <a href="#planos" className={linkPlano}>{CTA_PLANOS} ›</a>
               </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            </article>
 
-      {/* Como Funciona */}
-      <section id="como-funciona" className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <AnimatedSection className="text-center mb-12">
-            <h2 className="font-playfair text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Como Funciona o Clube
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Simples, transparente e vantajoso. Veja como transformar sua rotina de beleza:
-            </p>
-          </AnimatedSection>
-          
-          <StaggeredChildren className="grid md:grid-cols-4 gap-8" staggerDelay={150}>
-            {steps.map((step, index) => (
-              <div key={index} className="text-center group">
-                <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-primary flex items-center justify-center text-white shadow-medium group-hover:scale-110 group-hover:animate-float transition-transform duration-300">
-                  <step.icon className="w-10 h-10" />
-                </div>
-                <h3 className="font-semibold text-lg mb-2">{step.title}</h3>
-                <p className="text-muted-foreground">{step.desc}</p>
-              </div>
-            ))}
-          </StaggeredChildren>
-        </div>
-      </section>
+            <CarrosselEntrada planos={planos} />
 
-      {/* Planos */}
-      <section className="py-20 bg-rose-light">
-        <div className="container mx-auto px-4">
-          <AnimatedSection className="text-center mb-12">
-            <h2 className="font-playfair text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Escolha Seu Plano de Beleza
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Todos os planos incluem brindes, sorteios e descontos exclusivos
-            </p>
-          </AnimatedSection>
-          
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {PLAN_LIST.map((plan, index) => (
-              <AnimatedSection
-                key={index}
-                animation={index === 0 ? "fade-left" : index === 2 ? "fade-right" : "fade-up"}
-                delay={index * 150}
-              >
-                <Card
-                  className={`relative overflow-hidden transition-all duration-500 hover:shadow-gold hover:-translate-y-2 ${
-                    plan.recommended ? 'ring-2 ring-gold shadow-gold animate-pulse-glow' : ''
-                  }`}
-                >
-                  {plan.recommended && (
-                    <div className="absolute top-0 right-0 bg-gradient-gold text-white px-4 py-1 rounded-bl-lg">
-                      <span className="text-sm font-semibold">Mais Vantajoso</span>
-                    </div>
-                  )}
-                  <CardHeader>
-                    <CardTitle className="font-playfair text-2xl">{plan.name}</CardTitle>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-bold text-primary">R$ {plan.priceLabel}</span>
-                      <span className="text-muted-foreground">/mês</span>
-                    </div>
-                    <CardDescription>Por 12 meses</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 group/item">
-                        <Gift className="w-5 h-5 text-gold transition-transform duration-300 group-hover/item:scale-110" />
-                        <div>
-                          <p className="font-semibold">{plan.gift}</p>
-                          <p className="text-sm text-muted-foreground">Brinde de R$ {plan.giftValue}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 group/item">
-                        <Trophy className="w-5 h-5 text-gold transition-transform duration-300 group-hover/item:scale-110" />
-                        <div>
-                          <p className="font-semibold">R$ {plan.raffle} em créditos</p>
-                          <p className="text-sm text-muted-foreground">Para sorteio mensal</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 group/item">
-                        <Star className="w-5 h-5 text-gold transition-transform duration-300 group-hover/item:scale-110" />
-                        <div>
-                          <p className="font-semibold">{plan.discount} de desconto</p>
-                          <p className="text-sm text-muted-foreground">Em todos os procedimentos</p>
-                        </div>
-                      </div>
-                    </div>
+            <article className="overflow-hidden rounded-[28px] md:col-span-7">
+              <img
+                src={heroImage}
+                alt=""
+                width={1200}
+                height={750}
+                fetchPriority="high"
+                className="h-full min-h-[240px] w-full object-cover aspect-[4/3] md:aspect-auto md:min-h-[340px]"
+              />
+            </article>
 
-                    <div className="pt-4 border-t">
-                      <div className="flex items-center gap-2 mb-2">
-                        <CheckCircle2 className="w-4 h-4 text-primary" />
-                        <span className="text-sm">Brinde imediato</span>
-                      </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <CheckCircle2 className="w-4 h-4 text-primary" />
-                        <span className="text-sm">Sorteio mensal</span>
-                      </div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <CheckCircle2 className="w-4 h-4 text-primary" />
-                        <span className="text-sm">Desconto em todos os procedimentos</span>
-                      </div>
-                      {plan.recommended && (
-                        <div className="flex items-center gap-2 mb-2">
-                          <CheckCircle2 className="w-4 h-4 text-primary" />
-                          <span className="text-sm">Pode dividir com outra pessoa</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <Button
-                      className={`w-full transition-all duration-300 hover:scale-105 ${
-                        plan.recommended
-                          ? 'bg-gradient-gold hover:opacity-90 text-white shadow-gold'
-                          : 'bg-gradient-primary hover:opacity-90 text-white'
-                      }`}
-                      onClick={() => navigate(`/cadastro?plano=${plan.slug}`)}
-                    >
-                      Escolher Este Plano
-                    </Button>
-                  </CardContent>
-                </Card>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Sorteios Transparentes */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <AnimatedSection className="text-center mb-12">
-              <h2 className="font-playfair text-4xl md:text-5xl font-bold text-foreground mb-4">
-                Sorteios Justos e Transparentes
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                Nosso sistema garante que todas as participantes sejam contempladas
-              </p>
-            </AnimatedSection>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              <AnimatedSection animation="fade-left">
-                <Card className="border-primary/20 h-full transition-all duration-300 hover:shadow-medium hover:-translate-y-1">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Shield className="w-5 h-5 text-primary" />
-                      Como funcionam os sorteios
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {[
-                      "Cada cliente recebe um número fixo de 1 a 24",
-                      "Sorteio realizado via plataforma online imparcial",
-                      "Resultado aparece na tela em tempo real",
-                      "Todos são contemplados até o final do ciclo"
-                    ].map((text, idx) => (
-                      <div key={idx} className="flex items-start gap-3 group">
-                        <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold shrink-0 transition-transform duration-300 group-hover:scale-110">
-                          {idx + 1}
-                        </div>
-                        <p className="text-sm">{text}</p>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </AnimatedSection>
-              
-              <AnimatedSection animation="fade-right">
-                <Card className="bg-gradient-subtle border-0 h-full transition-all duration-300 hover:shadow-medium hover:-translate-y-1">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-primary" />
-                      Garantias do Clube
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {[
-                      "100% de transparência nos sorteios",
-                      "Plataformas certificadas e imparciais",
-                      "Todos ganham até o final do ciclo",
-                      "Resultados divulgados publicamente"
-                    ].map((text, idx) => (
-                      <div key={idx} className="flex items-center gap-2 group">
-                        <CheckCircle2 className="w-4 h-4 text-primary transition-transform duration-300 group-hover:scale-110" />
-                        <span className="text-sm">{text}</span>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </AnimatedSection>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Depoimentos */}
-      <section className="py-20 bg-rose-light">
-        <div className="container mx-auto px-4">
-          <AnimatedSection className="text-center mb-12">
-            <h2 className="font-playfair text-4xl md:text-5xl font-bold text-foreground mb-4">
-              O Que Dizem Nossas Clientes
-            </h2>
-            <p className="text-lg text-muted-foreground">
-              Mais de 200 mulheres já fazem parte do Clube!
-            </p>
-          </AnimatedSection>
-          
-          <StaggeredChildren className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto" staggerDelay={200}>
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="border-0 shadow-soft transition-all duration-300 hover:shadow-medium hover:-translate-y-2">
-                <CardContent className="pt-6">
-                  <div className="flex mb-3">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-gold text-gold transition-transform duration-300 hover:scale-125" />
-                    ))}
+            <article id="sorteio" className="scroll-mt-16 flex flex-col justify-center rounded-[28px] bg-[#f5f5f7] p-6 md:col-span-5 md:p-8">
+              <div>
+                <p className="text-[17px] leading-snug text-[#6e6e73]">{fraseDoCiclo()}</p>
+                <div className="mt-6 flex items-center gap-3">
+                  <div className="min-w-[72px] rounded-2xl bg-white px-3 py-4">
+                    <p className="font-sans text-[28px] font-medium tabular-nums leading-none">{DIA_PAGAMENTO}</p>
+                    <p className="mt-1 text-[12px] text-[#6e6e73]">pagamento</p>
                   </div>
-                  <p className="text-muted-foreground mb-4 italic">"{testimonial.text}"</p>
-                  <p className="font-semibold text-sm">{testimonial.name}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </StaggeredChildren>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto">
-            <AnimatedSection className="text-center mb-12">
-              <h2 className="font-playfair text-4xl md:text-5xl font-bold text-foreground mb-4">
-                Dúvidas Frequentes
-              </h2>
-              <p className="text-lg text-muted-foreground">
-                Tudo que você precisa saber sobre o Clube de Estética
-              </p>
-            </AnimatedSection>
-            
-            <AnimatedSection animation="scale">
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="item-1" className="transition-all duration-300 hover:bg-muted/50 rounded-lg px-2">
-                  <AccordionTrigger>O que acontece se atrasar o pagamento?</AccordionTrigger>
-                  <AccordionContent>
-                    Em caso de atraso, você continua participando normalmente após regularizar o pagamento. Mantemos sua vaga garantida por até 7 dias de atraso.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-2" className="transition-all duration-300 hover:bg-muted/50 rounded-lg px-2">
-                  <AccordionTrigger>Posso dividir o plano com alguém?</AccordionTrigger>
-                  <AccordionContent>
-                    Sim! No plano Beleza Suprema você pode dividir todos os benefícios com outra pessoa, tornando ainda mais vantajoso.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-3" className="transition-all duration-300 hover:bg-muted/50 rounded-lg px-2">
-                  <AccordionTrigger>Posso trocar o brinde?</AccordionTrigger>
-                  <AccordionContent>
-                    Os brindes são fixos para cada plano, mas você pode usar o valor como crédito para outros procedimentos se preferir.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-4" className="transition-all duration-300 hover:bg-muted/50 rounded-lg px-2">
-                  <AccordionTrigger>Preciso continuar pagando depois de ganhar o sorteio?</AccordionTrigger>
-                  <AccordionContent>
-                    Sim, o pagamento mensal continua durante os 12 meses do ciclo. Isso garante que todos os participantes sejam contemplados.
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-5" className="transition-all duration-300 hover:bg-muted/50 rounded-lg px-2">
-                  <AccordionTrigger>Como recebo o crédito do sorteio?</AccordionTrigger>
-                  <AccordionContent>
-                    O crédito fica disponível imediatamente após o sorteio e pode ser usado em qualquer procedimento da clínica durante 6 meses.
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </AnimatedSection>
+                  <div className="h-px flex-1 bg-[#f3d0dc]" aria-hidden="true" />
+                  <div className="min-w-[72px] rounded-2xl bg-[#a52751] px-3 py-4 text-white">
+                    <p className="font-sans text-[28px] font-medium tabular-nums leading-none">{DIA_SORTEIO}</p>
+                    <p className="mt-1 text-[12px] text-white">sorteio</p>
+                  </div>
+                </div>
+                <p className="mt-5 font-sans text-[20px] font-medium tabular-nums">até {formatarReais(teto)} em crédito</p>
+                <p className="mt-2 text-[14px] leading-snug text-[#6e6e73]">{LINHA_SORTEIO}</p>
+                <p className="mt-3 text-[13px] leading-snug text-[#6e6e73]">{A_DEFINIR.atraso}</p>
+              </div>
+            </article>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* CTA Final */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-4 text-center">
-          <AnimatedSection>
-            <h2 className="font-playfair text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Você Mais Linda, Mais Maravilhosa
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Não perca a oportunidade de fazer parte do primeiro consórcio da beleza do Brasil.
-              Vagas limitadas para o próximo grupo!
-            </p>
-            <Button
-              size="lg"
-              className="bg-gradient-primary hover:opacity-90 text-white shadow-medium transition-all duration-300 hover:scale-110 hover:shadow-lg"
-              onClick={() => navigate('/cadastro')}
-            >
-              Quero Participar do Clube de Estética
-            </Button>
-          </AnimatedSection>
-        </div>
-      </section>
+        <section id="planos" className="scroll-mt-16 bg-[#f5f5f7] px-3 py-14 sm:px-[22px] md:py-24">
+          <div className="mx-auto max-w-[1120px]">
+            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Três planos.</h2>
+            <div className="mt-8">
+              <PlanosGrid planos={planos} onEscolher={(plano) => navigate(`/adesao?plano=${plano.slug}`)} />
+            </div>
+            <div className="mt-8">
+              <ConviteLista />
+            </div>
+          </div>
+        </section>
+
+        <section className="px-[22px] py-14 md:py-24">
+          <div className="mx-auto max-w-[980px]">
+            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Como funciona.</h2>
+            <ol className="mt-8 grid gap-4 sm:grid-cols-3">
+              {[
+                [ClipboardList, '1', 'Escolha seu plano'],
+                [Wallet, '2', 'Pague 12 mensalidades'],
+                [Calendar, '3', 'Todo dia 10 tem sorteio'],
+              ].map(([Icone, numero, titulo]) => (
+                <li key={numero} className="flex items-center gap-3">
+                  <Icone className="h-6 w-6 shrink-0 text-[#a52751] stroke-[1.5]" aria-hidden="true" />
+                  <span className="text-[17px] leading-snug"><span className="text-[#a52751]">{numero}</span> {titulo}</span>
+                </li>
+              ))}
+            </ol>
+            <article className="mt-8 rounded-[28px] bg-[#f5f5f7] p-6 md:p-8">
+              <p className="text-[17px] leading-snug text-[#6e6e73]">{fraseDoCiclo()}</p>
+              <div className="mt-6 flex items-center gap-3">
+                <div className="min-w-[72px] rounded-2xl bg-white px-3 py-4">
+                  <p className="font-sans text-[28px] font-medium tabular-nums leading-none">{DIA_PAGAMENTO}</p>
+                  <p className="mt-1 text-[12px] text-[#6e6e73]">pagamento</p>
+                </div>
+                <div className="h-px flex-1 bg-[#f3d0dc]" aria-hidden="true" />
+                <div className="min-w-[72px] rounded-2xl bg-[#a52751] px-3 py-4 text-white">
+                  <p className="font-sans text-[28px] font-medium tabular-nums leading-none">{DIA_SORTEIO}</p>
+                  <p className="mt-1 text-[12px] text-white">sorteio</p>
+                </div>
+              </div>
+              <p className="mt-5 font-sans text-[20px] font-medium tabular-nums">até {formatarReais(teto)} em crédito</p>
+              <p className="mt-2 text-[14px] leading-snug text-[#6e6e73]">{LINHA_SORTEIO}</p>
+            </article>
+            <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-3">
+              <article className="min-w-0 rounded-[28px] bg-[#f5f5f7] p-4 sm:p-6">
+                <p className="text-[22px] font-medium leading-tight sm:text-[28px]">Todo dia 10</p>
+                <p className="mt-2 text-[15px] leading-snug text-[#6e6e73] sm:text-[17px]">2 sorteadas</p>
+              </article>
+              <article className="min-w-0 rounded-[28px] bg-[#a52751] p-4 text-white sm:p-6">
+                <p className="text-[22px] font-medium leading-tight sm:text-[28px]">Meses 4 e 8</p>
+                <p className="mt-2 text-[15px] leading-snug sm:text-[17px]">Sorteio especial: 3 sorteadas</p>
+              </article>
+            </div>
+            <p className="mt-3 text-[13px] leading-snug text-[#6e6e73]">24 pessoas por grupo</p>
+            <article className="mt-6 rounded-[28px] bg-[#fdf2f6] p-5">
+              <p className="inline-flex rounded-full bg-[#a52751] px-2.5 py-0.5 text-[12px] font-medium text-white">Ganhe ao assinar</p>
+              <p className="mt-3 text-[17px] leading-snug">Assinou, já ganhou: um procedimento na hora + acesso à tabela de descontos de todos os procedimentos da clínica.</p>
+            </article>
+          </div>
+        </section>
+
+        <section className="px-[22px] pb-14 md:pb-20">
+          <div className="mx-auto max-w-[980px]">
+            <h2 className="text-balance text-[clamp(28px,4vw,40px)] leading-[1.08]">Um ano no Suprema, por exemplo.</h2>
+            <div className="mt-6">
+              <ExemploAno />
+            </div>
+            <div className="mt-8">
+              <ConviteLista />
+            </div>
+          </div>
+        </section>
+
+        <section id="servicos" className="scroll-mt-16 bg-[#f5f5f7] px-[22px] py-14 md:py-24">
+          <div className="mx-auto max-w-[1120px]">
+            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Procedimentos.</h2>
+            <p className="mt-3 max-w-[36rem] text-[17px] leading-snug text-[#6e6e73]">O preço da tabela e o preço de quem está no clube.</p>
+            <div className="mt-8">
+              <TabelaProcedimentos planos={planos} />
+            </div>
+            <div className="mt-8">
+              <ConviteLista />
+            </div>
+          </div>
+        </section>
+
+        <section className="px-[22px] py-14 md:py-24">
+          <div className="mx-auto max-w-[720px]">
+            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Perguntas.</h2>
+            <Accordion type="single" collapsible className="mt-8 rounded-[28px] bg-[#f5f5f7] px-5">
+              {faq.map((item, indice) => (
+                <AccordionItem key={item.pergunta} value={`item-${indice}`} className="border-[#e8e8ed]">
+                  <AccordionTrigger className="text-left text-[17px] hover:no-underline">{item.pergunta}</AccordionTrigger>
+                  <AccordionContent className="text-[15px] text-[#6e6e73]">{item.resposta}</AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+            <div className="mt-8">
+              <ConviteLista />
+            </div>
+          </div>
+        </section>
+
+        <section className="px-[22px] pb-8">
+          <div className="mx-auto max-w-[1120px] rounded-[28px] bg-black px-6 py-12 text-white md:px-12 md:py-16">
+            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Entre na lista.</h2>
+            <p className="mt-3 max-w-[32rem] text-[17px] leading-snug text-[#a1a1a6]">{PROMESSA_CURTA}</p>
+            <div className="mt-8">
+              <ConviteLista />
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[rgba(22,22,23,0.8)] px-[22px] py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-[20px] backdrop-saturate-[1.8] md:hidden">
+        <ConviteLista className="w-full" />
+      </div>
     </div>
-  );
-};
-
-export default Index;
+  )
+}
