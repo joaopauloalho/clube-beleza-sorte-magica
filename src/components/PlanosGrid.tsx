@@ -1,9 +1,9 @@
 import { CheckCircle2, Sparkles, Star, Trophy } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { chanceAcumulada, chanceMensal, formatarPercentual } from '@/lib/chance'
-import { A_DEFINIR } from '@/lib/copy'
+import { A_DEFINIR, CTA_PLANO, LINHA_CHANCE } from '@/lib/copy'
 import { formatarReais } from '@/lib/format'
+import { formatarPercentual } from '@/lib/chance'
 import { PLANS, type Plan } from '@/lib/plans'
 import { LinhaDeCredito } from '@/components/LinhaDeCredito'
 import { AnimatedSection } from '@/hooks/use-scroll-animation'
@@ -43,11 +43,10 @@ export function PlanosGrid({
               <div className="space-y-3">
                 <div className="flex items-start gap-2">
                   <Trophy className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-                  <LinhaDeCredito
-                    valor={plano.credito}
-                    chance={chanceMensal(1)}
-                    detalhe={`No 1º mês, se as 24 permanecerem em dia. Acumulada no 12º mês: ${formatarPercentual(chanceAcumulada(12))} para quem permanece em dia.`}
-                  />
+                  <div className="space-y-1">
+                    <LinhaDeCredito mensalidade={plano.mensalidade} credito={plano.credito} />
+                    <p className="text-sm text-muted-foreground">{LINHA_CHANCE} {A_DEFINIR.creditoEtapas}</p>
+                  </div>
                 </div>
                 <div className="flex items-start gap-2">
                   <Sparkles className="w-5 h-5 text-gold shrink-0 mt-0.5" />
@@ -67,7 +66,7 @@ export function PlanosGrid({
               <div className="pt-4 border-t space-y-2">
                 <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-primary" />Grupo de 24 pessoas neste plano</div>
                 <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-primary" />Cobrança só com o grupo completo</div>
-                <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-primary" />2 sorteios por mês entre quem está em dia</div>
+                <div className="flex items-center gap-2 text-sm"><CheckCircle2 className="w-4 h-4 text-primary" />2 pessoas sorteadas por mês, entre quem está em dia</div>
               </div>
               <Button
                 className={`w-full transition-all duration-300 hover:scale-105 ${
@@ -77,7 +76,7 @@ export function PlanosGrid({
                 }`}
                 onClick={() => onEscolher(plano)}
               >
-                Escolher este plano
+                {CTA_PLANO}
               </Button>
             </CardContent>
           </Card>

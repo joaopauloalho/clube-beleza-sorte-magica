@@ -3,19 +3,20 @@ import { CheckCircle2, Shield, Sparkles, Trophy, Users, type LucideIcon } from '
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { GraficoChance } from '@/components/GraficoChance'
 import { PlanosGrid } from '@/components/PlanosGrid'
 import { SiteHeader } from '@/components/SiteHeader'
 import { AnimatedSection, StaggeredChildren } from '@/hooks/use-scroll-animation'
-import { chanceMensal, elegiveisTeoricos, formatarPercentual } from '@/lib/chance'
-import { A_DEFINIR, PASSOS, PROMESSA } from '@/lib/copy'
+import { A_DEFINIR, CTA_LISTA, CTA_PLANOS, imaginePrimeiraMensalidade, LINHA_CHANCE, LINHA_SORTEIO, PASSOS, PROMESSA_CURTA } from '@/lib/copy'
+import { PLANS } from '@/lib/plans'
 import heroImage from '@/assets/hero-woman.jpg'
+
+const planoDestaque = PLANS.find((plano) => plano.destaque) ?? PLANS[PLANS.length - 1]
 
 const regras = [
   'Cada grupo tem 24 pessoas no mesmo plano. A cota é um número de 1 a 24.',
-  `No mês m, 2 pessoas são sorteadas entre quem ainda não foi sorteada e está em dia. Se ninguém sair, são ${elegiveisTeoricos(1)} no 1º mês.`,
-  'Quem já foi sorteada não concorre de novo. Quem para de pagar sai daquele sorteio.',
-  'Em até 12 meses, toda integrante que permanecer em dia recebe o crédito em serviços da clínica.',
+  'Todo mês, 2 pessoas em dia que ainda não foram sorteadas podem receber o crédito.',
+  'Quem já foi sorteada não volta para o sorteio. Quem para de pagar sai.',
+  'Quem continua em dia segue no grupo. A cada mês, a chance de quem ainda está aumenta.',
 ]
 
 const faq = [
@@ -24,8 +25,8 @@ const faq = [
     resposta: 'Somente quando o grupo completa 24 pessoas, e somente por Pix Automático. Antes disso ninguém é cobrado.',
   },
   {
-    pergunta: 'Qual é a chance no sorteio?',
-    resposta: `No mês m, a chance é 2 dividido por (24 − 2 × (m − 1)), se as 24 permanecerem em dia. 1º mês: ${formatarPercentual(chanceMensal(1))}. 6º mês: ${formatarPercentual(chanceMensal(6))}. 11º mês: ${formatarPercentual(chanceMensal(11))}. 12º mês: ${formatarPercentual(chanceMensal(12))}. A chance acumulada de já ter recebido é m/12.`,
+    pergunta: 'Como funciona a chance?',
+    resposta: `${LINHA_CHANCE} ${LINHA_SORTEIO}`,
   },
   {
     pergunta: 'O crédito soma com o desconto de membro?',
@@ -71,8 +72,11 @@ export default function Index() {
             <h1 className="font-playfair text-5xl md:text-7xl font-bold text-foreground mb-6 animate-fade-in">
               Sua cota no Clube Beleza
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-8 animate-fade-in [animation-delay:200ms] opacity-0">
-              {PROMESSA}
+            <p className="text-xl md:text-2xl text-muted-foreground mb-4 animate-fade-in [animation-delay:200ms] opacity-0">
+              {imaginePrimeiraMensalidade(planoDestaque.mensalidade, planoDestaque.credito)}
+            </p>
+            <p className="text-base text-muted-foreground mb-8 animate-fade-in [animation-delay:200ms] opacity-0">
+              {LINHA_SORTEIO} {PROMESSA_CURTA}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 animate-fade-in [animation-delay:400ms] opacity-0">
               <Button
@@ -80,7 +84,7 @@ export default function Index() {
                 className="bg-gradient-primary hover:opacity-90 text-white shadow-medium transition-all duration-300 hover:scale-105 hover:shadow-lg"
                 onClick={() => navigate('/lista-espera')}
               >
-                Entrar na lista de espera
+                {CTA_LISTA}
               </Button>
               <Button
                 size="lg"
@@ -88,7 +92,7 @@ export default function Index() {
                 className="border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 hover:scale-105"
                 onClick={() => document.getElementById('planos')?.scrollIntoView({ behavior: 'smooth' })}
               >
-                Ver os planos
+                {CTA_PLANOS}
               </Button>
             </div>
             <div className="flex flex-wrap items-center gap-6 mt-8 text-sm text-muted-foreground animate-fade-in [animation-delay:600ms] opacity-0">
@@ -125,7 +129,7 @@ export default function Index() {
         <div className="container mx-auto px-4">
           <AnimatedSection className="text-center mb-12">
             <h2 className="font-playfair text-4xl md:text-5xl font-bold text-foreground mb-4">Os três planos</h2>
-            <p className="text-lg text-muted-foreground">O crédito completo depende de ser sorteada. A chance vai ao lado do valor.</p>
+            <p className="text-lg text-muted-foreground">Cada plano mostra a primeira mensalidade e o crédito do sorteio. O crédito só existe se você for sorteada.</p>
           </AnimatedSection>
           <PlanosGrid onEscolher={(plano) => navigate(`/adesao?plano=${plano.slug}`)} />
         </div>
@@ -136,7 +140,7 @@ export default function Index() {
           <div className="max-w-4xl mx-auto">
             <AnimatedSection className="text-center mb-12">
               <h2 className="font-playfair text-4xl md:text-5xl font-bold text-foreground mb-4">Regras do sorteio</h2>
-              <p className="text-lg text-muted-foreground">A lista de quem podia concorrer fica gravada em cada sorteio.</p>
+              <p className="text-lg text-muted-foreground">A lista de quem podia participar fica gravada em cada sorteio.</p>
             </AnimatedSection>
             <div className="grid md:grid-cols-2 gap-8">
               <AnimatedSection animation="fade-left">
@@ -157,13 +161,13 @@ export default function Index() {
               <AnimatedSection animation="fade-right">
                 <Card className="bg-gradient-subtle border-0 h-full">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-primary" />Chance acumulada: m/12</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><CheckCircle2 className="w-5 h-5 text-primary" />O primeiro sorteio</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <GraficoChance />
-                    <p className="text-sm text-muted-foreground mt-4">
-                      A linha rosa é a chance daquele mês. A linha dourada é a chance de já ter recebido o crédito até aquele mês, para quem permanece em dia.
-                    </p>
+                  <CardContent className="space-y-3 text-sm">
+                    <p>{imaginePrimeiraMensalidade(planoDestaque.mensalidade, planoDestaque.credito)}</p>
+                    <p className="text-muted-foreground">{LINHA_SORTEIO}</p>
+                    <p className="text-muted-foreground">{LINHA_CHANCE}</p>
+                    <p className="text-muted-foreground">{A_DEFINIR.creditoEtapas} {A_DEFINIR.validadeCredito}</p>
                   </CardContent>
                 </Card>
               </AnimatedSection>
@@ -202,7 +206,7 @@ export default function Index() {
             className="bg-gradient-primary hover:opacity-90 text-white shadow-medium"
             onClick={() => navigate('/lista-espera')}
           >
-            Quero entrar na lista
+            {CTA_LISTA}
           </Button>
         </div>
       </section>

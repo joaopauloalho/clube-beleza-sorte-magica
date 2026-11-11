@@ -1,19 +1,16 @@
-import { formatarPercentual } from '@/lib/chance'
-import { formatarReais } from '@/lib/format'
+import { imaginePrimeiraMensalidade, LINHA_SORTEIO } from '@/lib/copy'
 
 export function LinhaDeCredito({
-  valor,
-  chance,
-  detalhe,
+  mensalidade,
+  credito,
 }: {
-  valor: number
-  chance: number
-  detalhe: string
+  mensalidade: number
+  credito: number
 }) {
   return (
-    <p className="text-sm leading-relaxed">
-      <span className="font-semibold text-foreground">{formatarReais(valor)}</span>
-      {' '}em serviços da clínica. Chance: {formatarPercentual(chance)}. {detalhe}
-    </p>
+    <div className="space-y-1 text-sm leading-relaxed">
+      <p>{imaginePrimeiraMensalidade(mensalidade, credito)}</p>
+      <p className="text-muted-foreground">{LINHA_SORTEIO}</p>
+    </div>
   )
 }

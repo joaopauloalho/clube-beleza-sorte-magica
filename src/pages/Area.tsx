@@ -5,10 +5,9 @@ import { LinhaDeCredito } from '@/components/LinhaDeCredito'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { chanceAcumulada, chanceMensal } from '@/lib/chance'
-import { A_DEFINIR } from '@/lib/copy'
+import { A_DEFINIR, LINHA_CHANCE, LINHA_SORTEIO } from '@/lib/copy'
 import { formatarData, formatarReais } from '@/lib/format'
-import { getPlanBySlug, type Plan } from '@/lib/plans'
+import { getPlanByNome, getPlanBySlug, type Plan } from '@/lib/plans'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
 
@@ -111,9 +110,10 @@ export default function Area() {
     return () => { ativo = false }
   }, [user])
 
-  const plano: Plan | undefined = getPlanBySlug(planoDb?.slug)
+  const plano: Plan | undefined = getPlanBySlug(planoDb?.slug) ?? getPlanByNome(planoDb?.nome)
+  const mensalidade = plano?.mensalidade ?? Number(planoDb?.preco ?? 0)
+  const creditoDoPlano = plano?.credito ?? Number(planoDb?.credito_sorteio ?? 0)
   const sorteada = membro?.status === 'sorteado' || Boolean(membro?.data_contemplacao)
-  const proximoMes = Math.min(12, (grupo?.ultimo_mes_sorteado ?? 0) + 1)
   const pagos = pagamentos.filter((item) => item.status === 'pago').length
 
   return (
@@ -144,17 +144,15 @@ export default function Area() {
               <CardContent className="space-y-3 text-sm">
                 <p>Grupo {grupo?.nome ?? '—'} · cota {membro.cota ?? '—'} · {grupo?.vagas_preenchidas ?? 0} de {grupo?.total_vagas ?? 24}</p>
                 {sorteada && credito ? (
-                  <LinhaDeCredito
-                    valor={credito.valor_centavos / 100}
-                    chance={Number(credito.chance_real)}
-                    detalhe={`Sorteada no ${credito.mes}º mês, em ${formatarData(membro.data_contemplacao)}. Situação do crédito: ${credito.status === 'a_liberar' ? 'a liberar' : credito.status}. ${A_DEFINIR.creditoEtapas} ${A_DEFINIR.validadeCredito}`}
-                  />
+                  <div className="space-y-1">
+                    <p>Você foi sorteada em {formatarData(membro.data_contemplacao)}. O crédito registrado é {formatarReais(credito.valor_centavos / 100)}.</p>
+                    <p className="text-muted-foreground">{LINHA_SORTEIO} {A_DEFINIR.creditoEtapas} {A_DEFINIR.validadeCredito}</p>
+                  </div>
                 ) : (
-                  <LinhaDeCredito
-                    valor={plano?.credito ?? Number(planoDb?.credito_sorteio ?? 0)}
-                    chance={chanceMensal(proximoMes)}
-                    detalhe={`Chance do ${proximoMes}º mês se o restante do grupo permanecer em dia. Chance acumulada de já ter recebido no fim desse mês: ${formatarPercentualSeguro(chanceAcumulada(proximoMes))}.`}
-                  />
+                  <div className="space-y-1">
+                    <LinhaDeCredito mensalidade={mensalidade} credito={creditoDoPlano} />
+                    <p className="text-muted-foreground">{LINHA_CHANCE}</p>
+                  </div>
                 )}
                 {!sorteada && (
                   <p>Preço de membro: {plano ? `${Math.round(plano.precoMembro * 100)}%` : `${planoDb?.preco_membro_pct ?? '—'}%`} a menos nos serviços, enquanto não for sorteada. {A_DEFINIR.creditoSomaDesconto}</p>
@@ -188,10 +186,6 @@ export default function Area() {
       </main>
     </div>
   )
-}
-
-function formatarPercentualSeguro(fracao: number): string {
-  return `${Math.round(fracao * 100)}%`
 }
 
 function rotuloPagamento(status: string): string {

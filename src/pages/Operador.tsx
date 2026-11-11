@@ -142,7 +142,7 @@ export default function Operador() {
           <CardContent className="space-y-2 text-sm">
             {creditos.length === 0 && <p className="text-muted-foreground">Nenhum crédito aguardando liberação.</p>}
             {creditos.map((credito) => (
-              <p key={credito.id}>{formatarReais(credito.valor_centavos / 100)} · mês {credito.mes} · chance {Math.round(Number(credito.chance_real) * 100)}% · {A_DEFINIR.servicos}</p>
+              <p key={credito.id}>{formatarReais(credito.valor_centavos / 100)} · mês {credito.mes} · a liberar · {A_DEFINIR.servicos}</p>
             ))}
           </CardContent>
         </Card>

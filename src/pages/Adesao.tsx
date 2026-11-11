@@ -8,8 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { chanceMensal } from '@/lib/chance'
-import { A_DEFINIR, TEXTO_OPTIN_WHATSAPP, TEXTO_REGULAMENTO } from '@/lib/copy'
+import { A_DEFINIR, LINHA_CHANCE, TEXTO_OPTIN_WHATSAPP, TEXTO_REGULAMENTO } from '@/lib/copy'
 import { getPlanBySlug, type Plan } from '@/lib/plans'
 import { supabase, supabaseConfigured } from '@/lib/supabase'
 import { adesaoSchema, maskCPF, maskWhatsApp } from '@/lib/validations'
@@ -204,11 +203,8 @@ export default function Adesao() {
               <CardDescription>{reserva.grupo_nome} · cota {reserva.cota} · {reserva.vagas} de {reserva.total}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <LinhaDeCredito
-                valor={plano.credito}
-                chance={chanceMensal(1)}
-                detalhe="Chance do 1º mês se as 24 permanecerem em dia. O crédito completo depende de ser sorteada."
-              />
+              <LinhaDeCredito mensalidade={plano.mensalidade} credito={plano.credito} />
+              <p className="text-sm text-muted-foreground">{LINHA_CHANCE} {A_DEFINIR.creditoEtapas}</p>
               {cobranca?.cobranca && cobranca.checkoutUrl ? (
                 <div className="space-y-3">
                   <p className="text-sm">O grupo fechou. Autorize o Pix Automático no checkout de teste. A assinatura só existe depois do pagamento.</p>

@@ -1,3 +1,5 @@
+import { formatarReais } from './format'
+
 /**
  * Textos exatos gravados em consentimentos e pendências que o João ainda não decidiu.
  * O colchete faz parte do texto aceito enquanto o regulamento não existe.
@@ -24,8 +26,23 @@ export const TEXTO_OPTIN_WHATSAPP =
   'Aceito receber mensagens de WhatsApp sobre a minha participação no Clube Beleza. Este aceite é opcional e separado do regulamento. ' +
   A_DEFINIR.whatsapp
 
-export const PROMESSA =
-  'Doze meses no mesmo plano, em grupo de 24 pessoas. Todo mês, 2 integrantes em dia são sorteadas e recebem o crédito em serviços da clínica. Quem permanece em dia recebe até o 12º mês. Enquanto não é sorteada, paga o preço de membro.'
+export const CTA_LISTA = 'Quero entrar na lista'
+export const CTA_PLANOS = 'Ver os planos'
+export const CTA_PLANO = 'Quero este plano'
+
+export const LINHA_SORTEIO =
+  'É por sorteio, conforme o regulamento. O crédito só existe se você for sorteada.'
+
+export const LINHA_CHANCE =
+  'Cada mês, a chance de quem paga em dia e ainda não foi sorteada aumenta. Quem para de pagar sai do sorteio.'
+
+/** Mensalidade e crédito vêm do plano. A frase não fixa um segundo par de números. */
+export function imaginePrimeiraMensalidade(mensalidade: number, credito: number): string {
+  return `Imagine pagar ${formatarReais(mensalidade)} na primeira mensalidade e poder ser sorteada no primeiro sorteio do grupo, com ${formatarReais(credito)} em crédito na clínica.`
+}
+
+export const PROMESSA_CURTA =
+  'A primeira mensalidade só acontece quando o grupo de 24 fecha. Antes disso, ninguém paga.'
 
 export const PASSOS = [
   {
@@ -42,6 +59,6 @@ export const PASSOS = [
   },
   {
     titulo: '4. Sorteio mensal',
-    descricao: 'Todo mês, 2 integrantes em dia recebem o crédito. Quem já foi sorteada não concorre de novo.',
+    descricao: 'Todo mês, 2 pessoas em dia podem receber o crédito. Quem paga em dia segue, e a chance aumenta a cada mês.',
   },
 ] as const
