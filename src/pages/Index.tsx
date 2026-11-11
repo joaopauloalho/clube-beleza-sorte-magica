@@ -97,23 +97,17 @@ export default function Index() {
                 </li>
               ))}
             </ol>
-            <ol className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {[
-                ['24', 'pessoas por grupo', '24 pessoas por grupo', false],
-                ['2', 'sorteadas todo mês', '2 sorteadas todo mês', false],
-                ['3', 'Meses 4 e 8', 'Meses 4 e 8: 3 sorteadas', true],
-                ['12', 'todas até o mês 12', 'Todas sorteadas até o mês 12', false],
-              ].map(([numero, titulo, rotulo, especial]) => (
-                <li
-                  key={rotulo}
-                  aria-label={rotulo}
-                  className={`rounded-2xl p-3 sm:p-4 ${especial ? 'bg-[#a52751] text-white' : 'bg-[#f5f5f7] text-[#1d1d1f]'}`}
-                >
-                  <p className="text-[32px] font-medium tabular-nums leading-none sm:text-[40px]">{numero}</p>
-                  <p className={`mt-2 text-[12px] leading-tight ${especial ? 'text-white' : 'text-[#6e6e73]'}`}>{titulo}</p>
-                </li>
-              ))}
-            </ol>
+            <div className="mt-6 grid grid-cols-2 gap-2 sm:gap-3">
+              <article className="min-w-0 rounded-[28px] bg-[#f5f5f7] p-4 sm:p-6">
+                <p className="text-[22px] font-medium leading-tight sm:text-[28px]">Todo dia 10</p>
+                <p className="mt-2 text-[15px] leading-snug text-[#6e6e73] sm:text-[17px]">2 sorteadas</p>
+              </article>
+              <article className="min-w-0 rounded-[28px] bg-[#a52751] p-4 text-white sm:p-6">
+                <p className="text-[22px] font-medium leading-tight sm:text-[28px]">Meses 4 e 8</p>
+                <p className="mt-2 text-[15px] leading-snug sm:text-[17px]">Sorteio especial: 3 sorteadas</p>
+              </article>
+            </div>
+            <p className="mt-3 text-[13px] leading-snug text-[#6e6e73]">24 pessoas por grupo</p>
             <article className="mt-6 rounded-[28px] bg-[#fdf2f6] p-5">
               <p className="inline-flex rounded-full bg-[#a52751] px-2.5 py-0.5 text-[12px] font-medium text-white">Ganhe ao assinar</p>
               <p className="mt-3 text-[17px] leading-snug">Assinou, já ganhou: um procedimento na hora + acesso à tabela de descontos de todos os procedimentos da clínica.</p>
@@ -126,6 +120,9 @@ export default function Index() {
             <h2 className="text-balance text-[clamp(28px,4vw,40px)] leading-[1.08]">Um ano no Suprema, por exemplo.</h2>
             <div className="mt-6">
               <ExemploAno />
+            </div>
+            <div className="mt-8">
+              <ConviteLista />
             </div>
           </div>
         </section>
