@@ -112,7 +112,7 @@ export default function Index() {
             <ol className="mt-8 grid gap-4 sm:grid-cols-3">
               {[
                 [ClipboardList, '1', 'Escolha seu plano'],
-                [Wallet, '2', 'Pague a mensalidade'],
+                [Wallet, '2', 'Pague 12 mensalidades'],
                 [Calendar, '3', 'Todo dia 10 tem sorteio'],
               ].map(([Icone, numero, titulo]) => (
                 <li key={numero} className="flex items-center gap-3">

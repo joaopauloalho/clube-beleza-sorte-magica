@@ -40,7 +40,7 @@ export function CartaoPlano({
         <p className={`mt-4 text-[12px] ${rotulo}`}>Você paga</p>
         <p className="mt-1 text-[22px] font-medium tabular-nums leading-none sm:text-[36px]">
           {formatarReais(oferta.pagaMes)}
-          <span className={`mt-1 block text-[12px] font-normal sm:text-[15px] ${mudo}`}>/mês</span>
+          <span className={`mt-1 block text-[12px] font-normal sm:text-[15px] ${mudo}`}>/mês · 12 meses</span>
         </p>
         <div className={`mt-4 border-t pt-4 ${escuro ? 'border-white/15' : 'border-[#1d1d1f]/10'}`}>
           <p className={`text-[12px] ${rotulo}`}>Você recebe</p>
