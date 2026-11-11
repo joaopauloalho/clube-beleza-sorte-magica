@@ -50,10 +50,11 @@ Ainda **não foram aplicadas**. Rode no SQL Editor do projeto `ooyyenjndsaptlxid
 3. `supabase/migrations/20261110230200_funcoes_rls_e_planos.sql`
 4. `supabase/migrations/20261111040200_credito_suprema_1700.sql`
 5. `supabase/migrations/20261111050000_credito_radiante_1350.sql`
+6. `supabase/migrations/20261111053000_credito_radiante_1200.sql`
 
 São idempotentes. Não há `UPDATE` nem `DELETE` em `public.leads`. As 5 leads continuam como estão, inclusive o WhatsApp repetido: a coluna nova `dedupe_whatsapp` nasce `false` para as linhas que já existem e o índice único vale só onde ela é `true`. Linhas novas entram no índice. Se o WhatsApp já existir em qualquer lead, a função devolve “já cadastrado” ou recusa a adesão, sem alterar a linha antiga.
 
-Os 3 planos permanecem nas mesmas linhas, achados pelo nome. Na primeira execução, preço, crédito, brinde e desconto anteriores vão para colunas `*_legado`. Em seguida os números comerciais passam a ser os da fonte única (`src/lib/plans.ts`): Essencial 50/600/700/17%/10%, Radiante 75/900/1350/25%/15%, Suprema 100/1200/1700/33%/20%. A migration 5 só faz o crédito da Radiante ir de 1125 para 1350, pelo nome. O texto de brinde antigo não é apagado; a interface não o exibe. O bônus em serviços mostrado no site é o crédito menos as 12 mensalidades.
+Os 3 planos permanecem nas mesmas linhas, achados pelo nome. Na primeira execução, preço, crédito, brinde e desconto anteriores vão para colunas `*_legado`. Em seguida os números comerciais passam a ser os da fonte única (`src/lib/plans.ts`): Essencial 50/600/700/17%/10%, Radiante 75/900/1200/25%/15%, Suprema 100/1200/1700/33%/20%. A migration 6 só faz o crédito da Radiante ir de 1350 para 1200, pelo nome. O texto de brinde antigo não é apagado; a interface não o exibe. O bônus em serviços mostrado no site é o crédito menos as 12 mensalidades.
 
 Papel de admin ou operador, com o uuid de Authentication → Users:
 
