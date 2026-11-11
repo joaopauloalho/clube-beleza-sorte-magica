@@ -21,7 +21,7 @@ export const A_DEFINIR = {
 } as const
 
 export const REGRA_SORTEIO =
-  '24 pessoas por grupo · 2 sorteadas todo mês · 3 nos meses 4 e 8 · todas sorteadas antes do mês 12'
+  '24 pessoas por grupo · 2 sorteadas todo mês · 3 nos meses 4 e 8 · todas sorteadas até o mês 12'
 
 export const TEXTO_REGULAMENTO =
   'Aceito as regras publicadas do Clube Beleza: grupo fechado de 24 pessoas no mesmo plano; cobrança somente por Pix Automático e somente quando o grupo completar 24 pessoas; todo mês 2 integrantes em dia são sorteadas; nos meses 4 e 8 há um sorteio extra, com 3 sorteadas, só entre quem está em dia; quem já foi sorteada não concorre de novo; quem para de pagar sai do sorteio; todas as integrantes em dia são sorteadas até o mês 11. ' +
@@ -69,6 +69,6 @@ export const PASSOS = [
   },
   {
     titulo: '4. Sorteio mensal',
-    descricao: 'Todo mês, 2 pessoas em dia podem ser sorteadas. Nos meses 4 e 8 são 3, só entre quem está em dia. Quem está em dia é sorteada até o mês 11.',
+    descricao: 'Todo mês, 2 pessoas em dia podem ser sorteadas. Nos meses 4 e 8 são 3, só entre quem está em dia. Quem está em dia é sorteada até o mês 12.',
   },
 ] as const

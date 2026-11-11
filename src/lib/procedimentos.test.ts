@@ -73,7 +73,7 @@ test('o ganho da assinatura não se mistura com o crédito do sorteio', () => {
   }
 })
 
-test('o ano de exemplo da Suprema soma tabela, mensalidade e o que ela completa', () => {
+test('o ano de exemplo da Suprema soma tabela, mensalidade e o complemento do crédito', () => {
   const ano = exemploAnoSuprema()
   assert.equal(ano.usoCredito, 999 + 878)
   assert.equal(ano.completa, 177)

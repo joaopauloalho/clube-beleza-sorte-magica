@@ -16,6 +16,7 @@ const faq = [
   { pergunta: 'Como funciona o sorteio?', resposta: `${REGRA_SORTEIO} ${A_DEFINIR.atraso} ${LINHA_SORTEIO}` },
   { pergunta: 'O crédito soma com o desconto de membro?', resposta: A_DEFINIR.creditoSomaDesconto },
   { pergunta: 'O crédito sai de uma vez?', resposta: `${A_DEFINIR.creditoEtapas} ${A_DEFINIR.validadeCredito}` },
+  { pergunta: 'Dá para dividir o crédito?', resposta: 'No Essencial e no Radiante, o crédito é de uso individual. No Suprema, dá para dividir com outra pessoa.' },
   { pergunta: 'Quais serviços entram?', resposta: A_DEFINIR.listaServicos },
   { pergunta: 'Posso cancelar?', resposta: A_DEFINIR.cancelamento },
   { pergunta: 'Onde está o regulamento?', resposta: A_DEFINIR.regulamento },
@@ -96,7 +97,23 @@ export default function Index() {
                 </li>
               ))}
             </ol>
-            <p className="mt-6 text-[15px] leading-snug text-[#6e6e73]">{REGRA_SORTEIO}</p>
+            <ol className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {[
+                ['24', 'pessoas por grupo', '24 pessoas por grupo', false],
+                ['2', 'sorteadas todo mês', '2 sorteadas todo mês', false],
+                ['3', 'Meses 4 e 8', 'Meses 4 e 8: 3 sorteadas', true],
+                ['12', 'todas até o mês 12', 'Todas sorteadas até o mês 12', false],
+              ].map(([numero, titulo, rotulo, especial]) => (
+                <li
+                  key={rotulo}
+                  aria-label={rotulo}
+                  className={`rounded-2xl p-3 sm:p-4 ${especial ? 'bg-[#a52751] text-white' : 'bg-[#f5f5f7] text-[#1d1d1f]'}`}
+                >
+                  <p className="text-[32px] font-medium tabular-nums leading-none sm:text-[40px]">{numero}</p>
+                  <p className={`mt-2 text-[12px] leading-tight ${especial ? 'text-white' : 'text-[#6e6e73]'}`}>{titulo}</p>
+                </li>
+              ))}
+            </ol>
             <article className="mt-6 rounded-[28px] bg-[#fdf2f6] p-5">
               <p className="inline-flex rounded-full bg-[#a52751] px-2.5 py-0.5 text-[12px] font-medium text-white">Ganhe ao assinar</p>
               <p className="mt-3 text-[17px] leading-snug">Assinou, já ganhou: um procedimento na hora + acesso à tabela de descontos de todos os procedimentos da clínica.</p>

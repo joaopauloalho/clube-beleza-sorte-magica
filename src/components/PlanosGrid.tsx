@@ -56,6 +56,9 @@ export function CartaoPlano({
           <p className={`mt-1 text-[11px] leading-snug ${mudo}`}>Assinou, já pode usar.</p>
           <p className={`mt-3 text-[12px] ${rotulo}`}>Crédito no seu sorteio</p>
           <p className="mt-1 text-[15px] font-medium tabular-nums sm:text-[20px]">{formatarReais(oferta.credito)}</p>
+          <p className={`mt-1 text-[10px] leading-tight sm:text-[12px] ${mudo}`}>
+            {escuro ? 'Divida o crédito com outra pessoa' : 'Crédito de uso individual'}
+          </p>
           <p className={`mt-3 break-words text-[12px] leading-snug sm:text-[14px] ${mudo}`}>
             {Math.round(oferta.desconto * 100)}% de desconto em todos os procedimentos
           </p>

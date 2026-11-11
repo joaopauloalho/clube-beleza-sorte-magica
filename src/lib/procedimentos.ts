@@ -151,7 +151,7 @@ export function fraseDoHero(oferta: OfertaPlano): string {
   return `Assine o ${oferta.nome} e ganhe uma ${oferta.ganhoNome.toLowerCase()} de ${inteiro.format(oferta.ganhoTabela)} na hora.`
 }
 
-/** Um ano ilustrativo no Suprema. O que o crédito não cobre ela paga à parte. */
+/** Um ano ilustrativo no Suprema. O que o crédito não cobre entra como pagamento à parte. */
 export function exemploAnoSuprema() {
   const plano = PLANS.find((item) => item.slug === 'suprema')
   if (!plano) throw new Error('Plano Suprema ausente')
