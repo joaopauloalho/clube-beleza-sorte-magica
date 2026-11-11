@@ -1,0 +1,20 @@
+---
+description: Regras visuais do Clube Beleza. Vale para qualquer mudança de layout, estilo ou texto de interface.
+alwaysApply: true
+---
+
+Para qualquer trabalho visual neste site, siga esta ordem:
+
+1. Base: as skills `apple-design` e `frontend-design`.
+2. Estilos preferidos, só estes, em `.cursor/skills/ads-*`: premium, refined, square, bento, levels, minimal, sleek, glassmorphism, storytelling, spacious. Combinação principal: premium + bento. Tipografia com toques de refined. Conversão com levels. Glassmorphism só em toques pequenos (navegação, um painel), nunca na página inteira.
+3. Antes de terminar, confira o resultado com `web-design-guidelines`.
+
+Não use os outros `ads-*`, nem os `ds-*`, nem `apple-liquid-glass`, a menos que o João peça.
+
+Regras fixas do produto, que o visual não altera:
+
+- O único acento é o rosa da marca. Não troque por azul e não acrescente uma segunda cor de destaque.
+- Nunca use a palavra "consórcio".
+- Não invente conteúdo para itens `[A DEFINIR]`. Deixe o marcador visível onde a decisão ainda está aberta.
+- Não prometa prêmio garantido. Use "poder" e mantenha a nota de sorteio/regulamento ao lado da frase principal.
+- Os valores dos planos vêm da fonte já ligada à tabela `planos` (mensalidade e crédito). Não invente preços.
