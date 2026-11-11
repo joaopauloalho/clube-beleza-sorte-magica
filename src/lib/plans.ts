@@ -1,3 +1,5 @@
+import { formatarReais } from './format'
+
 export type PlanSlug = 'essencial' | 'radiante' | 'suprema'
 
 export interface Plan {
@@ -7,7 +9,7 @@ export interface Plan {
   mensalidade: number
   total12: number
   credito: number
-  /** Bônus da clínica sobre o total pago em 12 meses, como fração (0,17 = 17%). */
+  /** Fração da coluna bonus_clinica_pct. O bônus em reais da tela é credito − total12. */
   bonusClinica: number
   /** Desconto do preço de membro enquanto a pessoa não foi sorteada. */
   precoMembro: number
@@ -20,7 +22,9 @@ export const CYCLE_MONTHS = 12
 
 /**
  * Fonte única dos três planos.
- * Essencial 50/600/700/17%/10%, Radiante 75/900/1125/25%/15%, Suprema 100/1200/1600/33%/20%.
+ * Essencial 50/600/700/17%/10%, Radiante 75/900/1125/25%/15%, Suprema 100/1200/1700/33%/20%.
+ * O crédito 1700 entra na migration `20261111040200_credito_suprema_1700.sql`, que ainda não foi aplicada.
+ * A fração `bonusClinica` continua a coluna já gravada. O bônus em reais é `credito - total12`.
  */
 export const PLANS: readonly Plan[] = [
   {
@@ -48,7 +52,7 @@ export const PLANS: readonly Plan[] = [
     nome: 'Beleza Suprema',
     mensalidade: 100,
     total12: 1200,
-    credito: 1600,
+    credito: 1700,
     bonusClinica: 0.33,
     precoMembro: 0.2,
     destaque: true,
@@ -65,4 +69,28 @@ export function getPlanByNome(nome: string | null | undefined): Plan | undefined
 
 export function precoEmCentavos(reais: number): number {
   return Math.round(reais * 100)
+}
+
+/** Crédito do plano menos o que a pessoa paga nas 12 mensalidades. */
+export function bonusEmServicos(credito: number, total12: number): number {
+  return credito - total12
+}
+
+const DIAS_NO_MES = 30
+
+/**
+ * Mensalidade dividida por 30.
+ * Valor exato no centavo sai como preço. Se o valor real fica a até cinco centavos
+ * do décimo seguinte, a frase diz "menos de" esse décimo. Nos outros casos, arredonda ao centavo.
+ */
+export function frasePorDia(mensalidade: number): string {
+  const dia = mensalidade / DIAS_NO_MES
+  const centavos = Math.round((dia + Number.EPSILON) * 100) / 100
+  const exatoNoCentavo = Math.abs(dia * 100 - Math.round(dia * 100)) < 1e-6
+  if (exatoNoCentavo) return `${formatarReais(centavos)} por dia`
+  const proximoDecimo = Math.ceil((dia - 1e-9) * 10) / 10
+  if (proximoDecimo - dia > 0 && proximoDecimo - dia <= 0.05) {
+    return `menos de ${formatarReais(proximoDecimo)} por dia`
+  }
+  return `${formatarReais(centavos)} por dia`
 }

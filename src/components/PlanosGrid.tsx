@@ -3,7 +3,7 @@ import { Parcelas } from '@/components/Parcelas'
 import { CTA_PLANO, LINHA_SORTEIO } from '@/lib/copy'
 import { formatarReais } from '@/lib/format'
 import type { PlanoPublico } from '@/lib/planos-publicos'
-import { CYCLE_MONTHS } from '@/lib/plans'
+import { bonusEmServicos, CYCLE_MONTHS, frasePorDia } from '@/lib/plans'
 
 export function PlanosGrid({
   planos,
@@ -30,9 +30,17 @@ export function PlanosGrid({
                 {plano.destaque ? 'Destaque' : `${CYCLE_MONTHS} meses`}
               </p>
               <h3 className="mt-2 text-balance text-[16px] font-semibold leading-tight tracking-tight sm:text-[28px]">{plano.nomeCurto}</h3>
+              {destaque && (
+                <p className="mt-3 text-[14px] font-medium leading-tight text-white sm:text-[22px]">
+                  +{formatarReais(bonusEmServicos(plano.credito, plano.total12))} em serviços
+                </p>
+              )}
               <p className="mt-3 text-[16px] font-semibold tabular-nums leading-none tracking-tight sm:text-[36px]">
                 {formatarReais(plano.mensalidade)}
                 <span className={`mt-1 block text-[11px] font-normal sm:text-[17px] ${destaque ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>/mês</span>
+              </p>
+              <p className={`mt-1 text-[11px] leading-tight sm:text-[13px] ${destaque ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>
+                {frasePorDia(plano.mensalidade)}
               </p>
               <div className="mt-3">
                 <Parcelas invertido={destaque} />
@@ -43,6 +51,11 @@ export function PlanosGrid({
               <p className={`mt-3 text-[13px] leading-snug sm:text-[15px] ${destaque ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>
                 Crédito {formatarReais(plano.credito)}
               </p>
+              {!destaque && (
+                <p className="text-[12px] font-medium leading-snug text-[#a52751] sm:text-[15px]">
+                  +{formatarReais(bonusEmServicos(plano.credito, plano.total12))} em serviços
+                </p>
+              )}
               <p className={`text-[13px] leading-snug sm:text-[15px] ${destaque ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'}`}>
                 Desconto {Math.round(plano.desconto * 100)}%
               </p>

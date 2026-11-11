@@ -17,7 +17,7 @@ test('o ciclo público usa um único par de dias e não garante o prêmio', () =
 })
 
 test('o teto do crédito é o maior plano, e a lista de serviços está vazia', () => {
-  assert.equal(maiorCredito(planosCanonicos()), 1600)
+  assert.equal(maiorCredito(planosCanonicos()), 1700)
   assert.equal(SERVICOS_DO_CLUBE.length, 0)
   assert.equal(LISTA_SERVICOS_PLACEHOLDER, '[A DEFINIR: lista de serviços]')
   const raiz = join(fileURLToPath(new URL('.', import.meta.url)), '../..')

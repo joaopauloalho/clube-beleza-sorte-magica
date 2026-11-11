@@ -10,7 +10,7 @@ import { DIA_PAGAMENTO, DIA_SORTEIO, fraseDoCiclo } from '@/lib/ciclo'
 import { A_DEFINIR, CTA_PLANOS, imaginePrimeiraMensalidade, LINHA_CHANCE, LINHA_SORTEIO, PASSOS, PROMESSA_CURTA } from '@/lib/copy'
 import { formatarReais } from '@/lib/format'
 import { maiorCredito, planoEntrada } from '@/lib/planos-publicos'
-import { CYCLE_MONTHS } from '@/lib/plans'
+import { CYCLE_MONTHS, frasePorDia } from '@/lib/plans'
 import { usePlanosPublicos } from '@/lib/use-planos-publicos'
 import heroImage from '@/assets/hero-woman.jpg'
 
@@ -63,6 +63,7 @@ export default function Index() {
                   {formatarReais(entrada.mensalidade)}
                   <span className="mt-1 block text-[15px] font-normal text-[#6e6e73]">/mês</span>
                 </p>
+                <p className="mt-2 text-[15px] text-[#6e6e73]">{frasePorDia(entrada.mensalidade)}</p>
                 <div className="mt-6">
                   <Parcelas quantidade={CYCLE_MONTHS} />
                   <p className="mt-2 text-[13px] tabular-nums text-[#6e6e73]">
