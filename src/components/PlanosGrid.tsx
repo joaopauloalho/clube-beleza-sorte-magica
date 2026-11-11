@@ -30,7 +30,12 @@ export function CartaoPlano({
       className={`flex min-h-[240px] min-w-0 flex-col justify-between overflow-hidden rounded-[28px] p-3 sm:p-6 ${FUNDO[plano.slug]} ${selecionado === plano.slug ? 'ring-2 ring-[#a52751]' : ''}`}
     >
       <div className="min-w-0">
-        <h3 className="text-balance text-[18px] leading-tight sm:text-[28px]">{plano.nomeCurto}</h3>
+        <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+          <h3 className="text-balance text-[18px] leading-tight sm:text-[28px]">{plano.nomeCurto}</h3>
+          <span className="inline-flex max-w-full rounded-full bg-[#a52751] px-2 py-0.5 text-center text-[10px] font-medium leading-tight text-white sm:text-[12px]">
+            +{inteiro.format(oferta.ganhoTabela + oferta.bonus)} em bônus
+          </span>
+        </div>
         <p className={`mt-4 text-[12px] ${rotulo}`}>Você paga</p>
         <p className="mt-1 text-[22px] font-medium tabular-nums leading-none sm:text-[36px]">
           {formatarReais(oferta.pagaMes)}
@@ -51,7 +56,6 @@ export function CartaoPlano({
           <p className={`mt-1 text-[11px] leading-snug ${mudo}`}>Assinou, já pode usar.</p>
           <p className={`mt-3 text-[12px] ${rotulo}`}>Crédito no seu sorteio</p>
           <p className="mt-1 text-[15px] font-medium tabular-nums sm:text-[20px]">{formatarReais(oferta.credito)}</p>
-          <p className={`text-[12px] tabular-nums ${mudo}`}>inclui +{formatarReais(oferta.bonus)} de bônus</p>
           <p className={`mt-3 break-words text-[12px] leading-snug sm:text-[14px] ${mudo}`}>
             {Math.round(oferta.desconto * 100)}% de desconto em todos os procedimentos
           </p>
