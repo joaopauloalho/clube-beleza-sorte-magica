@@ -142,7 +142,7 @@ export default function Adesao() {
     <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
       <SiteHeader />
       <main id="conteudo" className="mx-auto max-w-[1100px] px-[22px] py-10">
-        <p className="text-[14px] text-[#86868b]">Passo {passo} de 3 · {titulo}</p>
+        <p className="text-[14px] text-[#6e6e73]">Passo {passo} de 3 · {titulo}</p>
         <h1 className="mt-1 text-[clamp(32px,5vw,48px)] font-semibold tracking-tight">Entrar no clube.</h1>
 
         {passo === 1 && (

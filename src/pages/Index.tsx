@@ -1,13 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { Calendar, Shield, Sparkles, Users } from 'lucide-react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { Button } from '@/components/ui/button'
+import { ConviteLista } from '@/components/ConviteLista'
 import { Parcelas } from '@/components/Parcelas'
 import { PlanosGrid } from '@/components/PlanosGrid'
 import { ServicosDoClube } from '@/components/ServicosDoClube'
 import { SiteHeader } from '@/components/SiteHeader'
 import { DIA_PAGAMENTO, DIA_SORTEIO, fraseDoCiclo } from '@/lib/ciclo'
-import { A_DEFINIR, CTA_LISTA, imaginePrimeiraMensalidade, LINHA_CHANCE, LINHA_SORTEIO, PASSOS, PROMESSA_CURTA } from '@/lib/copy'
+import { A_DEFINIR, CTA_PLANOS, imaginePrimeiraMensalidade, LINHA_CHANCE, LINHA_SORTEIO, PASSOS, PROMESSA_CURTA } from '@/lib/copy'
 import { formatarReais } from '@/lib/format'
 import { maiorCredito, planoEntrada } from '@/lib/planos-publicos'
 import { CYCLE_MONTHS } from '@/lib/plans'
@@ -27,6 +27,8 @@ const faq = [
   { pergunta: 'Pix Automático e o CNPJ', resposta: A_DEFINIR.gatewayCnpj },
 ]
 
+const linkPlano = 'inline-flex min-h-11 items-center rounded-sm text-[17px] text-[#841f41] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#841f41]'
+
 export default function Index() {
   const navigate = useNavigate()
   const planos = usePlanosPublicos()
@@ -37,121 +39,147 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-white text-[#1d1d1f]">
       <SiteHeader />
-      <main id="conteudo">
-        <section className="px-[22px] pb-6 pt-10 text-center md:pt-20">
-          <div className="mx-auto max-w-[980px]">
-            <h1 className="text-balance text-[clamp(40px,8vw,80px)] font-semibold leading-[1.05] tracking-[-0.015em]">
-              Clube Beleza.
-            </h1>
-            <p className="mx-auto mt-4 max-w-[40rem] text-pretty text-[clamp(19px,3vw,28px)] font-normal leading-[1.25] text-[#6e6e73]">
-              {imaginePrimeiraMensalidade(destaque.mensalidade, destaque.credito)}
-            </p>
-            <p className="mx-auto mt-3 max-w-[36rem] text-[14px] leading-snug text-[#6e6e73]">{LINHA_SORTEIO}</p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button size="lg" onClick={() => navigate('/lista-espera')}>{CTA_LISTA}</Button>
-              <a
-                href="#planos"
-                className="rounded-sm text-[17px] text-[#841f41] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#841f41]"
-              >
-                Ver os planos ›
-              </a>
-            </div>
-          </div>
+      <main id="conteudo" className="pb-24 md:pb-16">
+        <section className="px-[22px] pb-4 pt-4 md:pt-8">
+          <div className="mx-auto grid max-w-[1120px] items-stretch gap-3 md:grid-cols-12 md:gap-4">
+            <article className="flex flex-col justify-between rounded-[28px] bg-[#f5f5f7] p-6 md:col-span-7 md:p-10">
+              <div>
+                <h1 className="text-balance text-[clamp(44px,6vw,76px)] leading-[1.02]">Clube Beleza.</h1>
+                <p className="mt-5 max-w-[34rem] text-pretty text-[clamp(17px,2vw,21px)] leading-snug text-[#6e6e73]">
+                  {imaginePrimeiraMensalidade(destaque.mensalidade, destaque.credito)}
+                </p>
+                <p className="mt-3 max-w-[34rem] text-[14px] leading-snug text-[#6e6e73]">{LINHA_SORTEIO}</p>
+              </div>
+              <div className="mt-8 flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-5">
+                <ConviteLista />
+                <a href="#planos" className={linkPlano}>{CTA_PLANOS} ›</a>
+              </div>
+            </article>
 
-          <article className="mx-auto mt-10 max-w-[420px] rounded-[28px] bg-[#fdf2f6] px-6 py-7 text-left">
-            <p className="text-[13px] text-[#841f41]">{entrada.nomeCurto}</p>
-            <p className="mt-1 text-[44px] font-semibold tabular-nums leading-none tracking-tight">
-              {formatarReais(entrada.mensalidade)}
-              <span className="text-[17px] font-normal text-[#6e6e73]">/mês</span>
-            </p>
-            <div className="mt-5">
-              <Parcelas quantidade={CYCLE_MONTHS} />
-              <p className="mt-2 text-[13px] tabular-nums text-[#6e6e73]">{CYCLE_MONTHS} parcelas · {formatarReais(entrada.total12)}</p>
-            </div>
-          </article>
+            <article className="flex flex-col justify-center rounded-[28px] bg-[#fdf2f6] p-6 md:col-span-5 md:p-8">
+              <div>
+                <p className="text-[15px] text-[#841f41]">{entrada.nomeCurto}</p>
+                <p className="mt-2 font-sans text-[clamp(40px,6vw,56px)] font-medium tabular-nums leading-none tracking-tight">
+                  {formatarReais(entrada.mensalidade)}
+                  <span className="mt-1 block text-[15px] font-normal text-[#6e6e73]">/mês</span>
+                </p>
+                <div className="mt-6">
+                  <Parcelas quantidade={CYCLE_MONTHS} />
+                  <p className="mt-2 text-[13px] tabular-nums text-[#6e6e73]">
+                    {CYCLE_MONTHS} parcelas · {formatarReais(entrada.total12)}
+                  </p>
+                </div>
+              </div>
+            </article>
+
+            <article className="overflow-hidden rounded-[28px] md:col-span-7">
+              <img
+                src={heroImage}
+                alt=""
+                width={1200}
+                height={750}
+                fetchPriority="high"
+                className="h-full min-h-[240px] w-full object-cover aspect-[4/3] md:aspect-auto md:min-h-[340px]"
+              />
+            </article>
+
+            <article id="sorteio" className="scroll-mt-16 rounded-[28px] bg-[#f5f5f7] p-6 md:col-span-5 md:p-8">
+              <div>
+                <p className="text-[17px] leading-snug text-[#6e6e73]">{fraseDoCiclo()}</p>
+                <div className="mt-6 flex items-center gap-3">
+                  <div className="min-w-[72px] rounded-2xl bg-white px-3 py-4">
+                    <p className="font-sans text-[28px] font-medium tabular-nums leading-none">{DIA_PAGAMENTO}</p>
+                    <p className="mt-1 text-[12px] text-[#6e6e73]">pagamento</p>
+                  </div>
+                  <div className="h-px flex-1 bg-[#f3d0dc]" aria-hidden="true" />
+                  <div className="min-w-[72px] rounded-2xl bg-[#a52751] px-3 py-4 text-white">
+                    <p className="font-sans text-[28px] font-medium tabular-nums leading-none">{DIA_SORTEIO}</p>
+                    <p className="mt-1 text-[12px] text-white">sorteio</p>
+                  </div>
+                </div>
+                <p className="mt-5 font-sans text-[20px] font-medium tabular-nums">até {formatarReais(teto)} em crédito</p>
+                <p className="mt-2 text-[14px] leading-snug text-[#6e6e73]">{LINHA_SORTEIO}</p>
+              </div>
+            </article>
+          </div>
         </section>
 
-        <section id="sorteio" className="scroll-mt-16 px-[22px] py-10">
-          <div className="mx-auto max-w-[640px] text-center">
-            <p className="text-[17px] text-[#6e6e73]">{fraseDoCiclo()}</p>
-            <div className="mx-auto mt-6 flex max-w-[360px] items-center gap-3">
-              <div className="min-w-[72px] rounded-2xl bg-[#f5f5f7] px-3 py-4">
-                <p className="text-[28px] font-semibold tabular-nums leading-none">{DIA_PAGAMENTO}</p>
-                <p className="mt-1 text-[12px] text-[#6e6e73]">pagamento</p>
-              </div>
-              <div className="h-px flex-1 bg-[#f3d0dc]" aria-hidden="true" />
-              <div className="min-w-[72px] rounded-2xl bg-[#a52751] px-3 py-4 text-white">
-                <p className="text-[28px] font-semibold tabular-nums leading-none">{DIA_SORTEIO}</p>
-                <p className="mt-1 text-[12px] text-white/80">sorteio</p>
-              </div>
-            </div>
-            <p className="mt-5 text-[20px] font-semibold tabular-nums">até {formatarReais(teto)} em crédito</p>
-            <p className="mt-2 text-[14px] text-[#6e6e73]">{LINHA_SORTEIO}</p>
-          </div>
-        </section>
-
-        <img
-          src={heroImage}
-          alt=""
-          width={1200}
-          height={750}
-          fetchPriority="high"
-          className="mx-auto w-full max-w-[980px] rounded-[28px] object-cover aspect-[4/3] md:aspect-[16/8]"
-        />
-
-        <section id="planos" className="scroll-mt-16 px-[22px] py-[clamp(48px,8vw,100px)]">
-          <div className="mx-auto max-w-[1100px]">
-            <h2 className="text-balance text-center text-[clamp(32px,5vw,56px)] font-semibold leading-[1.06] tracking-[-0.01em]">Três planos.</h2>
+        <section id="planos" className="scroll-mt-16 bg-[#f5f5f7] px-[22px] py-14 md:py-24">
+          <div className="mx-auto max-w-[1120px]">
+            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Três planos.</h2>
             <div className="mt-8">
               <PlanosGrid planos={planos} onEscolher={(plano) => navigate(`/adesao?plano=${plano.slug}`)} />
             </div>
-          </div>
-        </section>
-
-        <section className="bg-[#f5f5f7] px-[22px] py-[clamp(48px,8vw,100px)]">
-          <div className="mx-auto grid max-w-[980px] grid-cols-2 gap-3 md:grid-cols-4 md:gap-5">
-            {PASSOS.map((passo, indice) => {
-              const Icone = icones[indice] ?? Sparkles
-              return (
-                <article key={passo.titulo} className="min-h-[140px] rounded-[28px] bg-white p-5">
-                  <Icone className="h-5 w-5 text-[#a52751]" aria-hidden="true" />
-                  <h2 className="mt-5 text-[17px] font-semibold leading-tight tracking-tight">{passo.titulo.replace(/^\d+\.\s*/, '')}</h2>
-                </article>
-              )
-            })}
-          </div>
-        </section>
-
-        <section id="servicos" className="scroll-mt-16 px-[22px] py-[clamp(48px,8vw,100px)]">
-          <div className="mx-auto max-w-[680px]">
-            <h2 className="text-balance text-center text-[clamp(32px,5vw,56px)] font-semibold leading-[1.06] tracking-[-0.01em]">Serviços do clube.</h2>
             <div className="mt-8">
-              <ServicosDoClube />
+              <ConviteLista />
             </div>
           </div>
         </section>
 
-        <section className="bg-[#f5f5f7] px-[22px] py-[clamp(48px,8vw,100px)]">
-          <div className="mx-auto max-w-[680px]">
-            <h2 className="text-balance text-center text-[clamp(32px,5vw,56px)] font-semibold leading-[1.06] tracking-[-0.01em]">Perguntas.</h2>
-            <p className="mt-3 text-center text-[15px] text-[#6e6e73]">{LINHA_CHANCE}</p>
-            <Accordion type="single" collapsible className="mt-8 rounded-[28px] bg-white px-5">
+        <section className="px-[22px] py-14 md:py-24">
+          <div className="mx-auto max-w-[1120px]">
+            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Como funciona.</h2>
+            <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+              {PASSOS.map((passo, indice) => {
+                const Icone = icones[indice] ?? Sparkles
+                return (
+                  <article key={passo.titulo} className="min-h-[148px] rounded-[28px] bg-[#f5f5f7] p-5">
+                    <Icone className="h-5 w-5 text-[#a52751]" aria-hidden="true" />
+                    <h3 className="mt-5 text-[19px] leading-tight">{passo.titulo.replace(/^\d+\.\s*/, '')}</h3>
+                  </article>
+                )
+              })}
+            </div>
+            <div className="mt-8">
+              <ConviteLista />
+            </div>
+          </div>
+        </section>
+
+        <section id="servicos" className="scroll-mt-16 bg-[#f5f5f7] px-[22px] py-14 md:py-24">
+          <div className="mx-auto max-w-[720px]">
+            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Serviços do clube.</h2>
+            <div className="mt-8">
+              <ServicosDoClube />
+            </div>
+            <div className="mt-8">
+              <ConviteLista />
+            </div>
+          </div>
+        </section>
+
+        <section className="px-[22px] py-14 md:py-24">
+          <div className="mx-auto max-w-[720px]">
+            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Perguntas.</h2>
+            <p className="mt-3 max-w-[36rem] text-[15px] leading-snug text-[#6e6e73]">{LINHA_CHANCE}</p>
+            <Accordion type="single" collapsible className="mt-8 rounded-[28px] bg-[#f5f5f7] px-5">
               {faq.map((item, indice) => (
                 <AccordionItem key={item.pergunta} value={`item-${indice}`} className="border-[#e8e8ed]">
-                  <AccordionTrigger className="text-left text-[17px] hover:no-underline focus-visible:ring-2 focus-visible:ring-[#841f41]">{item.pergunta}</AccordionTrigger>
+                  <AccordionTrigger className="text-left text-[17px] hover:no-underline">{item.pergunta}</AccordionTrigger>
                   <AccordionContent className="text-[15px] text-[#6e6e73]">{item.resposta}</AccordionContent>
                 </AccordionItem>
               ))}
             </Accordion>
+            <div className="mt-8">
+              <ConviteLista />
+            </div>
           </div>
         </section>
 
-        <section className="px-[22px] py-[clamp(48px,8vw,90px)] text-center">
-          <h2 className="text-balance text-[clamp(32px,5vw,56px)] font-semibold leading-[1.06] tracking-tight">Entre na lista.</h2>
-          <p className="mt-3 text-[17px] text-[#6e6e73]">{PROMESSA_CURTA}</p>
-          <Button size="lg" className="mt-8" onClick={() => navigate('/lista-espera')}>{CTA_LISTA}</Button>
+        <section className="px-[22px] pb-8">
+          <div className="mx-auto max-w-[1120px] rounded-[28px] bg-black px-6 py-12 text-white md:px-12 md:py-16">
+            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Entre na lista.</h2>
+            <p className="mt-3 max-w-[32rem] text-[17px] leading-snug text-[#a1a1a6]">{PROMESSA_CURTA}</p>
+            <div className="mt-8">
+              <ConviteLista />
+            </div>
+          </div>
         </section>
       </main>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[rgba(22,22,23,0.8)] px-[22px] py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur-[20px] backdrop-saturate-[1.8] md:hidden">
+        <ConviteLista className="w-full" />
+      </div>
     </div>
   )
 }

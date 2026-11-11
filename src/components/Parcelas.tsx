@@ -6,7 +6,11 @@ export function Parcelas({ quantidade = CYCLE_MONTHS, invertido = false }: { qua
       {Array.from({ length: quantidade }, (_, indice) => (
         <span
           key={indice}
-          className={`h-2.5 rounded-[4px] ${invertido ? 'bg-white/80' : indice === 0 ? 'bg-[#a52751]' : 'bg-[#f3d0dc]'}`}
+          className={`h-2.5 rounded-[3px] ${
+            invertido
+              ? indice === 0 ? 'bg-white' : 'bg-white/25'
+              : indice === 0 ? 'bg-[#a52751]' : 'bg-[#f3d0dc]'
+          }`}
         />
       ))}
     </div>

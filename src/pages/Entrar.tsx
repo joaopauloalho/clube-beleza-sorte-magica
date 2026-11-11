@@ -44,7 +44,7 @@ export default function Entrar() {
               {erro && <p className="text-sm text-destructive" role="alert" aria-live="polite">{erro}</p>}
               <Button type="submit" className="h-12 w-full" disabled={enviando}>Entrar</Button>
             </form>
-            <p className="mt-4 text-[14px] text-[#86868b]">Ainda sem cota? <Link className="text-[#841f41]" to="/adesao">Fazer a adesão ›</Link></p>
+            <p className="mt-4 text-[14px] text-[#6e6e73]">Ainda sem cota? <Link className="text-[#841f41] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#841f41]" to="/adesao">Fazer a adesão ›</Link></p>
           </CardContent>
         </Card>
       </main>

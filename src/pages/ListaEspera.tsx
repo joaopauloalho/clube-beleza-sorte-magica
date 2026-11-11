@@ -61,7 +61,7 @@ export default function ListaEspera() {
       <SiteHeader />
       <main id="conteudo" className="mx-auto max-w-[560px] px-[22px] py-10">
         <h1 className="text-[34px] font-semibold leading-tight tracking-tight">Lista.</h1>
-        <p className="mt-2 text-[17px] text-[#86868b]">Sem pagamento agora.</p>
+        <p className="mt-2 text-[17px] text-[#6e6e73]">Sem pagamento agora.</p>
         <Card className="mt-8 rounded-[28px] border-0 shadow-none">
           <CardContent className="pt-6">
             {status ? (

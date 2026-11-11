@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
+import { CTA_LISTA } from '@/lib/copy'
 
-const link = 'text-[12px] leading-[44px] text-[#f5f5f7]/80 hover:text-[#f5f5f7] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-sm'
+const link = 'inline-flex h-11 items-center text-[12px] text-[#f5f5f7]/80 hover:text-[#f5f5f7] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-sm'
 
 export function SiteHeader() {
   const { user, isOperator, signOut } = useAuth()
@@ -11,12 +12,18 @@ export function SiteHeader() {
       <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-2 focus:z-50 focus:rounded-full focus:bg-white focus:px-3 focus:py-2 focus:text-[#1d1d1f]">
         Ir para o conteúdo
       </a>
-      <nav className="mx-auto flex h-11 max-w-[1024px] items-center justify-between gap-3 px-[22px]" aria-label="Principal">
-        <Link to="/" className="text-[12px] font-medium tracking-tight text-[#f5f5f7] hover:no-underline">
+      <nav className="mx-auto flex h-12 max-w-[1120px] items-center justify-between gap-3 px-[22px]" aria-label="Principal">
+        <Link to="/" className="text-[12px] font-medium tracking-tight text-[#f5f5f7] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-sm">
           Clube Beleza
         </Link>
-        <div className="flex items-center gap-4">
-          <Link to="/lista-espera" className={link}>Lista</Link>
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Link
+            to="/lista-espera"
+            className="inline-flex h-8 items-center rounded-full bg-[#a52751] px-3 text-[12px] font-medium text-white hover:bg-[#841f41] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <span className="sm:hidden">Lista</span>
+            <span className="hidden sm:inline">{CTA_LISTA}</span>
+          </Link>
           {user ? (
             <>
               <Link to="/area" className={link}>Área</Link>
