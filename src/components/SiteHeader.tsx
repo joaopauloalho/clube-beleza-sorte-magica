@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
-import { CTA_LISTA, WORDMARK } from '@/lib/copy'
+import { CTA_LISTA, NOME_DO_CLUBE, WORDMARK } from '@/lib/copy'
 
 const link = 'inline-flex h-11 items-center text-[12px] text-[#f5f5f7]/80 hover:text-[#f5f5f7] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-sm'
 
@@ -13,8 +13,9 @@ export function SiteHeader() {
         Ir para o conteúdo
       </a>
       <nav className="mx-auto flex h-12 max-w-[1120px] items-center justify-between gap-3 px-[22px]" aria-label="Principal">
-        <Link to="/" className="font-sans text-[12px] font-medium tracking-[0.22em] text-[#f5f5f7] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-sm">
-          {WORDMARK}
+        <Link to="/" aria-label={NOME_DO_CLUBE} className="font-sans leading-none text-[#f5f5f7] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-sm">
+          <span className="block text-[9px] font-light tracking-[0.28em] text-white/70">Clube</span>
+          <span className="mt-0.5 block text-[13px] font-medium tracking-[0.16em]">{WORDMARK}</span>
         </Link>
         <div className="flex items-center gap-3 sm:gap-4">
           <Link

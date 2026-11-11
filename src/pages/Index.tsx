@@ -42,7 +42,10 @@ export default function Index() {
           <div className="mx-auto grid max-w-[1120px] items-stretch gap-3 md:grid-cols-12 md:gap-4">
             <article className="flex flex-col justify-between rounded-[28px] bg-[#f5f5f7] p-6 md:col-span-7 md:p-10">
               <div>
-                <p className="font-sans text-[13px] font-medium tracking-[0.28em] text-[#a52751]">{WORDMARK}</p>
+                <p className="font-sans leading-none" aria-label="Clube Uniquas">
+                  <span className="block text-[12px] font-light tracking-[0.32em] text-[#6e6e73]">Clube</span>
+                  <span className="mt-1.5 block text-[clamp(28px,4vw,40px)] font-medium tracking-[0.14em] text-[#a52751]">{WORDMARK}</span>
+                </p>
                 <h1 className="mt-3 text-balance text-[clamp(40px,6vw,72px)] leading-[1.05]">{TAGLINE}</h1>
                 <p className="mt-4 max-w-[34rem] text-pretty text-[clamp(17px,2vw,21px)] leading-snug text-[#6e6e73]">{LINHA_DE_APOIO}</p>
                 <p className="mt-4 max-w-[34rem] text-pretty text-[15px] leading-snug text-[#6e6e73]">
