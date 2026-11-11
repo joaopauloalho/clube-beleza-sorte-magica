@@ -40,9 +40,15 @@ export function CartaoPlano({
           <p className={`text-[12px] ${rotulo}`}>Você recebe</p>
           <p className="mt-1 text-[26px] font-medium tabular-nums leading-none sm:text-[40px]">{inteiro.format(oferta.soma)}</p>
           {oferta.quase && <p className={`mt-1 text-[13px] ${mudo}`}>{oferta.quase}</p>}
-          <p className="mt-3 break-words text-[13px] leading-snug sm:text-[15px]">
-            {oferta.ganhoNome} · {formatarReais(oferta.ganhoTabela)}, ganho ao assinar
+          <p className="mt-3">
+            <span className="inline-flex max-w-full rounded-full bg-[#a52751] px-2 py-0.5 text-center text-[10px] font-medium leading-tight text-white sm:text-[11px]">
+              Ganhe ao assinar
+            </span>
           </p>
+          <p className="mt-2 break-words text-[13px] leading-snug sm:text-[15px]">
+            {oferta.ganhoNome} · {formatarReais(oferta.ganhoTabela)}
+          </p>
+          <p className={`mt-1 text-[11px] leading-snug ${mudo}`}>Assinou, já pode usar.</p>
           <p className={`mt-3 text-[12px] ${rotulo}`}>Crédito no seu sorteio</p>
           <p className="mt-1 text-[15px] font-medium tabular-nums sm:text-[20px]">{formatarReais(oferta.credito)}</p>
           <p className={`text-[12px] tabular-nums ${mudo}`}>inclui +{formatarReais(oferta.bonus)} de bônus</p>
