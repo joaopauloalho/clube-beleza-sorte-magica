@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { Calendar, ClipboardList, Wallet } from 'lucide-react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { ExemploAno } from '@/components/ExemploAno'
 import { CarrosselEntrada } from '@/components/CarrosselEntrada'
@@ -6,16 +7,13 @@ import { ConviteLista } from '@/components/ConviteLista'
 import { PlanosGrid } from '@/components/PlanosGrid'
 import { TabelaProcedimentos } from '@/components/TabelaProcedimentos'
 import { SiteHeader } from '@/components/SiteHeader'
-import { DIA_PAGAMENTO, DIA_SORTEIO, fraseDoCiclo } from '@/lib/ciclo'
-import { A_DEFINIR, CTA_PLANOS, imaginePrimeiraMensalidade, LINHA_CHANCE, LINHA_SORTEIO, NOME_DO_CLUBE, PROMESSA_CURTA } from '@/lib/copy'
-import { formatarReais } from '@/lib/format'
-import { maiorCredito } from '@/lib/planos-publicos'
+import { A_DEFINIR, CTA_PLANOS, imaginePrimeiraMensalidade, LINHA_SORTEIO, NOME_DO_CLUBE, PROMESSA_CURTA, REGRA_SORTEIO } from '@/lib/copy'
 import { usePlanosPublicos } from '@/lib/use-planos-publicos'
 import heroImage from '@/assets/hero-woman.jpg'
 
 const faq = [
   { pergunta: 'Quando a mensalidade começa?', resposta: PROMESSA_CURTA },
-  { pergunta: 'Como funciona a chance?', resposta: `${LINHA_CHANCE} ${LINHA_SORTEIO}` },
+  { pergunta: 'Como funciona o sorteio?', resposta: `${REGRA_SORTEIO} ${A_DEFINIR.atraso} ${LINHA_SORTEIO}` },
   { pergunta: 'O crédito soma com o desconto de membro?', resposta: A_DEFINIR.creditoSomaDesconto },
   { pergunta: 'O crédito sai de uma vez?', resposta: `${A_DEFINIR.creditoEtapas} ${A_DEFINIR.validadeCredito}` },
   { pergunta: 'Quais serviços entram?', resposta: A_DEFINIR.listaServicos },
@@ -30,7 +28,6 @@ export default function Index() {
   const navigate = useNavigate()
   const planos = usePlanosPublicos()
   const destaque = planos.find((plano) => plano.destaque) ?? planos[planos.length - 1]
-  const teto = maiorCredito(planos)
 
   return (
     <div className="min-h-screen bg-white text-[#1d1d1f]">
@@ -65,23 +62,9 @@ export default function Index() {
               />
             </article>
 
-            <article id="sorteio" className="scroll-mt-16 rounded-[28px] bg-[#f5f5f7] p-6 md:col-span-5 md:p-8">
-              <div>
-                <p className="text-[17px] leading-snug text-[#6e6e73]">{fraseDoCiclo()}</p>
-                <div className="mt-6 flex items-center gap-3">
-                  <div className="min-w-[72px] rounded-2xl bg-white px-3 py-4">
-                    <p className="font-sans text-[28px] font-medium tabular-nums leading-none">{DIA_PAGAMENTO}</p>
-                    <p className="mt-1 text-[12px] text-[#6e6e73]">pagamento</p>
-                  </div>
-                  <div className="h-px flex-1 bg-[#f3d0dc]" aria-hidden="true" />
-                  <div className="min-w-[72px] rounded-2xl bg-[#a52751] px-3 py-4 text-white">
-                    <p className="font-sans text-[28px] font-medium tabular-nums leading-none">{DIA_SORTEIO}</p>
-                    <p className="mt-1 text-[12px] text-white">sorteio</p>
-                  </div>
-                </div>
-                <p className="mt-5 font-sans text-[20px] font-medium tabular-nums">até {formatarReais(teto)} em crédito</p>
-                <p className="mt-2 text-[14px] leading-snug text-[#6e6e73]">{LINHA_SORTEIO}</p>
-              </div>
+            <article className="flex flex-col justify-center rounded-[28px] bg-[#f5f5f7] p-6 md:col-span-5 md:p-8">
+              <p className="text-balance text-[17px] leading-snug">{REGRA_SORTEIO}</p>
+              <p className="mt-3 text-[13px] leading-snug text-[#6e6e73]">{A_DEFINIR.atraso}</p>
             </article>
           </div>
         </section>
@@ -99,13 +82,33 @@ export default function Index() {
         </section>
 
         <section className="px-[22px] py-14 md:py-24">
-          <div className="mx-auto max-w-[720px]">
-            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Um ano no Suprema, por exemplo.</h2>
-            <div className="mt-8">
+          <div className="mx-auto max-w-[980px]">
+            <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Como funciona.</h2>
+            <ol className="mt-8 grid gap-4 sm:grid-cols-3">
+              {[
+                [ClipboardList, '1', 'Escolha seu plano'],
+                [Wallet, '2', 'Pague a mensalidade'],
+                [Calendar, '3', 'Todo dia 10 tem sorteio'],
+              ].map(([Icone, numero, titulo]) => (
+                <li key={numero} className="flex items-center gap-3">
+                  <Icone className="h-6 w-6 shrink-0 text-[#a52751] stroke-[1.5]" aria-hidden="true" />
+                  <span className="text-[17px] leading-snug"><span className="text-[#a52751]">{numero}</span> {titulo}</span>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-6 text-[15px] leading-snug text-[#6e6e73]">{REGRA_SORTEIO}</p>
+            <article className="mt-6 rounded-[28px] bg-[#fdf2f6] p-5">
+              <p className="inline-flex rounded-full bg-[#a52751] px-2.5 py-0.5 text-[12px] font-medium text-white">Ganhe ao assinar</p>
+              <p className="mt-3 text-[17px] leading-snug">Assinou, já ganhou: um procedimento na hora + acesso à tabela de descontos de todos os procedimentos da clínica.</p>
+            </article>
+          </div>
+        </section>
+
+        <section className="px-[22px] pb-14 md:pb-20">
+          <div className="mx-auto max-w-[980px]">
+            <h2 className="text-balance text-[clamp(28px,4vw,40px)] leading-[1.08]">Um ano no Suprema, por exemplo.</h2>
+            <div className="mt-6">
               <ExemploAno />
-            </div>
-            <div className="mt-8">
-              <ConviteLista />
             </div>
           </div>
         </section>
@@ -126,7 +129,6 @@ export default function Index() {
         <section className="px-[22px] py-14 md:py-24">
           <div className="mx-auto max-w-[720px]">
             <h2 className="text-balance text-[clamp(32px,5vw,56px)] leading-[1.05]">Perguntas.</h2>
-            <p className="mt-3 max-w-[36rem] text-[15px] leading-snug text-[#6e6e73]">{LINHA_CHANCE}</p>
             <Accordion type="single" collapsible className="mt-8 rounded-[28px] bg-[#f5f5f7] px-5">
               {faq.map((item, indice) => (
                 <AccordionItem key={item.pergunta} value={`item-${indice}`} className="border-[#e8e8ed]">

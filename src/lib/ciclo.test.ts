@@ -23,5 +23,5 @@ test('o teto do crédito é o maior plano, e a lista de serviços está vazia', 
   const raiz = join(fileURLToPath(new URL('.', import.meta.url)), '../..')
   const pagina = readFileSync(join(raiz, 'src/pages/Index.tsx'), 'utf8')
   assert.equal(pagina.includes('1700') || pagina.includes('1.700'), false)
-  assert.match(pagina, /fraseDoCiclo|DIA_PAGAMENTO/)
+  assert.match(pagina, /REGRA_SORTEIO/)
 })

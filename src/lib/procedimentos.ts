@@ -151,35 +151,35 @@ export function fraseDoHero(oferta: OfertaPlano): string {
   return `Assine o ${oferta.nome} e ganhe uma ${oferta.ganhoNome.toLowerCase()} de ${inteiro.format(oferta.ganhoTabela)} na hora.`
 }
 
-/** Um ano ilustrativo no Suprema. As duas limpezas são pagas por ela, então os R$ 302 do crédito ficam para depois. */
+/** Um ano ilustrativo no Suprema. O que o crédito não cobre ela paga à parte. */
 export function exemploAnoSuprema() {
   const plano = PLANS.find((item) => item.slug === 'suprema')
   if (!plano) throw new Error('Plano Suprema ausente')
   const micro = procedimentoPorId('mmp')
+  const peeling = procedimentoPorId('peeling')
   const botox = procedimentoPorId('toxina-botulinica')
-  const skin = procedimentoPorId('skinbooster')
+  const preenchimento = procedimentoPorId('preenchimento')
   const limpeza = procedimentoPorId('limpeza')
-  const usoCredito = botox.suprema + skin.suprema
-  const restante = plano.credito - usoCredito
-  const limpezas = 2
-  const aParte = limpeza.suprema * limpezas
-  const investiu = plano.mensalidade * 12
-  const recebeu = micro.tabela + botox.tabela + skin.tabela + limpeza.tabela * limpezas
-  const pagou = investiu + aParte
+  const bio = procedimentoPorId('bioestimulador')
+  const usoCredito = botox.suprema + preenchimento.suprema
+  const completa = usoCredito - plano.credito
+  const aParte = peeling.suprema + completa + limpeza.suprema + bio.suprema
+  const investiu = plano.mensalidade * 12 + aParte
+  const recebeu = micro.tabela + peeling.tabela + botox.tabela + preenchimento.tabela + limpeza.tabela + bio.tabela
   return {
     mensalidade: plano.mensalidade,
     credito: plano.credito,
     micro,
+    peeling,
     botox,
-    skin,
+    preenchimento,
     limpeza,
+    bio,
     usoCredito,
-    restante,
-    aParte,
+    completa,
     investiu,
     recebeu,
-    pagou,
-    economizou: recebeu - pagou,
+    economizou: recebeu - investiu,
   }
 }
 

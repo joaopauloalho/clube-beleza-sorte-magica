@@ -73,14 +73,13 @@ test('o ganho da assinatura não se mistura com o crédito do sorteio', () => {
   }
 })
 
-test('o ano de exemplo da Suprema fecha a conta sem gastar o crédito restante', () => {
+test('o ano de exemplo da Suprema soma tabela, mensalidade e o que ela completa', () => {
   const ano = exemploAnoSuprema()
-  assert.equal(ano.usoCredito, 999 + 399)
-  assert.equal(ano.restante, 302)
-  assert.equal(ano.investiu, 1200)
-  assert.equal(ano.aParte, 176 * 2)
-  assert.equal(ano.recebeu, 349 + 1249 + 499 + 220 * 2)
-  assert.equal(ano.economizou, ano.recebeu - (ano.investiu + ano.aParte))
+  assert.equal(ano.usoCredito, 999 + 878)
+  assert.equal(ano.completa, 177)
+  assert.equal(ano.recebeu, 349 + 249 + 1249 + 1097 + 220 + 1800)
+  assert.equal(ano.investiu, 1200 + 199 + 177 + 176 + 1440)
+  assert.equal(ano.economizou, ano.recebeu - ano.investiu)
 })
 
 test('o texto da Suprema só diz metade quando o bônus cobre metade da toxina', () => {
