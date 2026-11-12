@@ -7,9 +7,9 @@ import { ofertaDoPlano } from '@/lib/procedimentos'
 const inteiro = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 })
 
 const FUNDO = {
-  essencial: 'bg-white text-[#1d1d1f]',
-  radiante: 'bg-[#fdf2f6] text-[#1d1d1f]',
-  suprema: 'bg-black text-white',
+  essencial: 'border border-[#E4D9D3] bg-white text-[#2A1420]',
+  radiante: 'bg-[#F2C9D666] text-[#2A1420]',
+  suprema: 'bg-[#2A1420] text-white',
 } as const
 
 export function CartaoPlano({
@@ -23,16 +23,16 @@ export function CartaoPlano({
 }) {
   const oferta = ofertaDoPlano(plano)
   const escuro = plano.slug === 'suprema'
-  const mudo = escuro ? 'text-[#a1a1a6]' : 'text-[#6e6e73]'
-  const rotulo = escuro ? 'text-[#f3d0dc]' : 'text-[#841f41]'
+  const mudo = escuro ? 'text-[#C9B8C0]' : 'text-[#6B5560]'
+  const rotulo = escuro ? 'text-[#F2C9D6]' : 'text-[#6E1736]'
   return (
     <article
       className={`flex min-h-[240px] min-w-0 flex-col justify-between overflow-hidden rounded-[28px] p-5 md:p-6 ${FUNDO[plano.slug]} ${selecionado === plano.slug ? 'ring-2 ring-[#a52751]' : ''}`}
     >
       <div className="min-w-0">
-        {escuro && <p className="mb-2 text-[11px] tracking-wide text-[#f3d0dc] md:hidden">Mais completo</p>}
+        {escuro && <p className="mb-2 text-[11px] tracking-wide text-[#F2C9D6] md:hidden">Mais completo</p>}
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
-          <h3 className="text-balance text-[22px] leading-tight sm:text-[28px]">{plano.nomeCurto}</h3>
+          <h3 className="text-balance text-[26px] leading-tight sm:text-[34px]">{plano.nomeCurto}</h3>
           <span className="inline-flex max-w-full rounded-full bg-[#a52751] px-2 py-0.5 text-center text-[10px] font-medium leading-tight text-white sm:text-[12px]">
             +{inteiro.format(oferta.ganhoTabela + oferta.bonus)} em bônus
           </span>
@@ -42,7 +42,7 @@ export function CartaoPlano({
           {formatarReais(oferta.pagaMes)}
           <span className={`mt-1 block text-[12px] font-normal sm:text-[15px] ${mudo}`}>/mês · 12 meses</span>
         </p>
-        <div className={`mt-4 border-t pt-4 ${escuro ? 'border-white/15' : 'border-[#1d1d1f]/10'}`}>
+        <div className={`mt-4 border-t pt-4 ${escuro ? 'border-white/15' : 'border-[#2A1420]/10'}`}>
           <p className={`text-[12px] ${rotulo}`}>Você recebe</p>
           <p className="mt-1 text-[26px] font-medium tabular-nums leading-none sm:text-[40px]">{inteiro.format(oferta.soma)}</p>
           {oferta.quase && <p className={`mt-1 text-[13px] ${mudo}`}>{oferta.quase}</p>}
@@ -93,7 +93,7 @@ export function PlanosGrid({
           <CartaoPlano plano={plano} selecionado={selecionado} onEscolher={onEscolher} />
         </div>
       ))}
-      <p className="text-center text-[14px] text-[#6e6e73] md:col-span-3">{LINHA_SORTEIO}</p>
+      <p className="text-center text-[14px] text-[#6B5560] md:col-span-3">{LINHA_SORTEIO}</p>
     </div>
   )
 }

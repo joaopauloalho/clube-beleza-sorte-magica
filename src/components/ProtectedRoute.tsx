@@ -11,7 +11,7 @@ export function ProtectedRoute({ children, requireOperator = false }: ProtectedR
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f5f5f7]">
+      <div className="flex min-h-screen items-center justify-center bg-[#F7F2EF]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     )

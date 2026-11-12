@@ -1,6 +1,6 @@
 # Clube Beleza
 
-Aplicação do clube: lista de espera, adesão em três passos, área da integrante e painel de operação. O visual (cores, fontes, tokens e componentes) é o que já estava no projeto. A Vercel publica o `main` deste repositório em https://clube-beleza-sorte-magica.vercel.app. Não faça merge sem querer: o merge entra no ar.
+Aplicação do clube: lista de espera, adesão em três passos, área da integrante e painel de operação. O visual segue o sistema de marca Uniquas: cores e tokens em `src/index.css`, logotipo em `src/components/Logo.tsx`, arquivos de marca em `public/brand` e fontes Instrument Serif (títulos) e Inter (texto). Títulos pequenos usam Inter: Instrument Serif é uma fonte de exibição. A Vercel publica o `main` deste repositório em https://clube-beleza-sorte-magica.vercel.app. Não faça merge sem querer: o merge entra no ar.
 
 O projeto Supabase é só o `ooyyenjndsaptlxidgko`. Não use o projeto `pvkrwjryvwsfwaxougyy`.
 

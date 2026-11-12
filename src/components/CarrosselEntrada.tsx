@@ -6,9 +6,9 @@ import { frasePorDia, type PlanSlug } from '@/lib/plans'
 
 const ORDEM: PlanSlug[] = ['essencial', 'radiante', 'suprema']
 const TOM = {
-  essencial: { fundo: '#ffffff', tinta: '#1d1d1f', nome: '#841f41' },
-  radiante: { fundo: '#fdf2f6', tinta: '#1d1d1f', nome: '#841f41' },
-  suprema: { fundo: '#000000', tinta: '#ffffff', nome: '#f3d0dc' },
+  essencial: { fundo: '#ffffff', tinta: '#2A1420', nome: '#6E1736' },
+  radiante: { fundo: '#F2C9D666', tinta: '#2A1420', nome: '#6E1736' },
+  suprema: { fundo: '#2A1420', tinta: '#ffffff', nome: '#F2C9D6' },
 } as const
 const PAUSA_MS = 2800
 const TROCA = { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const }
@@ -71,7 +71,7 @@ export function CarrosselEntrada({ planos }: { planos: readonly PlanoPublico[] }
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setPausa(false)
       }}
-      className="h-full overflow-hidden rounded-[28px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#841f41] md:col-span-5"
+      className="h-full overflow-hidden rounded-[28px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6E1736] md:col-span-5"
     >
       <p className="sr-only">
         {base.map((plano) => `${plano.nomeCurto}, ${formatarReais(plano.mensalidade)} por mês, ${frasePorDia(plano.mensalidade)}.`).join(' ')}

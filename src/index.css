@@ -8,24 +8,24 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Superfícies Apple. O único acento é o rosa da marca, no lugar do azul. */
-    --background: 240 11% 97%;
-    --foreground: 240 4% 12%;
+    /* Uniquas: porcelana quente, ameixa no texto e um único acento, a amora. Valores do sistema de marca. */
+    --background: 22 33% 95%;
+    --foreground: 327 35% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 4% 12%;
+    --card-foreground: 327 35% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 4% 12%;
+    --popover-foreground: 327 35% 12%;
 
     --primary: 340 62% 40%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 6% 93%;
-    --secondary-foreground: 240 4% 12%;
+    --secondary: 21 24% 86%;
+    --secondary-foreground: 327 35% 12%;
 
-    --muted: 240 11% 97%;
-    --muted-foreground: 240 2% 44%;
+    --muted: 22 33% 95%;
+    --muted-foreground: 330 11% 38%;
 
     --accent: 340 62% 40%;
     --accent-foreground: 0 0% 100%;
@@ -33,9 +33,9 @@ All colors MUST be HSL.
     --destructive: 4 100% 59%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 6% 83%;
-    --input: 240 6% 83%;
-    --ring: 340 62% 32%;
+    --border: 21 21% 81%;
+    --input: 21 21% 81%;
+    --ring: 339 65% 26%;
 
     --radius: 1.125rem;
     
@@ -136,19 +136,18 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: -apple-system, BlinkMacSystemFont, Inter, "Helvetica Neue", Helvetica, Arial, sans-serif;
-    letter-spacing: -0.011em;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    letter-spacing: -0.006em;
   }
 
   h1, h2, h3 {
-    font-family: "Source Serif 4", "Iowan Old Style", Palatino, "Palatino Linotype", Georgia, serif;
-    font-optical-sizing: auto;
-    font-weight: 500;
-    letter-spacing: -0.02em;
+    font-family: "Instrument Serif", Georgia, "Times New Roman", serif;
+    font-weight: 400;
+    letter-spacing: -0.012em;
   }
 
   ::selection {
-    background: rgba(165, 39, 81, 0.2);
+    background: rgba(165, 39, 81, 0.18);
   }
 }
 

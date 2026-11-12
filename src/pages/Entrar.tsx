@@ -32,7 +32,7 @@ export default function Entrar() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
+    <div className="min-h-screen bg-[#F7F2EF] text-[#2A1420]">
       <SiteHeader />
       <main id="conteudo" className="mx-auto max-w-[420px] px-[22px] py-12">
         <h1 className="text-[34px] font-semibold tracking-tight">Entrar.</h1>
@@ -44,7 +44,7 @@ export default function Entrar() {
               {erro && <p className="text-sm text-destructive" role="alert" aria-live="polite">{erro}</p>}
               <Button type="submit" className="h-12 w-full" disabled={enviando}>Entrar</Button>
             </form>
-            <p className="mt-4 text-[14px] text-[#6e6e73]">Ainda sem cota? <Link className="text-[#841f41] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#841f41]" to="/adesao">Fazer a adesão ›</Link></p>
+            <p className="mt-4 text-[14px] text-[#6B5560]">Ainda sem cota? <Link className="text-[#6E1736] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6E1736]" to="/adesao">Fazer a adesão ›</Link></p>
           </CardContent>
         </Card>
       </main>

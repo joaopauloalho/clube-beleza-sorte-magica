@@ -10,14 +10,14 @@ export function ServicosDoClube() {
       <table className="w-full text-left text-[15px]">
         <caption className="sr-only">Serviços do clube</caption>
         <thead>
-          <tr className="border-b border-[#e8e8ed] text-[12px] text-[#6e6e73]">
+          <tr className="border-b border-[#E4D9D3] text-[12px] text-[#6B5560]">
             <th className="px-5 py-3 font-medium" scope="col">Serviço</th>
           </tr>
         </thead>
         <tbody>
           {linhas.map((servico) => (
-            <tr key={servico.nome} className="border-b border-[#e8e8ed] last:border-0">
-              <td className="px-5 py-4 text-[#1d1d1f]">{servico.nome}</td>
+            <tr key={servico.nome} className="border-b border-[#E4D9D3] last:border-0">
+              <td className="px-5 py-4 text-[#2A1420]">{servico.nome}</td>
             </tr>
           ))}
         </tbody>

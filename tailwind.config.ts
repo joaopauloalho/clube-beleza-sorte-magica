@@ -19,8 +19,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['-apple-system', 'BlinkMacSystemFont', 'Inter', '"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
-				display: ['"Source Serif 4"', '"Iowan Old Style"', 'Palatino', '"Palatino Linotype"', 'Georgia', 'serif'],
+				sans: ['Inter', 'system-ui', '-apple-system', '"Segoe UI"', 'sans-serif'],
+				display: ['"Instrument Serif"', 'Georgia', '"Times New Roman"', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

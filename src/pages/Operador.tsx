@@ -104,7 +104,7 @@ export default function Operador() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
+    <div className="min-h-screen bg-[#F7F2EF] text-[#2A1420]">
       <SiteHeader />
       <main id="conteudo" className="mx-auto max-w-[1100px] space-y-5 px-[22px] py-8">
         <h1 className="text-[34px] font-semibold tracking-tight">Operação.</h1>
