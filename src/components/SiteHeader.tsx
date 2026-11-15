@@ -1,0 +1,41 @@
+import { Link } from 'react-router-dom'
+import { useAuth } from '@/hooks/use-auth'
+import { Logo } from '@/components/Logo'
+import { CTA_LISTA, NOME_DO_CLUBE } from '@/lib/copy'
+
+const link = 'inline-flex h-11 items-center text-[12px] text-[#F7F2EF]/80 hover:text-[#F7F2EF] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 rounded-sm'
+
+export function SiteHeader() {
+  const { user, isOperator, signOut } = useAuth()
+
+  return (
+    <header className="sticky top-0 z-50 bg-[rgba(42,20,32,0.92)] pt-[env(safe-area-inset-top)] shadow-[0_1px_0_rgba(0,0,0,0.06)] backdrop-blur-[20px] backdrop-saturate-[1.8]">
+      <a href="#conteudo" className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-2 focus:z-50 focus:rounded-full focus:bg-white focus:px-3 focus:py-2 focus:text-[#2A1420]">
+        Ir para o conteúdo
+      </a>
+      <nav className="mx-auto flex h-12 max-w-[1120px] items-center justify-between gap-3 px-[22px]" aria-label="Principal">
+        <Link to="/" aria-label={NOME_DO_CLUBE} className="inline-flex h-11 items-center rounded-sm hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70">
+          <Logo tom="branco" descritor={false} titulo={NOME_DO_CLUBE} className="h-8 w-auto" />
+        </Link>
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Link
+            to="/lista-espera"
+            className="inline-flex h-8 items-center rounded-full bg-[#a52751] px-3 text-[12px] font-medium text-white hover:bg-[#6E1736] hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <span className="sm:hidden">Lista</span>
+            <span className="hidden sm:inline">{CTA_LISTA}</span>
+          </Link>
+          {user ? (
+            <>
+              <Link to="/area" className={link}>Área</Link>
+              {isOperator && <Link to="/operador" className={link}>Operação</Link>}
+              <button type="button" className={link} onClick={() => void signOut()}>Sair</button>
+            </>
+          ) : (
+            <Link to="/entrar" className={link}>Entrar</Link>
+          )}
+        </div>
+      </nav>
+    </header>
+  )
+}

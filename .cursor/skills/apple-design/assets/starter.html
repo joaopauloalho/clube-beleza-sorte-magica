@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Apple-style Starter</title>
+
+<!-- Real SF on Apple devices; Inter fallback everywhere else -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="apple-tokens.css">
+
+<style>
+  /* Page-specific composition on top of the tokens */
+  .nav { position: sticky; top: 0; z-index: 9999; height: var(--nav-h); background: var(--glass-dark); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur); }
+  .nav__inner { height: 100%; max-width: 1024px; margin-inline: auto; padding-inline: 22px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .nav__logo { color: #f5f5f7; display: flex; align-items: center; }
+  .nav__links { list-style: none; display: flex; gap: clamp(12px, 2.4vw, 34px); flex: 1; justify-content: center; }
+  .nav__links a, .nav__icon { color: #f5f5f7; opacity: .8; font-size: 12px; line-height: 44px; background: none; border: none; transition: opacity var(--dur-fast) ease; }
+  .nav__links a:hover, .nav__icon:hover { opacity: 1; text-decoration: none; }
+  .nav__actions { display: flex; align-items: center; gap: 18px; }
+  .nav__icon { display: flex; align-items: center; height: 44px; }
+  @media (max-width: 833px) { .nav__links { display: none; } }
+
+  .subnav { position: sticky; top: var(--nav-h); z-index: 9000; border-bottom: 1px solid var(--c-hairline-2); }
+  .subnav__inner { height: 52px; display: flex; align-items: center; justify-content: space-between; }
+  .subnav__title { font-size: 21px; font-weight: 600; letter-spacing: -0.01em; }
+  .subnav__links { display: flex; align-items: center; gap: 24px; font-size: 12px; }
+  .subnav__links a { color: var(--c-ink); }
+  @media (max-width: 640px){ .subnav__links a:not(.btn){ display:none; } }
+
+  .hero { padding-block: clamp(54px, 8vw, 96px) 0; }
+  .hero__cta { display: flex; gap: 28px; justify-content: center; margin-top: 20px; }
+  .hero__stage { margin-top: 44px; height: clamp(280px, 46vw, 620px); border-radius: var(--r-xl); background:
+      radial-gradient(120% 120% at 50% 0%, #2b2b30 0%, #0a0a0b 60%); display: grid; place-items: center; overflow: hidden; }
+  .hero__device { width: clamp(150px, 26vw, 320px); aspect-ratio: 9/19; border-radius: 40px;
+      background: linear-gradient(160deg, #43434a 0%, #1a1a1d 100%);
+      box-shadow: var(--shadow-product), inset 0 0 0 3px rgba(255,255,255,.06); }
+
+  .bento { display: grid; gap: 20px; grid-template-columns: repeat(4, 1fr); }
+  .bento .tile { min-height: 340px; display: flex; flex-direction: column; justify-content: flex-end; gap: 6px; }
+  .bento__a, .bento__b, .bento__c, .bento__d { grid-column: span 2; }
+  @media (max-width: 833px) { .bento { grid-template-columns: 1fr; } .bento > * { grid-column: 1 / -1; min-height: 260px; } }
+
+  .footer { background: var(--c-gray-bg); color: var(--c-gray-footer); font-size: 12px; line-height: 1.33; padding-block: 40px; }
+  .footer a { color: var(--c-gray-footer); }
+  .footer a:hover { color: var(--c-ink); text-decoration: underline; }
+  .footer__legal { color: var(--c-gray); }
+  .footer__rule { border: none; border-top: 1px solid var(--c-hairline); margin: 20px 0; }
+  .footer__cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  .footer__col h4 { color: var(--c-ink); font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+  .footer__col ul { list-style: none; }
+  .footer__col li { margin-bottom: 8px; }
+  .footer__base { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; }
+  .footer__country { margin-left: auto; color: var(--c-ink); }
+  @media (max-width: 833px) { .footer__cols { grid-template-columns: repeat(2, 1fr); } }
+
+  /* reveal (also see motion.md) */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity var(--dur-slow) var(--ease-out), transform var(--dur-slow) var(--ease-out); }
+  .reveal.is-visible { opacity: 1; transform: none; }
+  .reveal-group.is-visible > .reveal { transition-delay: calc(var(--i, 0) * 90ms); }
+  @media (prefers-reduced-motion: reduce){ .reveal{ opacity:1; transform:none; } }
+</style>
+</head>
+<body>
+
+<!-- Global frosted nav -->
+<header class="nav">
+  <nav class="nav__inner" aria-label="Global">
+    <a class="nav__logo" href="#" aria-label="Apple">
+      <svg viewBox="0 0 14 44" width="14" height="44" aria-hidden="true"><path fill="currentColor" d="M13.06 22.16c-.02-2.4 1.96-3.56 2.05-3.62-1.12-1.64-2.86-1.86-3.48-1.89-1.48-.15-2.89.87-3.64.87-.75 0-1.91-.85-3.14-.83-1.61.02-3.1.94-3.93 2.38-1.68 2.9-.43 7.2 1.2 9.56.8 1.16 1.75 2.46 3 2.41 1.2-.05 1.66-.78 3.11-.78 1.45 0 1.86.78 3.13.75 1.29-.02 2.11-1.18 2.9-2.34.91-1.34 1.29-2.64 1.31-2.71-.03-.01-2.51-.96-2.53-3.82z"/></svg>
+    </a>
+    <ul class="nav__links">
+      <li><a href="#">Store</a></li><li><a href="#">Mac</a></li><li><a href="#">iPad</a></li>
+      <li><a href="#">iPhone</a></li><li><a href="#">Watch</a></li><li><a href="#">Vision</a></li>
+      <li><a href="#">AirPods</a></li><li><a href="#">TV &amp; Home</a></li><li><a href="#">Support</a></li>
+    </ul>
+    <div class="nav__actions">
+      <button class="nav__icon" aria-label="Search"><svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.2"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5 13 13" stroke-linecap="round"/></svg></button>
+      <button class="nav__icon" aria-label="Bag"><svg width="14" height="15" viewBox="0 0 14 15" fill="none" stroke="currentColor" stroke-width="1.1"><path d="M3.5 4V3a3.5 3.5 0 0 1 7 0v1M1.5 4h11l-.7 9.2a1 1 0 0 1-1 .9H3.2a1 1 0 0 1-1-.9L1.5 4Z" stroke-linejoin="round"/></svg></button>
+    </div>
+  </nav>
+</header>
+
+<!-- Sticky frosted sub-nav / buy bar -->
+<div class="subnav glass-light">
+  <div class="container subnav__inner">
+    <span class="subnav__title">iPhone</span>
+    <nav class="subnav__links">
+      <a href="#">Overview</a><a href="#">Tech Specs</a>
+      <a class="btn btn--primary btn--sm" href="#">Buy</a>
+    </nav>
+  </div>
+</div>
+
+<!-- Hero -->
+<section class="hero section--gray center">
+  <div class="container reveal-group">
+    <p class="t-eyebrow reveal" style="color:var(--c-link); --i:0">New</p>
+    <h1 class="t-hero reveal" style="--i:1">iPhone.</h1>
+    <p class="t-sub reveal" style="margin-top:6px; --i:2">Designed to be loved.</p>
+    <div class="hero__cta reveal" style="--i:3">
+      <a class="link-chevron" href="#">Learn more</a>
+      <a class="link-chevron" href="#">Buy</a>
+    </div>
+  </div>
+  <div class="container container--wide">
+    <div class="hero__stage reveal"><div class="hero__device"></div></div>
+  </div>
+</section>
+
+<!-- Centered section intro -->
+<section class="section center">
+  <div class="container reveal-group">
+    <h2 class="t-section-head reveal" style="--i:0">A magical new way<br>to experience everything.</h2>
+    <p class="t-sub reveal" style="max-width:640px;margin:16px auto 0; --i:1">
+      The most advanced chip. A stunning display. Built from the ground up to feel effortless.
+    </p>
+    <div class="reveal" style="margin-top:24px; --i:2">
+      <a class="link-chevron" href="#">Explore the lineup</a>
+    </div>
+  </div>
+</section>
+
+<!-- Bento grid -->
+<section class="section section--gray">
+  <div class="container container--wide">
+    <div class="bento">
+      <article class="tile tile--white bento__a reveal">
+        <p class="t-eyebrow t-gray">Chip</p>
+        <h3 class="t-headline">M5. <span class="t-gray">A monster leap.</span></h3>
+      </article>
+      <article class="tile tile--dark bento__b reveal">
+        <h3 class="t-headline">Battery</h3>
+        <p class="t-sub">Up to 22 hours of video playback.</p>
+      </article>
+      <article class="tile bento__c reveal">
+        <h3 class="t-headline">Camera</h3>
+        <p class="t-sub">48MP Fusion. Shoot in the dark.</p>
+      </article>
+      <article class="tile tile--white bento__d reveal">
+        <h3 class="t-headline">Titanium</h3>
+        <p class="t-sub">Strong. Light. Pro.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- CTA band -->
+<section class="section center">
+  <div class="container reveal">
+    <h2 class="t-section-head">Ready to make the switch?</h2>
+    <div style="margin-top:26px; display:flex; gap:16px; justify-content:center; flex-wrap:wrap">
+      <a class="btn btn--primary" href="#">Buy iPhone</a>
+      <a class="btn btn--secondary" href="#">Compare models</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container container--wide">
+    <p class="footer__legal">1. Trade-in values vary based on condition. 2. Available for qualifying applicants; terms apply.</p>
+    <hr class="footer__rule">
+    <div class="footer__cols">
+      <div class="footer__col"><h4>Shop and Learn</h4><ul><li><a href="#">Store</a></li><li><a href="#">Mac</a></li><li><a href="#">iPad</a></li><li><a href="#">iPhone</a></li><li><a href="#">Watch</a></li></ul></div>
+      <div class="footer__col"><h4>Services</h4><ul><li><a href="#">Apple Music</a></li><li><a href="#">Apple TV+</a></li><li><a href="#">iCloud+</a></li><li><a href="#">Apple Pay</a></li></ul></div>
+      <div class="footer__col"><h4>Apple Store</h4><ul><li><a href="#">Find a Store</a></li><li><a href="#">Genius Bar</a></li><li><a href="#">Today at Apple</a></li><li><a href="#">Trade In</a></li></ul></div>
+      <div class="footer__col"><h4>About Apple</h4><ul><li><a href="#">Newsroom</a></li><li><a href="#">Leadership</a></li><li><a href="#">Careers</a></li><li><a href="#">Investors</a></li></ul></div>
+    </div>
+    <hr class="footer__rule">
+    <div class="footer__base">
+      <p>Copyright © 2026 Apple Inc. All rights reserved.</p>
+      <p class="footer__country">United States</p>
+    </div>
+  </div>
+</footer>
+
+<script src="apple-reveal.js" defer></script>
+</body>
+</html>

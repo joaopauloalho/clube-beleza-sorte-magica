@@ -19,8 +19,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				'montserrat': ['Montserrat', 'sans-serif'],
-				'playfair': ['Playfair Display', 'serif'],
+				sans: ['Inter', 'system-ui', '-apple-system', '"Segoe UI"', 'sans-serif'],
+				display: ['"Instrument Serif"', 'Georgia', '"Times New Roman"', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',
