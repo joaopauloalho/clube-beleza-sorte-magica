@@ -1,5 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { filtrarElegiveis, sortear } from '../../src/lib/sorteio'
+import { lerEstadoDoCalendario } from '../_lib/calendario-servidor'
+import { mensagemDoBanco } from '../_lib/operador-validacao'
 import { clienteServico, exigirOperador } from '../_lib/supabase-admin'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -13,6 +15,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return res.status(400).json({ erro: 'Data inválida. Use AAAA-MM-DD.' })
 
     const admin = clienteServico()
+    const estado = await lerEstadoDoCalendario(admin, grupoId)
+    if (!estado.calendario) return res.status(409).json({ erro: mensagemDoBanco('calendario_nao_definido') })
+    const quantidadeDoMes = estado.calendario[estado.mesesJaSorteados] ?? 0
+    if (quantidadeDoMes <= 0) return res.status(409).json({ erro: mensagemDoBanco('mes_sem_sorteio') })
+
     const membrosBusca = await admin
       .from('membros')
       .select('id, cota, em_dia, status, data_contemplacao')
@@ -28,7 +35,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         status: membro.status ?? '',
       })),
     )
-    const escolhidos = sortear(elegiveis)
+    const escolhidos = sortear(elegiveis, Math.random, quantidadeDoMes)
     if (escolhidos.length === 0) {
       return res.status(409).json({ erro: 'Nenhuma integrante em dia e ainda não sorteada neste grupo.' })
     }
@@ -39,7 +46,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       p_sorteados: escolhidos.map((item) => item.membroId),
     })
     if (aplicado.error) {
-      return res.status(409).json({ erro: aplicado.error.message })
+      return res.status(409).json({ erro: mensagemDoBanco(aplicado.error.message) })
     }
 
     return res.status(200).json({

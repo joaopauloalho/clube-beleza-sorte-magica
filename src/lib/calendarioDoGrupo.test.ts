@@ -5,6 +5,7 @@ import {
   calendarioPadrao,
   chanceDoMes,
   editarMes,
+  refazerRestante,
   previsaoDoGrupo,
   somar,
   validarCalendario,
@@ -91,4 +92,19 @@ test('previsão mês a mês usa o calendário e a lista de quem já saiu do grup
   assert.equal(prev[1].concorrem, 45)
   assert.equal(prev[10].chance, 1)
   assert.equal(prev[11].sorteadas, 0)
+})
+
+test('depois de um cancelamento o resto do calendário é refeito para quem sobrou', () => {
+  const base = calendarioPadrao(50)
+  // 2 meses sorteados (5 + 5 = 10), 1 cancelada: sobram 39
+  const novo = refazerRestante(base, 2, 39)
+  assert.deepEqual(novo.slice(0, 2), [5, 5])
+  assert.equal(somar(novo), 49)
+  assert.equal(novo[11], 0)
+  assert.ok(Math.max(...novo.slice(2, 11)) - Math.min(...novo.slice(2, 11)) <= 1)
+})
+
+test('refazer o restante recusa sobra quando já não há mês para sortear', () => {
+  assert.throws(() => refazerRestante(calendarioPadrao(24), 11, 2), /último mês/)
+  assert.deepEqual(refazerRestante(calendarioPadrao(24), 11, 0).slice(11), [0])
 })

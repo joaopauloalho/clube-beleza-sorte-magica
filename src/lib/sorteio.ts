@@ -24,14 +24,15 @@ export function filtrarElegiveis(membros: readonly MembroParaSorteio[]): Elegive
     .sort((a, b) => a.cota - b.cota)
 }
 
-export function quantidadeDoMes(totalElegiveis: number): number {
-  if (totalElegiveis <= 0) return 0
-  return Math.min(DRAWS_PER_MONTH, totalElegiveis)
+/** `quantidade` vem do calendário do grupo. Sem ele vale o padrão antigo de 2 por mês. */
+export function quantidadeDoMes(totalElegiveis: number, quantidade: number = DRAWS_PER_MONTH): number {
+  if (totalElegiveis <= 0 || quantidade <= 0) return 0
+  return Math.min(quantidade, totalElegiveis)
 }
 
 /** Chance real daquele sorteio: 2 dividido pelo tamanho da lista guardada, ou 1 se sobrar menos de 2. */
-export function chanceReal(totalElegiveis: number): number {
-  const quantidade = quantidadeDoMes(totalElegiveis)
+export function chanceReal(totalElegiveis: number, quantidadeDoCalendario: number = DRAWS_PER_MONTH): number {
+  const quantidade = quantidadeDoMes(totalElegiveis, quantidadeDoCalendario)
   if (totalElegiveis <= 0 || quantidade <= 0) return 0
   return quantidade / totalElegiveis
 }
@@ -39,9 +40,10 @@ export function chanceReal(totalElegiveis: number): number {
 export function sortear(
   elegiveis: readonly Elegivel[],
   rng: () => number = Math.random,
+  quantidadeDoCalendario: number = DRAWS_PER_MONTH,
 ): Elegivel[] {
   const pool = [...elegiveis]
-  const quantidade = quantidadeDoMes(pool.length)
+  const quantidade = quantidadeDoMes(pool.length, quantidadeDoCalendario)
   const sorteados: Elegivel[] = []
   for (let i = 0; i < quantidade; i += 1) {
     const indice = Math.floor(rng() * pool.length)

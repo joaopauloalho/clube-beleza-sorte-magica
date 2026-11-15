@@ -35,3 +35,13 @@ test('sorteia 2 e guarda a lista inteira de elegíveis na conta da chance', () =
   assert.equal(proximoMes(0), 1)
   assert.equal(proximoMes(11), 12)
 })
+
+test('a quantidade do mês vem do calendário do grupo e nunca passa de quem concorre', () => {
+  const elegiveis = filtrarElegiveis([1, 2, 3, 4, 5, 6].map((cota) => membro({ id: `m${cota}`, cota })))
+  const zeros = () => 0
+  assert.equal(sortear(elegiveis, zeros, 4).length, 4)
+  assert.equal(sortear(elegiveis, zeros, 9).length, 6)
+  assert.equal(sortear(elegiveis, zeros, 0).length, 0)
+  assert.equal(chanceReal(37, 4), 4 / 37)
+  assert.equal(chanceReal(3, 5), 1)
+})

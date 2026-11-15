@@ -68,6 +68,22 @@ export function editarMes(calendario: readonly number[], edicao: EdicaoDeMes): n
   return novo
 }
 
+/**
+ * Refaz os meses que ainda não foram sorteados para a quantidade de pessoas que realmente restou
+ * (por exemplo, depois de um cancelamento). Os meses já sorteados ficam como estão.
+ */
+export function refazerRestante(
+  calendario: readonly number[],
+  mesesJaSorteados: number,
+  restante: number,
+): number[] {
+  if (!Number.isInteger(restante) || restante < 0) throw new Error('Quantidade restante inválida.')
+  if (mesesJaSorteados >= ULTIMO_MES_COM_SORTEIO && restante > 0) {
+    throw new Error('Já passou o último mês com sorteio e ainda sobram pessoas.')
+  }
+  return [...calendario.slice(0, mesesJaSorteados), ...espalhar(restante, mesesJaSorteados + 1).slice(mesesJaSorteados)]
+}
+
 export function validarCalendario(
   calendario: readonly number[],
   tamanho: number,
