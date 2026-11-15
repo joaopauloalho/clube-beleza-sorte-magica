@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SiteHeader } from '@/components/SiteHeader'
 import { LinhaDeCredito } from '@/components/LinhaDeCredito'
+import { MeusSorteios, type CalendarioDaCliente } from '@/components/MeusSorteios'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -57,6 +58,7 @@ interface Credito {
   chance_real: number
   mes: number
   status: string
+  bloqueado: boolean | null
 }
 
 const PIX: Record<string, string> = {
@@ -79,6 +81,7 @@ export default function Area() {
   const [assinatura, setAssinatura] = useState<Assinatura | null>(null)
   const [pagamentos, setPagamentos] = useState<Pagamento[]>([])
   const [credito, setCredito] = useState<Credito | null>(null)
+  const [calendario, setCalendario] = useState<CalendarioDaCliente | null>(null)
 
   useEffect(() => {
     if (!user) return
@@ -91,12 +94,13 @@ export default function Area() {
         setCarregando(false)
         return
       }
-      const [grupoRes, planoRes, assinaturaRes, pagamentosRes, creditoRes] = await Promise.all([
+      const [grupoRes, planoRes, assinaturaRes, pagamentosRes, creditoRes, calendarioRes] = await Promise.all([
         supabase.from('grupos').select('nome, vagas_preenchidas, total_vagas, ultimo_mes_sorteado, cobranca_iniciada_em').eq('id', data.grupo_id).maybeSingle(),
         supabase.from('planos').select('slug, nome, preco, credito_sorteio, preco_membro_pct').eq('id', data.plano_id).maybeSingle(),
         supabase.from('assinaturas').select('status, checkout_url, motivo').eq('membro_id', data.id).maybeSingle(),
         supabase.from('pagamentos').select('id, status, valor_centavos, competencia, motivo, created_at').eq('membro_id', data.id).order('created_at', { ascending: false }),
-        supabase.from('creditos').select('valor_centavos, chance_real, mes, status').eq('membro_id', data.id).maybeSingle(),
+        supabase.from('creditos').select('valor_centavos, chance_real, mes, status, bloqueado').eq('membro_id', data.id).maybeSingle(),
+        supabase.rpc('meu_calendario'),
       ])
       if (!ativo) return
       setGrupo(grupoRes.data)
@@ -104,6 +108,8 @@ export default function Area() {
       setAssinatura(assinaturaRes.data)
       setPagamentos(pagamentosRes.data ?? [])
       setCredito(creditoRes.data)
+      const cal = calendarioRes.data as CalendarioDaCliente | null
+      setCalendario(cal && cal.ok ? cal : null)
       setCarregando(false)
     }
     void carregar()
@@ -115,6 +121,7 @@ export default function Area() {
   const creditoDoPlano = plano?.credito ?? Number(planoDb?.credito_sorteio ?? 0)
   const sorteada = membro?.status === 'sorteado' || Boolean(membro?.data_contemplacao)
   const pagos = pagamentos.filter((item) => item.status === 'pago').length
+  const creditoBloqueado = Boolean(credito?.bloqueado)
 
   return (
     <div className="min-h-screen bg-[#F7F2EF] text-[#2A1420]">
@@ -142,10 +149,13 @@ export default function Area() {
                 <CardTitle className="text-[28px] font-semibold tracking-tight">{plano?.nome ?? planoDb?.nome}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
-                <p>Grupo {grupo?.nome ?? '—'} · cota {membro.cota ?? '—'} · {grupo?.vagas_preenchidas ?? 0} de {grupo?.total_vagas ?? 24}</p>
+                <p>Grupo {grupo?.nome ?? '—'} · cota {membro.cota ?? '—'} · {grupo?.vagas_preenchidas ?? 0} de {grupo?.total_vagas ?? '—'}</p>
                 {sorteada && credito ? (
                   <div className="space-y-1">
                     <p>Você foi sorteada em {formatarData(membro.data_contemplacao)}. O crédito registrado é {formatarReais(credito.valor_centavos / 100)}.</p>
+                    {creditoBloqueado && (
+                      <p className="rounded-xl bg-[#F2C9D6]/40 p-3 font-medium text-[#A52751]">Seu crédito está bloqueado porque a mensalidade não está em dia. Regularize o pagamento e ele é liberado.</p>
+                    )}
                     <p className="text-muted-foreground">{LINHA_SORTEIO} {A_DEFINIR.creditoEtapas} {A_DEFINIR.validadeCredito}</p>
                   </div>
                 ) : (
@@ -181,6 +191,13 @@ export default function Area() {
                 </ul>
               </CardContent>
             </Card>
+
+            {calendario && (
+              <section aria-labelledby="meus-sorteios" className="space-y-3">
+                <h2 id="meus-sorteios" className="font-serif text-[26px]">Meus sorteios</h2>
+                <MeusSorteios calendario={calendario} minhaCota={membro.cota} />
+              </section>
+            )}
           </>
         )}
       </main>
@@ -192,5 +209,6 @@ function rotuloPagamento(status: string): string {
   if (status === 'pago') return 'Pago'
   if (status === 'saldo_insuficiente') return 'Saldo insuficiente'
   if (status === 'falhou') return 'Não debitado'
+  if (status === 'estornado') return 'Estornado'
   return status
 }
