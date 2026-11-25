@@ -2,10 +2,17 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import {
   competenciaDoMes,
+  dataIso,
   mensagemDoBanco,
   validarAcaoDoCalendario,
+  validarCriarGrupo,
   validarEstorno,
+  validarEstornoDeUso,
+  validarExcluirGrupo,
+  validarLiberarCredito,
   validarPagamentoManual,
+  validarPlanilha,
+  validarUsoCredito,
 } from './operador-validacao'
 
 const ID = '0f8fad5b-d9cb-469f-a165-70867728950e'
@@ -52,6 +59,36 @@ test('ações do calendário', () => {
 test('os códigos do banco viram frases', () => {
   assert.match(mensagemDoBanco('conferencia_pendente'), /conferência/)
   assert.match(mensagemDoBanco('ERROR: P0001: ja_pago_na_competencia'), /já está pago/)
+  assert.match(mensagemDoBanco('saldo_insuficiente'), /negativo/)
+  assert.match(mensagemDoBanco('grupo_com_integrantes'), /integrantes/)
+  assert.match(mensagemDoBanco('credito_bloqueado_por_atraso'), /em dia/)
   assert.match(mensagemDoBanco('algo inesperado'), /Não foi possível/)
   assert.match(mensagemDoBanco(null), /Não foi possível/)
+})
+
+test('uso de crédito exige procedimento da lista, data real e valor inteiro', () => {
+  assert.equal(dataIso('2027-02-31'), null)
+  assert.equal(validarLiberarCredito({ creditoId: ID }).ok, true)
+  assert.equal(validarLiberarCredito({ creditoId: 'x' }).ok, false)
+  const ok = validarUsoCredito({ creditoId: ID, procedimentoId: 'peeling', valorCentavos: 19900, data: '2026-01-15', observacao: 'retoque' })
+  assert.ok(ok.ok)
+  assert.equal(validarUsoCredito({ creditoId: ID, procedimentoId: 'massagem', valorCentavos: 100, data: '2026-01-15' }).ok, false)
+  assert.equal(validarUsoCredito({ creditoId: ID, procedimentoId: 'peeling', valorCentavos: 10.5, data: '2026-01-15' }).ok, false)
+  assert.equal(validarUsoCredito({ creditoId: ID, procedimentoId: 'peeling', valorCentavos: 100, data: '2999-01-01' }).ok, false)
+  assert.equal(validarEstornoDeUso({ usoId: ID, motivo: 'errei a pessoa' }).ok, true)
+  assert.equal(validarEstornoDeUso({ usoId: ID, motivo: 'não' }).ok, false)
+})
+
+test('grupo e planilha', () => {
+  assert.equal(validarCriarGrupo({ nome: 'A', planoId: ID }).ok, false)
+  assert.ok(validarCriarGrupo({ nome: 'Grupo de março', planoId: ID }).ok)
+  assert.equal(validarExcluirGrupo({ grupoId: ID, motivo: 'não' }).ok, false)
+  assert.ok(validarExcluirGrupo({ grupoId: ID, motivo: 'criei sem querer' }).ok)
+  assert.equal(validarPlanilha({ tipo: 'integrantes', filtro: 'em_dia', busca: 'ana' }).ok, false)
+  const leads = validarPlanilha({ tipo: 'leads', filtro: 'leads', busca: '  Lia  ' })
+  assert.ok(leads.ok)
+  if (leads.ok) assert.equal(leads.valor.busca, 'Lia')
+  const integrantes = validarPlanilha({ tipo: 'integrantes', grupoId: ID, filtro: 'sorteadas', busca: 'cia' })
+  assert.ok(integrantes.ok)
+  if (integrantes.ok) assert.equal(integrantes.valor.filtro, 'sorteadas')
 })

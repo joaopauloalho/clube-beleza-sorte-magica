@@ -1,3 +1,6 @@
+import { GRUPOS_PROCEDIMENTOS } from '../../src/lib/procedimentos'
+import type { FiltroDaTela } from '../../src/lib/lista-operador'
+
 export const FORMAS_DE_PAGAMENTO = ['dinheiro', 'pix_direto', 'cartao_presencial', 'outro'] as const
 export type FormaDePagamento = (typeof FORMAS_DE_PAGAMENTO)[number]
 
@@ -119,6 +122,146 @@ const MENSAGENS: Record<string, string> = {
   pagamento_inexistente: 'Pagamento não encontrado.',
   so_pagamento_manual: 'Só dá para estornar pagamento lançado à mão. Pagamentos do Pix vêm do banco.',
   pagamento_nao_esta_pago: 'Esse pagamento não está como pago.',
+  credito_inexistente: 'Crédito não encontrado.',
+  ja_liberado: 'Esse crédito já está liberado.',
+  credito_bloqueado_por_atraso: 'O crédito está bloqueado porque a mensalidade não está em dia.',
+  status_invalido: 'Esse crédito não pode ser liberado agora.',
+  credito_nao_liberado: 'Libere o crédito antes de registrar um uso.',
+  uso_individual: 'Neste plano o crédito é só da titular.',
+  saldo_insuficiente: 'O valor passa do saldo. O saldo não pode ficar negativo.',
+  procedimento_invalido: 'Escolha um procedimento da lista.',
+  data_invalida: 'Informe a data do procedimento.',
+  data_futura: 'A data não pode ser no futuro.',
+  usado_por_invalido: 'O nome de quem usou precisa ter entre 2 e 80 letras.',
+  uso_inexistente: 'Uso não encontrado.',
+  uso_ja_estornado: 'Esse uso já foi estornado.',
+  grupo_com_integrantes: 'Não dá para apagar um grupo que tem integrantes.',
+  nome_invalido: 'O nome precisa ter entre 2 e 80 letras.',
+  plano_inexistente: 'Escolha um plano.',
+  ator_obrigatorio: 'Não foi possível identificar quem fez a ação.',
+}
+
+const PROCEDIMENTOS = new Set(GRUPOS_PROCEDIMENTOS.flatMap((grupo) => grupo.itens.map((item) => item.id)))
+
+const FILTROS: readonly FiltroDaTela[] = ['todas', 'em_dia', 'atraso', 'sorteadas', 'canceladas', 'leads']
+
+export function dataIso(valor: unknown): string | null {
+  const bruto = texto(valor)
+  const partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(bruto)
+  if (!partes) return null
+  const ano = Number(partes[1])
+  const mes = Number(partes[2])
+  const dia = Number(partes[3])
+  const data = new Date(Date.UTC(ano, mes - 1, dia))
+  if (data.getUTCFullYear() !== ano || data.getUTCMonth() !== mes - 1 || data.getUTCDate() !== dia) return null
+  return bruto
+}
+
+function hojeEmSaoPaulo(): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date())
+}
+
+export function validarLiberarCredito(corpo: unknown): Resultado<{ creditoId: string }> {
+  const c = registro(corpo)
+  if (!ehUuid(c.creditoId)) return { ok: false, erro: 'Crédito inválido.' }
+  return { ok: true, valor: { creditoId: c.creditoId } }
+}
+
+export interface UsoDeCredito {
+  creditoId: string
+  procedimentoId: string
+  valorCentavos: number
+  data: string
+  observacao: string | null
+  usadoPor: string | null
+}
+
+export function validarUsoCredito(corpo: unknown): Resultado<UsoDeCredito> {
+  const c = registro(corpo)
+  if (!ehUuid(c.creditoId)) return { ok: false, erro: 'Crédito inválido.' }
+  const procedimentoId = texto(c.procedimentoId)
+  if (!PROCEDIMENTOS.has(procedimentoId)) return { ok: false, erro: 'Escolha um procedimento da lista.' }
+  const valor = typeof c.valorCentavos === 'number' ? c.valorCentavos : Number.NaN
+  if (!Number.isInteger(valor) || valor <= 0 || valor > 10_000_000) return { ok: false, erro: 'Valor inválido.' }
+  const data = dataIso(c.data)
+  if (!data) return { ok: false, erro: 'Informe a data do procedimento.' }
+  if (data > hojeEmSaoPaulo()) return { ok: false, erro: 'A data não pode ser no futuro.' }
+  const observacao = texto(c.observacao) || null
+  if (observacao && observacao.length > 300) return { ok: false, erro: 'A observação passa de 300 caracteres.' }
+  const usadoPor = texto(c.usadoPor) || null
+  if (usadoPor && (usadoPor.length < 2 || usadoPor.length > 80)) {
+    return { ok: false, erro: 'O nome de quem usou precisa ter entre 2 e 80 letras.' }
+  }
+  return { ok: true, valor: { creditoId: c.creditoId, procedimentoId, valorCentavos: valor, data, observacao, usadoPor } }
+}
+
+export interface EstornoDeUso {
+  usoId: string
+  motivo: string
+}
+
+export function validarEstornoDeUso(corpo: unknown): Resultado<EstornoDeUso> {
+  const c = registro(corpo)
+  if (!ehUuid(c.usoId)) return { ok: false, erro: 'Uso inválido.' }
+  const motivo = texto(c.motivo)
+  if (motivo.length < 5) return { ok: false, erro: 'Diga o motivo do estorno (mínimo 5 letras).' }
+  if (motivo.length > 300) return { ok: false, erro: 'O motivo passa de 300 caracteres.' }
+  return { ok: true, valor: { usoId: c.usoId, motivo } }
+}
+
+function nomeDeGrupo(valor: unknown): Resultado<string> {
+  const nome = texto(valor)
+  if (nome.length < 2 || nome.length > 80) return { ok: false, erro: 'O nome precisa ter entre 2 e 80 letras.' }
+  return { ok: true, valor: nome }
+}
+
+export function validarCriarGrupo(corpo: unknown): Resultado<{ nome: string; planoId: string }> {
+  const c = registro(corpo)
+  const nome = nomeDeGrupo(c.nome)
+  if (!nome.ok) return nome
+  if (!ehUuid(c.planoId)) return { ok: false, erro: 'Escolha um plano.' }
+  return { ok: true, valor: { nome: nome.valor, planoId: c.planoId } }
+}
+
+export function validarRenomearGrupo(corpo: unknown): Resultado<{ grupoId: string; nome: string }> {
+  const c = registro(corpo)
+  if (!ehUuid(c.grupoId)) return { ok: false, erro: 'Grupo inválido.' }
+  const nome = nomeDeGrupo(c.nome)
+  if (!nome.ok) return nome
+  return { ok: true, valor: { grupoId: c.grupoId, nome: nome.valor } }
+}
+
+export function validarExcluirGrupo(corpo: unknown): Resultado<{ grupoId: string; motivo: string }> {
+  const c = registro(corpo)
+  if (!ehUuid(c.grupoId)) return { ok: false, erro: 'Grupo inválido.' }
+  const motivo = texto(c.motivo)
+  if (motivo.length < 5) return { ok: false, erro: 'Diga o motivo (mínimo 5 letras).' }
+  if (motivo.length > 300) return { ok: false, erro: 'O motivo passa de 300 caracteres.' }
+  return { ok: true, valor: { grupoId: c.grupoId, motivo } }
+}
+
+export interface PedidoDePlanilha {
+  tipo: 'leads' | 'integrantes'
+  grupoId: string | null
+  filtro: FiltroDaTela
+  busca: string
+}
+
+export function validarPlanilha(corpo: unknown): Resultado<PedidoDePlanilha> {
+  const c = registro(corpo)
+  if (c.tipo !== 'leads' && c.tipo !== 'integrantes') return { ok: false, erro: 'Escolha leads ou integrantes.' }
+  const filtro = FILTROS.includes(c.filtro as FiltroDaTela) ? (c.filtro as FiltroDaTela) : 'todas'
+  const busca = texto(c.busca).slice(0, 80)
+  if (c.tipo === 'integrantes') {
+    if (!ehUuid(c.grupoId)) return { ok: false, erro: 'Escolha o grupo.' }
+    return { ok: true, valor: { tipo: 'integrantes', grupoId: c.grupoId, filtro, busca } }
+  }
+  return { ok: true, valor: { tipo: 'leads', grupoId: null, filtro, busca } }
 }
 
 /** Traduz o código que o banco devolve (raise exception 'codigo') para uma frase para a Giulia. */

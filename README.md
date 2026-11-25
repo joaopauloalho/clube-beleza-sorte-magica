@@ -43,18 +43,30 @@ A base da API é `https://api.abacatepay.com/v2`, com `Authorization: Bearer`. D
 
 ## Migrations
 
-Ainda **não foram aplicadas**. Rode no SQL Editor do projeto `ooyyenjndsaptlxidgko`, nesta ordem:
+Conferido em 25/11/2026 no projeto `ooyyenjndsaptlxidgko`. O README antigo dizia que nada tinha sido aplicado. Isso não vale mais.
 
-1. `supabase/migrations/20261110230000_papeis_e_fim_do_user_metadata.sql`
-2. `supabase/migrations/20261110230100_tabelas_do_clube.sql`
-3. `supabase/migrations/20261110230200_funcoes_rls_e_planos.sql`
-4. `supabase/migrations/20261111040200_credito_suprema_1700.sql`
-5. `supabase/migrations/20261111050000_credito_radiante_1350.sql`
-6. `supabase/migrations/20261111053000_credito_radiante_1200.sql`
+Já estavam no histórico `supabase_migrations.schema_migrations`:
 
-São idempotentes. Não há `UPDATE` nem `DELETE` em `public.leads`. As 5 leads continuam como estão, inclusive o WhatsApp repetido: a coluna nova `dedupe_whatsapp` nasce `false` para as linhas que já existem e o índice único vale só onde ela é `true`. Linhas novas entram no índice. Se o WhatsApp já existir em qualquer lead, a função devolve “já cadastrado” ou recusa a adesão, sem alterar a linha antiga.
+1. Tabelas iniciais de leads, planos, grupos, membros e o seed (maio/2026), mais CPF e checkout nas leads.
+2. `supabase/migrations/20261110230000_papeis_e_fim_do_user_metadata.sql`
+3. `supabase/migrations/20261110230100_tabelas_do_clube.sql`
+4. `supabase/migrations/20261110230200_funcoes_rls_e_planos.sql`
+5. `supabase/migrations/20261111040200_credito_suprema_1700.sql`
+6. `supabase/migrations/20261115120000_calendario_baixa_manual_credito.sql`
 
-Os 3 planos permanecem nas mesmas linhas, achados pelo nome. Na primeira execução, preço, crédito, brinde e desconto anteriores vão para colunas `*_legado`. Em seguida os números comerciais passam a ser os da fonte única (`src/lib/plans.ts`): Essencial 50/600/700/17%/10%, Radiante 75/900/1200/25%/15%, Suprema 100/1200/1700/33%/20%. A migration 6 só faz o crédito da Radiante ir de 1350 para 1200, pelo nome. O texto de brinde antigo não é apagado; a interface não o exibe. O bônus em serviços mostrado no site é o crédito menos as 12 mensalidades.
+O crédito da Radiante no banco já está em 1200 e o da Suprema em 1700. Os arquivos `20261111050000_credito_radiante_1350.sql` e `20261111053000_credito_radiante_1200.sql` não constam no histórico e não foram reaplicados: o segundo só altera a linha se o crédito ainda for 1350.
+
+`20261111060000_regra_do_sorteio.sql` e `20261111133000_nome_clube_uniquas.sql` também não estavam no histórico. A função `texto_consentimento` ainda dizia “Clube Beleza” e “em até 12 meses”.
+
+Aplicada nesta entrega, só com criação e `CREATE OR REPLACE`:
+
+7. `supabase/migrations/20261125143000_credito_uso_grupos_regulamento.sql`
+
+Ela grava em `texto_consentimento` o texto atual de `src/lib/copy.ts` (Clube Uniquas, extras nos meses 4 e 8, sorteio até o mês 11, com os trechos `[A DEFINIR]`). Isso cobre o efeito da 60000 e da 133000. Consentimentos já aceitos não são reescritos. A mesma migration cria `usos_credito` e as funções de liberar crédito, registrar uso, estornar, criar grupo, renomear e apagar grupo vazio.
+
+Não há `UPDATE` nem `DELETE` em `public.leads`. As 5 leads continuam como estão, inclusive o WhatsApp repetido: a coluna `dedupe_whatsapp` nasce `false` para as linhas que já existem e o índice único vale só onde ela é `true`. Linhas novas entram no índice. Se o WhatsApp já existir em qualquer lead, a função devolve “já cadastrado” ou recusa a adesão, sem alterar a linha antiga.
+
+Os 3 planos permanecem nas mesmas linhas, achados pelo nome. Na primeira execução da migration de funções, preço, crédito, brinde e desconto anteriores foram para colunas `*_legado`. Os números comerciais são os da fonte única (`src/lib/plans.ts`): Essencial 50/600/700/17%/10%, Radiante 75/900/1200/25%/15%, Suprema 100/1200/1700/33%/20%. O texto de brinde antigo não é apagado; a interface não o exibe. O bônus em serviços mostrado no site é o crédito menos as 12 mensalidades.
 
 Papel de admin ou operador, com o uuid de Authentication → Users:
 
@@ -106,7 +118,7 @@ O script clona https://github.com/AbacatePay/abacatepay-mcp em `tools/abacatepay
 - Criar a chave v2 de devMode e colocá-la na Vercel (`ABACATEPAY_API_KEY`) e no ambiente local (`ABACATE_PAY_API_KEY` para o MCP).
 - Pedir ao suporte da AbacatePay a liberação do Pix Automático, também no teste. Só então `ABACATEPAY_PIX_AUTOMATICO_ENABLED=true`.
 - Criar o webhook v2 em devMode na URL acima, com os quatro eventos de assinatura.
-- Rodar as três migrations e inserir o próprio usuário em `user_roles`.
+- Inserir o próprio usuário em `user_roles`, se ainda não estiver. As migrations desta pasta que faltavam no banco e eram seguras já foram aplicadas; o detalhe está na seção Migrations.
 - Desligar a sincronização do Lovable com este repositório **antes** de mergear. Um sync recoloca o fluxo antigo por cima desta versão.
 
 ## Pendências no texto

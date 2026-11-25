@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { A_DEFINIR, LINHA_CHANCE, LINHA_SORTEIO } from '@/lib/copy'
 import { formatarData, formatarReais } from '@/lib/format'
+import { saldoDoCredito } from '@/lib/saldo-credito'
 import { getPlanByNome, getPlanBySlug, type Plan } from '@/lib/plans'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/use-auth'
@@ -54,11 +55,23 @@ interface Pagamento {
 }
 
 interface Credito {
+  id: string
   valor_centavos: number
   chance_real: number
   mes: number
   status: string
   bloqueado: boolean | null
+}
+
+interface UsoCredito {
+  id: string
+  credito_id: string
+  procedimento_nome: string
+  valor_centavos: number
+  data_uso: string
+  observacao: string | null
+  usado_por: string | null
+  status: string
 }
 
 const PIX: Record<string, string> = {
@@ -80,7 +93,8 @@ export default function Area() {
   const [planoDb, setPlanoDb] = useState<PlanoLinha | null>(null)
   const [assinatura, setAssinatura] = useState<Assinatura | null>(null)
   const [pagamentos, setPagamentos] = useState<Pagamento[]>([])
-  const [credito, setCredito] = useState<Credito | null>(null)
+  const [creditos, setCreditos] = useState<Credito[]>([])
+  const [usos, setUsos] = useState<UsoCredito[]>([])
   const [calendario, setCalendario] = useState<CalendarioDaCliente | null>(null)
 
   useEffect(() => {
@@ -94,12 +108,13 @@ export default function Area() {
         setCarregando(false)
         return
       }
-      const [grupoRes, planoRes, assinaturaRes, pagamentosRes, creditoRes, calendarioRes] = await Promise.all([
+      const [grupoRes, planoRes, assinaturaRes, pagamentosRes, creditoRes, usosRes, calendarioRes] = await Promise.all([
         supabase.from('grupos').select('nome, vagas_preenchidas, total_vagas, ultimo_mes_sorteado, cobranca_iniciada_em').eq('id', data.grupo_id).maybeSingle(),
         supabase.from('planos').select('slug, nome, preco, credito_sorteio, preco_membro_pct').eq('id', data.plano_id).maybeSingle(),
         supabase.from('assinaturas').select('status, checkout_url, motivo').eq('membro_id', data.id).maybeSingle(),
         supabase.from('pagamentos').select('id, status, valor_centavos, competencia, motivo, created_at').eq('membro_id', data.id).order('created_at', { ascending: false }),
-        supabase.from('creditos').select('valor_centavos, chance_real, mes, status, bloqueado').eq('membro_id', data.id).maybeSingle(),
+        supabase.from('creditos').select('id, valor_centavos, chance_real, mes, status, bloqueado').eq('membro_id', data.id),
+        supabase.from('usos_credito').select('id, credito_id, procedimento_nome, valor_centavos, data_uso, observacao, usado_por, status').eq('membro_id', data.id).order('data_uso', { ascending: false }),
         supabase.rpc('meu_calendario'),
       ])
       if (!ativo) return
@@ -107,7 +122,8 @@ export default function Area() {
       setPlanoDb(planoRes.data)
       setAssinatura(assinaturaRes.data)
       setPagamentos(pagamentosRes.data ?? [])
-      setCredito(creditoRes.data)
+      setCreditos(creditoRes.data ?? [])
+      setUsos(usosRes.data ?? [])
       const cal = calendarioRes.data as CalendarioDaCliente | null
       setCalendario(cal && cal.ok ? cal : null)
       setCarregando(false)
@@ -121,7 +137,8 @@ export default function Area() {
   const creditoDoPlano = plano?.credito ?? Number(planoDb?.credito_sorteio ?? 0)
   const sorteada = membro?.status === 'sorteado' || Boolean(membro?.data_contemplacao)
   const pagos = pagamentos.filter((item) => item.status === 'pago').length
-  const creditoBloqueado = Boolean(credito?.bloqueado)
+  const credito = creditos[0] ?? null
+  const creditoBloqueado = creditos.some((item) => item.bloqueado)
 
   return (
     <div className="min-h-screen bg-[#F7F2EF] text-[#2A1420]">
@@ -151,8 +168,35 @@ export default function Area() {
               <CardContent className="space-y-3 text-sm">
                 <p>Grupo {grupo?.nome ?? '—'} · cota {membro.cota ?? '—'} · {grupo?.vagas_preenchidas ?? 0} de {grupo?.total_vagas ?? '—'}</p>
                 {sorteada && credito ? (
-                  <div className="space-y-1">
+                  <div className="space-y-3">
                     <p>Você foi sorteada em {formatarData(membro.data_contemplacao)}. O crédito registrado é {formatarReais(credito.valor_centavos / 100)}.</p>
+                    {creditos.map((item) => {
+                      const saldo = saldoDoCredito(item.valor_centavos, usos, item.id)
+                      const historico = usos.filter((uso) => uso.credito_id === item.id)
+                      const liberado = item.status === 'liberado'
+                      return (
+                        <div key={item.id} className="space-y-2">
+                          <p className="font-serif text-[28px] leading-none tabular-nums">{liberado ? formatarReais(saldo / 100) : 'A liberar'}</p>
+                          <p className="text-sm text-[#6B5560]">{liberado ? `de ${formatarReais(item.valor_centavos / 100)}` : 'O uso começa quando a clínica liberar.'}</p>
+                          {historico.length === 0 ? (
+                            <p className="text-sm text-[#6B5560]">Nenhum uso registrado.</p>
+                          ) : (
+                            <ul className="space-y-2">
+                              {historico.map((uso) => (
+                                <li key={uso.id} className="flex justify-between gap-4 border-b border-border py-2">
+                                  <span>
+                                    {formatarData(uso.data_uso)} · {uso.procedimento_nome}
+                                    {uso.usado_por ? ` · ${uso.usado_por}` : ''}
+                                    {uso.status === 'estornado' ? ' · estornado' : ''}
+                                  </span>
+                                  <span>{uso.status === 'estornado' ? '—' : formatarReais(uso.valor_centavos / 100)}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </div>
+                      )
+                    })}
                     {creditoBloqueado && (
                       <p className="rounded-xl bg-[#F2C9D6]/40 p-3 font-medium text-[#A52751]">Seu crédito está bloqueado porque a mensalidade não está em dia. Regularize o pagamento e ele é liberado.</p>
                     )}
