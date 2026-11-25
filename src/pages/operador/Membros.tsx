@@ -4,10 +4,12 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { formatarData } from '@/lib/format'
+import { filtrarIntegrantes, filtrarLeadsSemCota, rotuloSituacao, sorteadaDaLinha, type FiltroDaTela } from '@/lib/lista-operador'
 import { linkWhatsapp } from '@/lib/operador-resumo'
+import { Creditos } from './Creditos'
 import { um, type Operador } from './useOperador'
 
-type Filtro = 'todas' | 'em_dia' | 'atraso' | 'sorteadas' | 'canceladas' | 'leads'
+type Filtro = FiltroDaTela
 
 const FILTROS: { id: Filtro; rotulo: string }[] = [
   { id: 'todas', rotulo: 'Todas' },
@@ -18,40 +20,53 @@ const FILTROS: { id: Filtro; rotulo: string }[] = [
   { id: 'leads', rotulo: 'Leads' },
 ]
 
-function situacao(status: string, emDia: boolean, sorteada: boolean): { texto: string; variante: 'default' | 'secondary' | 'outline' | 'destructive' } {
-  if (status === 'cancelado') return { texto: 'Cancelada', variante: 'destructive' }
-  if (sorteada) return { texto: emDia ? 'Sorteada' : 'Sorteada, em atraso', variante: emDia ? 'default' : 'destructive' }
-  if (status === 'aguardando_grupo') return { texto: 'Aguardando grupo', variante: 'outline' }
-  return emDia ? { texto: 'Em dia', variante: 'secondary' } : { texto: 'Em atraso', variante: 'destructive' }
+function variante(status: string, emDia: boolean, sorteada: boolean): 'default' | 'secondary' | 'outline' | 'destructive' {
+  if (status === 'cancelado' || (sorteada && !emDia) || (!sorteada && !emDia && status !== 'aguardando_grupo')) return 'destructive'
+  if (sorteada) return 'default'
+  if (status === 'aguardando_grupo') return 'outline'
+  return 'secondary'
 }
 
 export function Membros({ op, grupoId }: { op: Operador; grupoId: string }) {
   const [filtro, setFiltro] = useState<Filtro>('todas')
   const [busca, setBusca] = useState('')
-  const termo = busca.trim().toLowerCase()
+  const [baixando, setBaixando] = useState<'leads' | 'integrantes' | null>(null)
+  const [aviso, setAviso] = useState<string | null>(null)
 
-  const linhas = useMemo(() => op.membros.filter((m) => m.grupo_id === grupoId).filter((m) => {
-    const sorteada = m.status === 'sorteado' || Boolean(m.data_contemplacao)
-    if (filtro === 'em_dia' && !(m.em_dia && m.status !== 'cancelado')) return false
-    if (filtro === 'atraso' && !(!m.em_dia && m.status !== 'cancelado' && m.status !== 'aguardando_grupo')) return false
-    if (filtro === 'sorteadas' && !sorteada) return false
-    if (filtro === 'canceladas' && m.status !== 'cancelado') return false
-    return !termo || (um(m.leads)?.nome ?? '').toLowerCase().includes(termo)
-  }), [op.membros, grupoId, filtro, termo])
+  const linhas = useMemo(() => filtrarIntegrantes(op.membros.map((membro) => ({ ...membro, nome: um(membro.leads)?.nome ?? '' })), grupoId, filtro, busca), [op.membros, grupoId, filtro, busca])
 
-  const idsDeMembros = new Set(op.membros.map((m) => um(m.leads)?.whatsapp).filter(Boolean))
-  const soLeads = op.leads.filter((l) => !l.whatsapp || !idsDeMembros.has(l.whatsapp)).filter((l) => !termo || l.nome.toLowerCase().includes(termo))
+  const soLeads = useMemo(() => {
+    const whatsapps = new Set(op.membros.map((membro) => um(membro.leads)?.whatsapp).filter((valor): valor is string => Boolean(valor)))
+    return filtrarLeadsSemCota(op.leads, whatsapps, busca)
+  }, [op.membros, op.leads, busca])
+
+  async function baixar(tipo: 'leads' | 'integrantes') {
+    setBaixando(tipo)
+    setAviso(null)
+    const resposta = await op.baixarCsv({ tipo, grupoId, filtro, busca })
+    setBaixando(null)
+    if (resposta.erro) setAviso(resposta.erro)
+  }
 
   return (
+    <div className="space-y-4">
     <Card className="rounded-2xl border-[#D9CCC5] bg-white shadow-none">
       <CardHeader className="space-y-3">
-        <CardTitle className="font-serif text-[24px] font-normal">Membros e leads</CardTitle>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <CardTitle className="font-serif text-[24px] font-normal">Membros e leads</CardTitle>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" size="sm" variant="outline" disabled={baixando != null || !grupoId} onClick={() => void baixar('integrantes')}>{baixando === 'integrantes' ? 'Baixando…' : 'Baixar integrantes'}</Button>
+            <Button type="button" size="sm" variant="outline" disabled={baixando != null} onClick={() => void baixar('leads')}>{baixando === 'leads' ? 'Baixando…' : 'Baixar leads'}</Button>
+          </div>
+        </div>
+        <p className="text-sm text-[#6B5560]">A planilha de integrantes usa este grupo, a busca e o filtro. No filtro Leads, ela traz as integrantes do grupo que a busca encontrar, sem filtrar a situação. A de leads usa a busca e só quem ainda não tem cota.</p>
         <div className="flex flex-wrap gap-2" role="group" aria-label="Filtrar por situação">
           {FILTROS.map((f) => (
             <Button key={f.id} size="sm" variant={filtro === f.id ? 'default' : 'outline'} aria-pressed={filtro === f.id} onClick={() => setFiltro(f.id)}>{f.rotulo}</Button>
           ))}
         </div>
-        <Input aria-label="Buscar por nome" placeholder="Buscar por nome" value={busca} onChange={(e) => setBusca(e.target.value)} />
+        <Input aria-label="Buscar por nome" name="busca" autoComplete="off" className="h-11 text-base" maxLength={80} placeholder="Buscar por nome" value={busca} onChange={(e) => setBusca(e.target.value)} />
+        {aviso && <p role="alert" className="text-sm text-[#A52751]">{aviso}</p>}
       </CardHeader>
       <CardContent>
         {filtro === 'leads' ? (
@@ -74,8 +89,8 @@ export function Membros({ op, grupoId }: { op: Operador; grupoId: string }) {
           <ul className="divide-y divide-[#E4D9D3]">
             {linhas.length === 0 && <li className="py-3 text-sm text-[#6B5560]">Ninguém nesse filtro.</li>}
             {linhas.map((m) => {
-              const sorteada = m.status === 'sorteado' || Boolean(m.data_contemplacao)
-              const s = situacao(m.status, m.em_dia, sorteada)
+              const sorteada = sorteadaDaLinha(m.status, m.data_contemplacao)
+              const s = { texto: rotuloSituacao(m.status, m.em_dia, sorteada), variante: variante(m.status, m.em_dia, sorteada) }
               const lead = um(m.leads)
               const link = linkWhatsapp(lead?.whatsapp, `Oi, ${(lead?.nome ?? '').split(' ')[0]}! Aqui é a Giulia, do Clube Uniquas.`)
               return (
@@ -95,5 +110,7 @@ export function Membros({ op, grupoId }: { op: Operador; grupoId: string }) {
         )}
       </CardContent>
     </Card>
+    {grupoId && <Creditos op={op} grupoId={grupoId} />}
+    </div>
   )
 }
